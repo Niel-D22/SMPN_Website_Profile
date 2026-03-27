@@ -9,7 +9,6 @@ const AdminProfilPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Untuk memastikan setState tidak saling bertabrakan antar try, catch, finally
     let didCancel = false;
 
     const fetchDataProfil = async () => {
@@ -33,57 +32,56 @@ const AdminProfilPage = () => {
 
     fetchDataProfil();
 
-    // cleanup agar tidak ada tabrakan setState setelah unmount
     return () => {
       didCancel = true;
     };
   }, []);
 
-  // Urutan: SKELETON LOADING => GAGAL MUAT => TAMPILAN ASLI
+  // Responsive Skeleton Loading
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto py-8 px-4 space-y-8">
         {/* Skeleton Header */}
         <div>
-          <Skeleton className="h-9 w-64 rounded-md mb-2" />
-          <Skeleton className="h-5 w-96 rounded-md" />
+          <Skeleton className="h-8 w-3/5 sm:w-1/3 rounded-md mb-2" />
+          <Skeleton className="h-4 w-4/5 sm:w-2/3 rounded-md" />
         </div>
-        {/* Skeleton Konten (2 Kolom Bersebelahan) */}
+        {/* Skeleton Konten (Responsive) */}
         <div className="flex flex-col lg:flex-row gap-6 w-full">
           {/* Box Kiri: Tiruan Form Informasi Dasar */}
-          <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-6 lg:mb-0">
-            <Skeleton className="h-6 w-40 rounded-md mb-6" /> {/* Judul */}
+          <div className="flex-1 bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-gray-100 mb-6 lg:mb-0">
+            <Skeleton className="h-6 w-1/2 sm:w-1/3 rounded-md mb-6" />
             <div className="space-y-5">
-              <div className="flex gap-5">
+              <div className="flex flex-col sm:flex-row gap-5">
                 <div className="flex-1">
-                  <Skeleton className="h-4 w-24 mb-2 rounded-md" />
-                  <Skeleton className="h-11 w-full rounded-lg" />
+                  <Skeleton className="h-4 w-1/3 sm:w-2/5 mb-2 rounded-md" />
+                  <Skeleton className="h-10 w-full rounded-lg" />
                 </div>
-                <div className="flex-1">
-                  <Skeleton className="h-4 w-24 mb-2 rounded-md" />
-                  <Skeleton className="h-11 w-full rounded-lg" />
+                <div className="flex-1 mt-5 sm:mt-0">
+                  <Skeleton className="h-4 w-1/3 sm:w-2/5 mb-2 rounded-md" />
+                  <Skeleton className="h-10 w-full rounded-lg" />
                 </div>
               </div>
               <div>
-                <Skeleton className="h-4 w-32 mb-2 rounded-md" />
-                <Skeleton className="h-11 w-full rounded-lg" />
+                <Skeleton className="h-4 w-2/5 sm:w-1/3 mb-2 rounded-md" />
+                <Skeleton className="h-10 w-full rounded-lg" />
               </div>
-              <Skeleton className="h-10 w-48 rounded-lg mt-4" /> {/* Tombol */}
+              <Skeleton className="h-9 w-2/3 sm:w-1/4 rounded-lg mt-4" />
             </div>
           </div>
           {/* Box Kanan: Tiruan Form Keamanan Akun */}
-          <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <Skeleton className="h-6 w-40 rounded-md mb-6" /> {/* Judul */}
+          <div className="flex-1 bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
+            <Skeleton className="h-6 w-1/2 sm:w-1/3 rounded-md mb-6" />
             <div className="space-y-5">
               <div>
-                <Skeleton className="h-4 w-32 mb-2 rounded-md" />
-                <Skeleton className="h-11 w-full rounded-lg" />
+                <Skeleton className="h-4 w-2/5 sm:w-1/3 mb-2 rounded-md" />
+                <Skeleton className="h-10 w-full rounded-lg" />
               </div>
               <div>
-                <Skeleton className="h-4 w-40 mb-2 rounded-md" />
-                <Skeleton className="h-11 w-full rounded-lg" />
+                <Skeleton className="h-4 w-3/5 sm:w-1/2 mb-2 rounded-md" />
+                <Skeleton className="h-10 w-full rounded-lg" />
               </div>
-              <Skeleton className="h-10 w-48 rounded-lg mt-4" /> {/* Tombol */}
+              <Skeleton className="h-9 w-2/3 sm:w-1/4 rounded-lg mt-4" />
             </div>
           </div>
         </div>
@@ -100,7 +98,7 @@ const AdminProfilPage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 space-y-8">
+    <div className="max-w-6xl  mx-auto py-8 px-4 space-y-8">
       {/* Header Halaman */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Profil Administrator</h1>

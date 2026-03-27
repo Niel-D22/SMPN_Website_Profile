@@ -3,19 +3,23 @@ import { FaBell, FaBars, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-const Header = () => {
+/**
+ * Agar responsif di tablet (768px) gunakan breakpoint 'lg' untuk sidebar & elemen-elemen header,
+ * bukan 'md'. Di Tailwind, 'lg' = 1024px.
+ *
+ * - Tombol menu <FaBars /> harus tampil di bawah lg (<1024px)
+ * - Status sistem & nama admin hanya tampil di lg ke atas
+ * - Adjust setiap hidden/show class dari md ke lg supaya responsif.
+ */
+
+const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   // Fungsi untuk Logout
   const handleLogout = () => {
-    // 1. Hapus token dari brankas (localStorage)
     localStorage.removeItem('token');
-
-    // 2. Tampilkan notifikasi
     toast.success('Anda berhasil keluar.');
-
-    // 3. Arahkan kembali ke halaman login
     navigate('/login');
   };
 
@@ -26,13 +30,19 @@ const Header = () => {
   });
 
   return (
-    <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-10">
+    <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
       {/* Kiri - Tombol Menu Mobile & Status */}
       <div className="flex items-center gap-4">
-        <button className="text-gray-500 hover:text-red-700 md:hidden transition">
+        {/* Tombol menu mobile, tampil di bawah lg (<=1023px) */}
+        <button
+          className="text-gray-500 hover:text-red-700 lg:hidden transition"
+          onClick={onMobileMenuClick}
+          aria-label="Buka Menu Sidebar">
           <FaBars size={20} />
         </button>
-        <div className="hidden md:flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+
+        {/* Status Aktif: tampil mulai lg */}
+        <div className="hidden lg:flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full border border-green-100">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
           <span className="text-xs font-bold text-green-700 tracking-wide uppercase">
             Sistem Aktif
@@ -41,7 +51,8 @@ const Header = () => {
       </div>
 
       {/* Kanan - Tanggal, Notif, & Profil/Logout */}
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4 sm:gap-5">
+        {/* Tanggal: tampil mulai lg */}
         <div className="hidden lg:block text-sm font-medium text-gray-500">{today}</div>
 
         {/* Tombol Notifikasi */}
@@ -51,27 +62,30 @@ const Header = () => {
         </button>
 
         {/* Garis Pembatas */}
-        <div className="w-px h-8 bg-gray-200 mx-2"></div>
+        <div className="w-px h-8 bg-gray-200 mx-1 sm:mx-2"></div>
 
         {/* Area Profil & Dropdown Logout */}
         <div className="relative">
           <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition">
-            <div className="text-right hidden md:block">
+            onClick={() => setIsDropdownOpen((v) => !v)}
+            className="flex items-center gap-2 sm:gap-3 hover:bg-gray-50 p-2 rounded-lg transition"
+            aria-expanded={isDropdownOpen}
+            aria-haspopup="menu">
+            {/* Nama Admin hanya tampil mulai lg */}
+            <div className="text-right hidden lg:block">
               <p className="text-sm font-bold text-gray-800 leading-none">Admin TU</p>
               <p className="text-xs text-gray-500 mt-1">Administrator</p>
             </div>
             <FaUserCircle className="text-gray-400" size={32} />
           </button>
 
-          {/* Menu Dropdown yang muncul saat profil diklik */}
+          {/* Menu Dropdown */}
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in-down">
-              <div className="px-4 py-2 border-b border-gray-100 md:hidden">
+              {/* Nama hanya di mobile/tablet */}
+              <div className="px-4 py-2 border-b border-gray-100 lg:hidden">
                 <p className="text-sm font-bold text-gray-800">Admin TU</p>
               </div>
-
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition">
