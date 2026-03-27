@@ -3,7 +3,7 @@ import { FaUser, FaLock, FaSchool } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import api from '../../Api/axios'; // Pastikan path axios sudah benar
-import BG from '../../../public/Images/BG.png';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -22,10 +22,10 @@ const LoginPage = () => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('admin_nama', res.data.nama);
 
-      alert('Login Berhasil!');
+      toast.success('Login Berhasil!');
       navigate('/admin/dashboard');
     } catch (err) {
-      alert(err.response?.data?.message || 'Login Gagal, periksa koneksi anda');
+      toast.error(err.response?.data?.message || 'Login Gagal, periksa koneksi anda');
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ const LoginPage = () => {
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        backgroundImage: `url(${BG})`,
+        backgroundImage: `url('/Images/BG.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FaLock, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../Api/axios';
-import BG from '../../../public/Images/BG.png';
+import toast from 'react-hot-toast';
+// import BG from '../../../public/Images/BG.png'; // JANGAN AMBIL BG DARI IMPORT
 
 function ResetPasswordPage() {
   const { token } = useParams(); // Mengambil token dari URL
@@ -15,16 +16,16 @@ function ResetPasswordPage() {
   const handleReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      return alert('Konfirmasi password tidak cocok!');
+      return toast.error('Konfirmasi password tidak cocok!');
     }
 
     setLoading(true);
     try {
       const res = await api.post(`/auth/reset-password/${token}`, { newPassword });
-      alert(res.data.message || 'Password berhasil diperbarui!');
+      toast.success(res.data.message || 'Password berhasil diperbarui!');
       navigate('/login');
     } catch (err) {
-      alert(err.response?.data?.message || 'Link tidak valid atau sudah kadaluarsa.');
+      toast.error(err.response?.data?.message || 'Link tidak valid atau sudah kadaluarsa.');
     } finally {
       setLoading(false);
     }
@@ -33,7 +34,10 @@ function ResetPasswordPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundImage: `url(${BG})`, backgroundSize: 'cover' }}>
+      style={{
+        backgroundImage: `url('/Images/BG.png')`,
+        backgroundSize: 'cover',
+      }}>
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 z-10">
         <div className="flex flex-col items-center mb-8">
           <div className="w-20 h-20 bg-red-700 rounded-full flex items-center justify-center mb-4 text-white shadow-lg">

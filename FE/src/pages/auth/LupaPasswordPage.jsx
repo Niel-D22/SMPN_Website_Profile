@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaEnvelope, FaSchool, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../Api/axios'; // Pastikan path ini benar
-import BG from '../../../public/Images/BG.png'; // Path disesuaikan
+import toast from 'react-hot-toast';
 
 const LupaPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -14,10 +14,12 @@ const LupaPasswordPage = () => {
     setLoading(true);
     try {
       const res = await api.post('/auth/forgot-password', { email });
-      alert(res.data.message || 'Link reset password telah dikirim ke email kamu!');
+      toast.success(res.data.message || 'Link reset password telah dikirim ke email kamu!');
       navigate('/login'); // Kembali ke login setelah request berhasil
     } catch (err) {
-      alert(err.response?.data?.message || 'Email tidak ditemukan atau terjadi kesalahan server.');
+      toast.error(
+        err.response?.data?.message || 'Email tidak ditemukan atau terjadi kesalahan server.'
+      );
     } finally {
       setLoading(false);
     }
@@ -27,7 +29,7 @@ const LupaPasswordPage = () => {
     <div
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        backgroundImage: `url(${BG})`,
+        backgroundImage: `url('/Images/BG.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

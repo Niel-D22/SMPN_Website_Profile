@@ -4,6 +4,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
+// Helper function to wrap errors with toaster-style response
+const toasterError = (res, message, code = 500) => {
+  return res.status(code).json({
+    message,
+    toaster: { type: 'error', text: message },
+  });
+};
+
 const login = async (req, res) => {
   const { username, password } = req.body;
 
@@ -11,23 +19,17 @@ const login = async (req, res) => {
     const result = await pool.query('SELECT * FROM admin WHERE username = $1', [username]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Username tidak ditemukan' });
+      return toasterError(res, 'Username tidak ditemukan', 401);
     }
 
     const admin = result.rows[0];
 
-    // --- TESTING AREA (Lihat di Terminal VS Code) ---
-    console.log('=== CHECKING AUTH ===');
-    console.log('1. Password dari Bruno:', `"${password}"`); // Pakai kutip untuk cek spasi
-    console.log('2. Hash dari Database:', admin.password_hash);
-
-    // Tes manual: Kita coba hash ulang password dari Bruno dan bandingkan
     const isMatch = await bcrypt.compare(password, admin.password_hash);
-    console.log('3. Apakah Hasilnya Cocok?:', isMatch);
+
     // ------------------------------------------------
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Password salah' });
+      return toasterError(res, 'Password salah', 401);
     }
 
     const token = jwt.sign(
@@ -40,10 +42,11 @@ const login = async (req, res) => {
       message: 'Login Berhasil',
       token,
       nama: admin.nama_lengkap,
+      toaster: { type: 'success', text: 'Login Berhasil' },
     });
   } catch (err) {
-    console.error('Error detail:', err);
-    return res.status(500).json({ error: 'Server Error' });
+    // console.error('Error detail:', err);
+    return toasterError(res, 'Terjadi kesalahan server', 500);
   }
 };
 
@@ -52,7 +55,7 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const admin = await pool.query('SELECT * FROM admin WHERE email = $1', [email]);
-    if (admin.rowCount === 0) return res.status(404).json({ message: 'Email tidak ditemukan' });
+    if (admin.rowCount === 0) return toasterError(res, 'Email tidak ditemukan', 404);
 
     // Buat token unik & masa berlaku 1 jam
     const token = crypto.randomBytes(32).toString('hex');
@@ -77,7 +80,7 @@ const forgotPassword = async (req, res) => {
       },
     });
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`; // URL Frontend React kamu
+    const resetLink = `http://localhost:5173/reset-password/${token}`;
 
     await transporter.sendMail({
       from: '"Admin SMPN 3 Manado" <noreply@smpn3.com>',
@@ -88,9 +91,12 @@ const forgotPassword = async (req, res) => {
                <p>Link ini berlaku selama 1 jam.</p>`,
     });
 
-    res.json({ message: 'Link reset password sudah dikirim ke email kamu!' });
+    res.json({
+      message: 'Link reset password sudah dikirim ke email kamu!',
+      toaster: { type: 'success', text: 'Link reset password sudah dikirim ke email kamu!' },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return toasterError(res, error.message, 500);
   }
 };
 
@@ -106,67 +112,80 @@ const resetPassword = async (req, res) => {
     );
 
     if (result.rowCount === 0)
-      return res.status(400).json({ message: 'Token tidak valid atau sudah kadaluarsa' });
+      return toasterError(res, 'Token tidak valid atau sudah kadaluarsa', 400);
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // PERBAIKAN: Gunakan password_hash sesuai kolom yang dibaca saat login
     await pool.query(
       'UPDATE admin SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id_admin = $2',
       [hashedPassword, result.rows[0].id_admin]
     );
 
-    res.json({ message: 'Password berhasil diperbarui! Silakan login kembali.' });
+    res.json({
+      message: 'Password berhasil diperbarui! Silakan login kembali.',
+      toaster: { type: 'success', text: 'Password berhasil diperbarui! Silakan login kembali.' },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return toasterError(res, error.message, 500);
   }
 };
 
 const updateProfile = async (req, res) => {
-  const id_admin = req.admin.id;
-  const { username, email, oldPassword, newPassword } = req.body;
+  // Pastikan middleware auth kamu menyimpan data di req.admin
+  const id_admin = req.admin?.id;
+
+  if (!id_admin) {
+    return toasterError(res, 'Sesi tidak valid, silakan login ulang', 401);
+  }
+
+  const { username, email, nama_lengkap, oldPassword, newPassword } = req.body;
 
   try {
-    // 1. Ambil data admin dulu untuk verifikasi password lama
+    // 1. Ambil data admin saat ini
     const adminData = await pool.query('SELECT password_hash FROM admin WHERE id_admin = $1', [
       id_admin,
     ]);
+    if (adminData.rowCount === 0) return toasterError(res, 'Admin tidak ditemukan', 404);
+
     const admin = adminData.rows[0];
 
-    let query = 'UPDATE admin SET username = $1, email = $2';
-    let params = [username, email];
+    // 2. Siapkan Query Dinamis
+    let query = 'UPDATE admin SET username = $1, email = $2, nama_lengkap = $3';
+    let params = [username, email, nama_lengkap];
 
-    // 2. Jika admin ingin ganti password
-    if (newPassword) {
+    // 3. Logika Ganti Password (Opsional)
+    if (newPassword && newPassword.trim() !== '') {
       if (!oldPassword) {
-        return res.status(400).json({ message: 'Masukkan password lama untuk verifikasi' });
+        return toasterError(res, 'Masukkan password lama untuk verifikasi', 400);
       }
 
-      // Cek apakah password lama benar
       const isMatch = await bcrypt.compare(oldPassword, admin.password_hash);
       if (!isMatch) {
-        return res.status(401).json({ message: 'Password lama salah!' });
+        return toasterError(res, 'Password lama salah!', 401);
       }
 
-      // Hash password baru
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-      query += ', password_hash = $3 WHERE id_admin = $4';
+      query += ', password_hash = $4 WHERE id_admin = $5';
       params.push(hashedPassword, id_admin);
     } else {
-      query += ' WHERE id_admin = $3';
+      query += ' WHERE id_admin = $4';
       params.push(id_admin);
     }
 
     await pool.query(query, params);
-    res.json({ message: 'Profil dan Password berhasil diperbarui!' });
+
+    res.json({
+      message: 'Profil berhasil diperbarui!',
+      toaster: { type: 'success', text: 'Profil berhasil diperbarui!' },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Update Error:', error.message);
+    return toasterError(res, 'Gagal memperbarui profil: ' + error.message, 500);
   }
 };
-
 const getProfile = async (req, res) => {
   const id_admin = req.admin.id; // Diambil dari middleware verifyToken
 
@@ -177,12 +196,12 @@ const getProfile = async (req, res) => {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Admin tidak ditemukan' });
+      return toasterError(res, 'Admin tidak ditemukan', 404);
     }
 
     res.json(result.rows[0]);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return toasterError(res, error.message, 500);
   }
 };
 module.exports = {

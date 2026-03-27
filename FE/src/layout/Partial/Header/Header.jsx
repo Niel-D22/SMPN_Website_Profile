@@ -8,11 +8,7 @@ const Header = () => {
       <div className="max-w-screen-xl mx-auto px-4 h-20 flex items-center justify-between">
         {/* KIRI: Logo & Nama Sekolah */}
         <div className="flex items-center gap-3">
-          <img
-            src="../../../../public/Images/LogoSekolah.png"
-            alt="Logo"
-            className="w-12 h-12 object-contain "
-          />
+          <img src="/Images/LogoSekolah.png" alt="Logo" className="w-12 h-12 object-contain " />
 
           <div className="leading-tight">
             <h1 className="font-bold text-lg text-gray-800 uppercase">SMP Negeri</h1>
