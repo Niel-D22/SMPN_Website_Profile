@@ -61,8 +61,12 @@ const AdminPengaturanProfilSekolahPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData({ ...formData, logo_url: imageUrl, file_asli: file });
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        // Simpan hasil base64 ke formData.logo_url
+        setFormData((prev) => ({ ...prev, logo_url: reader.result }));
+      };
     }
   };
 
@@ -189,7 +193,7 @@ const AdminPengaturanProfilSekolahPage = () => {
         <button
           onClick={handleKonfirmasiSimpan}
           disabled={isSaving}
-          className="bg-gray-400 hover:bg-gray-500 text-gray-900 font-bold px-6 py-2.5 rounded-lg shadow-sm transition disabled:opacity-70">
+          className="bg-red-700 hover:bg-red-800 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm transition disabled:bg-gray-400 disabled:text-white disabled:opacity-70">
           {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </div>

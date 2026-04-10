@@ -7,17 +7,14 @@ import {
   FaEnvelope,
   FaUniversity,
   FaBook,
-  FaCheckCircle,
-  FaEye,
-  FaPenFancy,
   FaHistory,
+  FaUsers, // Icon baru untuk siswa
 } from 'react-icons/fa';
 
 const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
   const fileInputRef = useRef(null);
 
   // --- STYLE STANDAR PROFIL ADMIN ---
-  // Kita jadikan variabel agar gampang dan konsisten di semua input
   const inputClass =
     'w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700 outline-none transition text-gray-800 placeholder-gray-400';
   const labelClass = 'text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2';
@@ -69,7 +66,7 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
           </div>
         </div>
 
-        {/* Kolom 2: Nama, NPSN, Akreditas */}
+        {/* Kolom 2: Nama, NPSN, Akreditasi, Jumlah Siswa */}
         <div className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Nama Resmi Sekolah</label>
@@ -82,8 +79,10 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
               placeholder="Contoh: SMP Negeri 3 Manado"
             />
           </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
+
+          {/* Dipecah jadi 3 grid kecil agar muat NPSN, Akreditasi & Jumlah Siswa */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-1">
               <label className={labelClass}>NPSN</label>
               <input
                 type="text"
@@ -91,18 +90,34 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
                 value={formData?.npsn || ''}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="Nomor NPSN"
+                placeholder="NPSN"
               />
             </div>
-            <div className="flex-1">
-              <label className={labelClass}>Akreditas</label>
+
+            <div className="col-span-1">
+              <label className={labelClass}>Akreditasi</label>
               <input
                 type="text"
                 name="akreditas"
-                value={formData?.akreditas || 'A'}
+                value={formData?.akreditas || ''}
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="A / B / C"
+              />
+            </div>
+
+            <div className="col-span-1">
+              <label className={`${labelClass} truncate`} title="Total Siswa Aktif">
+                Siswa
+              </label>
+              <input
+                type="number"
+                name="jumlah_siswa"
+                value={formData?.jumlah_siswa || ''}
+                onChange={handleChange}
+                className={`${inputClass} px-2 text-center font-bold`}
+                placeholder="0"
+                min="0"
               />
             </div>
           </div>
