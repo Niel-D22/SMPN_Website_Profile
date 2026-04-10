@@ -20,7 +20,7 @@ const getProfil = async (req, res) => {
 // 2. Update Profil (PUT)
 const updateProfil = async (req, res) => {
   // Ambil data sesuai nama kolom di gambar Supabase kamu
-  const { nama_school, npsn, no_telepon, email_sekolah, alamat, visi, misi, sejarah } = req.body;
+  const { nama_sekolah, npsn, no_telepon, email_sekolah, alamat, visi, misi, sejarah } = req.body;
 
   try {
     const query = `
@@ -35,7 +35,7 @@ const updateProfil = async (req, res) => {
         sejarah = $8
       WHERE id_profil = 1 RETURNING *`;
 
-    const values = [nama_school, npsn, no_telepon, email_sekolah, alamat, visi, misi, sejarah];
+    const values = [nama_sekolah, npsn, no_telepon, email_sekolah, alamat, visi, misi, sejarah];
     const result = await pool.query(query, values);
 
     res.json({ message: 'Profil sekolah berhasil diperbarui!', data: result.rows[0] });

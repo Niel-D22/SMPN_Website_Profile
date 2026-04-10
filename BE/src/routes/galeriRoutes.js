@@ -1,22 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../middlewares/upload');
+const { galeri: upload } = require('../middlewares/upload'); // ← update destructure
 const galeriController = require('../controllers/galeriController');
 const verifyToken = require('../middlewares/auth');
 
-const uploadFoto = (req, res, next) => {
-  upload.single('foto')(req, res, (err) => {
-    if (err) return res.status(400).json({ message: err.message || 'Upload file gagal' });
+const handleUpload = (middleware) => (req, res, next) => {
+  middleware(req, res, (err) => {
+    if (err?.code === 'LIMIT_FILE_SIZE')
+      return res.status(400).json({ message: 'File terlalu besar! Maksimal 10MB.' });
+    if (err) return res.status(400).json({ message: err.message });
     next();
   });
 };
 
-// Publik bisa lihat foto
 router.get('/', galeriController.getGaleri);
-
-// Admin saja — field file FormData harus bernama 'foto'
-router.post('/', verifyToken, uploadFoto, galeriController.addGaleri);
-router.put('/:id', verifyToken, uploadFoto, galeriController.updateGaleri);
+router.post('/', verifyToken, handleUpload(upload.array('foto', 20)), galeriController.addGaleri);
+router.put('/:id', verifyToken, handleUpload(upload.single('foto')), galeriController.updateGaleri);
 router.delete('/:id', verifyToken, galeriController.deleteGaleri);
 
 module.exports = router;

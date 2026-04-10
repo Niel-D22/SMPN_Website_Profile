@@ -37,7 +37,7 @@ const AdminGaleriPage = () => {
           : [];
 
       setGaleri(data);
-    } catch (error) {
+    } catch {
       toast.error('Gagal memuat data Galeri');
       setGaleri([]); // Pastikan tetap array saat error
     } finally {
@@ -78,7 +78,7 @@ const AdminGaleriPage = () => {
       await galeriApi.deleteGaleri(itemToDelete);
       toast.success('Media berhasil dihapus!');
       setGaleri(galeri.filter((g) => g.id_galeri !== itemToDelete));
-    } catch (error) {
+    } catch {
       toast.error('Gagal menghapus media');
     } finally {
       setIsDeleteModalOpen(false);

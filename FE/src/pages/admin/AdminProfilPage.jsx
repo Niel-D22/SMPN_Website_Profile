@@ -3,29 +3,31 @@ import FormInformasiDasar from '../../components/admin/AdminProfil/FormInformasi
 import FormKeamananAkun from '../../components/admin/AdminProfil/FormKeamananAkun';
 import { profilApi } from '../../Api/adminProfilApi';
 import Skeleton from '../../components/ui/Skeleton'; // Sesuaikan path import-nya!
+import toast from 'react-hot-toast';
 
 const AdminProfilPage = () => {
   const [adminData, setAdminData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let didCancel = false;
+    let isMounted = true;
 
-    const fetchDataProfil = async () => {
+    const fetchDataProfil = async (attempt = 1) => {
       try {
-        if (!didCancel) setIsLoading(true);
+        const [response] = await Promise.all([
+          profilApi.getProfile(),
+          new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 2000 : 0)),
+        ]);
 
-        const response = await profilApi.getProfile();
-        setTimeout(() => {
-          if (!didCancel) {
-            setAdminData(response.data || response);
-            setIsLoading(false);
-          }
-        }, 1000);
+        if (isMounted) {
+          setAdminData(response.data || response);
+          setIsLoading(false); // ✅ hanya mati kalau data berhasil
+          toast.success('Profil admin berhasil dimuat!');
+        }
       } catch (error) {
-        if (!didCancel) {
-          console.error('Gagal mengambil data profil:', error);
-          setIsLoading(false);
+        console.error(`Percobaan ke-${attempt} gagal:`, error);
+        if (isMounted) {
+          setTimeout(() => fetchDataProfil(attempt + 1), 3000);
         }
       }
     };
@@ -33,7 +35,7 @@ const AdminProfilPage = () => {
     fetchDataProfil();
 
     return () => {
-      didCancel = true;
+      isMounted = false; // cleanup saat komponen unmount
     };
   }, []);
 
@@ -90,6 +92,7 @@ const AdminProfilPage = () => {
   }
 
   if (!adminData) {
+    toast.error('Gagal memuat profil. Silakan login kembali.');
     return (
       <div className="text-center mt-20 text-red-500 font-semibold">
         Gagal memuat profil. Silakan login kembali.
@@ -98,7 +101,7 @@ const AdminProfilPage = () => {
   }
 
   return (
-    <div className="max-w-6xl  mx-auto py-8 px-4 space-y-8">
+    <div className="max-w-6xl  mx-auto py-6 px-4 space-y-8">
       {/* Header Halaman */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Profil Administrator</h1>

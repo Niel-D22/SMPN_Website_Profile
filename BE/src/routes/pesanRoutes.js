@@ -9,6 +9,6 @@ router.post('/', pesanController.kirimPesan);
 // Admin saja yang bisa kelola
 router.get('/', verifyToken, pesanController.getSemuaPesan);
 router.delete('/:id', verifyToken, pesanController.hapusPesan);
-router.get('/:id/read', pesanController.tandaiDibaca);
-
+router.put('/:id/read', pesanController.tandaiDibaca);
+router.post('/:id/balas', pesanController.balasPesan);
 module.exports = router;

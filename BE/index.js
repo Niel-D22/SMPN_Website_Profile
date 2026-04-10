@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-
+const path = require('path');
 // Panggil rute yang sudah kita buat
 const profilRoutes = require('./src/routes/profilRoutes');
 const authRoutes = require('./src/routes/authRoutes');
@@ -19,12 +19,11 @@ app.use(express.json());
 
 // Gunakan Rute
 app.use('/api/profil', profilRoutes);
-
 app.use('/api/auth', authRoutes);
 app.use('/api/berita', beritaRoutes);
 
 app.use('/api/ppdb', ppdbRoutes);
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/faq', faqRoutes);
 app.use('/api/prestasi', prestasiRoutes);
 app.use('/api/galeri', galeriRoutes);
