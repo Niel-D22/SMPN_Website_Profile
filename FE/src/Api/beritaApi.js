@@ -1,6 +1,11 @@
 import api from './axios';
 
 export const beritaApi = {
+  getBeritaPublic: async () => {
+    const response = await api.get('/berita/public'); // Pastikan route di backend sesuai
+    return response.data;
+  },
+
   getBeritaAdmin: async () => {
     const response = await api.get('/berita/admin');
     return response.data;

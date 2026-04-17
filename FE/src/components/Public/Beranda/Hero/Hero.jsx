@@ -16,7 +16,7 @@ const Hero = () => {
         <div className="bg-white rounded-[30px] shadow-2xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 border border-gray-100">
           <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
             <img
-              src="/images/kepala-sekolah.jpg"
+              src="../../../../../public/Images/marco.jpg"
               alt="Kepala Sekolah"
               className="w-full h-full object-cover"
             />

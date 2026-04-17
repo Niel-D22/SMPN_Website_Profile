@@ -1,4 +1,5 @@
 import './App.css';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
@@ -10,7 +11,8 @@ import PrestasiPages from './pages/public/PrestasiPages';
 import DirektoriStafPages from './pages/public/DirektoriStafPages';
 import BeritaPages from './pages/public/BeritaPages';
 import Publiclayout from './layout/Publiclayout';
-
+import JadwalPPDB from './pages/public/JadwalPPDB.jsx';
+import Faq from './pages/public/Faq.jsx';
 // Pages Auth
 import LoginPage from './pages/auth/LoginPage';
 import LupaPasswordPage from './pages/auth/LupaPasswordPage';
@@ -47,6 +49,8 @@ function App() {
             <Route path="prestasi" element={<PrestasiPages />} />
             <Route path="direktori-staf" element={<DirektoriStafPages />} />
             <Route path="berita" element={<BeritaPages />} />
+            <Route path="ppdb" element={<JadwalPPDB />} />
+            <Route path="faq" element={<Faq />} />
           </Route>
 
           {/* Auth routes */}
