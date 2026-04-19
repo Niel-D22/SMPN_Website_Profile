@@ -1,6 +1,11 @@
 import api from './axios'; // Sesuaikan dengan file axios instance kamu
 
 export const pesanApi = {
+  kirimPesan: async (dataPesan) => {
+    const response = await api.post('/pesan', dataPesan);
+    return response.data;
+  },
+
   // 1. Ambil semua pesan
   getSemuaPesan: async () => {
     const response = await api.get('/pesan');

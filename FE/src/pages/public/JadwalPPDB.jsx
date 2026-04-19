@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaClock, FaCalendarAlt } from 'react-icons/fa';
+
+import { FaCheckCircle, FaClock, FaCalendarAlt, FaChevronDown } from 'react-icons/fa';
 import { timelineApi } from '../../Api/timelineApi'; // Sesuaikan path import
 
 const JadwalPPDB = () => {
@@ -89,6 +90,12 @@ const JadwalPPDB = () => {
             pendaftaran berikut agar Anda tidak melewatkan kesempatan bergabung dengan keluarga
             besar SMPN 3 Manado.
           </p>
+        </div>
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-2">
+          <span className="text-white/50 text-xs font-bold tracking-widest uppercase">
+            Scroll Down
+          </span>
+          <FaChevronDown className="text-white/80 text-3xl" />
         </div>
       </section>
 

@@ -33,7 +33,7 @@ const BeritaItem = ({ item, onEdit, onDelete }) => {
       <div className="relative aspect-[16/7] md:aspect-[16/6] bg-gray-100 overflow-hidden border-b border-gray-100 flex items-center justify-center">
         {item.gambar_url ? (
           <img
-            src={item.gambar_url}
+            src={`http://localhost:3000${item.gambar_url}`}
             alt={item.judul}
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
             loading="lazy"

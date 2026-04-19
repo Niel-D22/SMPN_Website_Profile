@@ -13,6 +13,7 @@ import BeritaPages from './pages/public/BeritaPages';
 import Publiclayout from './layout/Publiclayout';
 import JadwalPPDB from './pages/public/JadwalPPDB.jsx';
 import Faq from './pages/public/Faq.jsx';
+import GaleriPages from './pages/public/GaleriPages.jsx';
 // Pages Auth
 import LoginPage from './pages/auth/LoginPage';
 import LupaPasswordPage from './pages/auth/LupaPasswordPage';
@@ -51,6 +52,7 @@ function App() {
             <Route path="berita" element={<BeritaPages />} />
             <Route path="ppdb" element={<JadwalPPDB />} />
             <Route path="faq" element={<Faq />} />
+            <Route path="galeri" element={<GaleriPages />} />
           </Route>
 
           {/* Auth routes */}

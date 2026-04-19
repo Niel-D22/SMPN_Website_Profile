@@ -14,7 +14,7 @@ const handleUpload = (middleware) => (req, res, next) => {
 };
 
 router.get('/', galeriController.getGaleri);
-router.post('/', verifyToken, handleUpload(upload.array('foto', 20)), galeriController.addGaleri);
+router.post('/', verifyToken, handleUpload(upload.single('foto')), galeriController.addGaleri);
 router.put('/:id', verifyToken, handleUpload(upload.single('foto')), galeriController.updateGaleri);
 router.delete('/:id', verifyToken, galeriController.deleteGaleri);
 

@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaSave, FaPaperPlane, FaPlus, FaImage } from 'react-icons/fa';
 
-// Helper Konversi Gambar ke Base64
-const convertToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
+const BACKEND_URL = 'http://localhost:3000';
 
 const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
   const [formData, setFormData] = useState({
@@ -17,45 +9,65 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
     kategori: 'Berita',
     status: 'active',
     isi_konten: '',
-    gambar_url: '', // Menggunakan nama kolom database
+    gambar: null,
+    gambar_url: '',
+    preview: '', // Menggunakan nama kolom database
   });
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
+        // Ambil URL gambar dari database jika sedang Edit
+        let existingImageUrl = initialData.gambar_url || '';
+
+        // Perbaikan format URL gambar dari database
+        if (existingImageUrl && !existingImageUrl.startsWith('http')) {
+          if (existingImageUrl.startsWith('/')) {
+            existingImageUrl = `${BACKEND_URL}${existingImageUrl}`;
+          } else {
+            existingImageUrl = `${BACKEND_URL}/uploads/${existingImageUrl}`;
+          }
+        }
+
         setFormData({
           judul: initialData.judul || '',
           kategori: initialData.kategori || 'Berita',
           status: initialData.status || 'active',
           isi_konten: initialData.isi_konten || '',
-          gambar_url: initialData.gambar_url || '',
+          gambar: null,
+          gambar_url: existingImageUrl,
+          preview: '',
         });
       } else {
+        // Form kosong jika Tambah Baru
         setFormData({
           judul: '',
           kategori: 'Berita',
           status: 'active',
           isi_konten: '',
+          gambar: null,
           gambar_url: '',
+          preview: '',
         });
       }
     }
   }, [isOpen, initialData]);
-
-  const handlePhotoChange = async (e) => {
+  const handlePhotoChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
-      // Validasi ukuran maksimal 5MB (opsional tapi disarankan)
       if (file.size > 5 * 1024 * 1024) {
         alert('Ukuran gambar terlalu besar! Maksimal 5MB.');
-        e.target.value = '';
         return;
       }
-      const base64 = await convertToBase64(file);
-      setFormData({ ...formData, gambar_url: base64 });
+
+      setFormData({
+        ...formData,
+        gambar: file,
+        preview: URL.createObjectURL(file),
+      });
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
@@ -83,9 +95,13 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
         <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto hide-scrollbar">
           {/* AREA UPLOAD GAMBAR (MENGKUTI WIREFRAME) */}
           <div className="relative w-full h-56 sm:h-64 bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50/50 transition-all overflow-hidden flex flex-col items-center justify-center cursor-pointer group">
-            {formData.gambar_url ? (
+            {formData.preview || formData.gambar_url ? (
               <>
-                <img src={formData.gambar_url} alt="Cover" className="w-full h-full object-cover" />
+                <img
+                  src={formData.preview || formData.gambar_url}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white mb-2 shadow-sm">
                     <FaImage size={20} />

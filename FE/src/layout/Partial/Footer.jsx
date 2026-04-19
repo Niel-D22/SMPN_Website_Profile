@@ -4,108 +4,139 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram } from 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  // Warna utama: Merah maroon #b30000, biru navy #003366, abu2 #f4f6fb, accent emas #f4b400, teks putih.
+  // Ganti menu sesuai menu utama website
   return (
-    <footer className="bg-[#b30000] text-white pt-16 pb-6 mt-16 shadow-inner">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        {/* --- GRID UTAMA (3 Kolom) --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8 mb-12">
-          {/* KOLOM 1: Logo & Kontak */}
-          <div className="flex flex-col space-y-6">
-            {/* Logo Tut Wuri Handayani (Bisa ganti src dengan path gambarmu) */}
+    <footer className="bg-[#b30000] text-white mt-16 rounded-t-3xl">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+        {/* GRID 4 KOLOM */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* KOLOM 1: BRAND + KONTAK */}
+          <div className="space-y-4">
             <img
               src="../../../public/Images/LogoSekolah.png"
-              alt="Logo Tut Wuri Handayani"
-              className="w-16 h-16 object-contain mb-2"
+              alt="Logo"
+              className="w-20 h-20 object-contain rounded-xl"
             />
 
-            <h3 className="text-2xl font-bold tracking-wide">Kontak Kami</h3>
+            <p className="text-sm text-white/80 leading-relaxed font-medium">
+              SMP NEGERI 3 MANADO — Sekolah Unggul, Berkarakter dan Berprestasi!
+            </p>
 
-            <ul className="space-y-4 text-gray-100 text-sm sm:text-base">
-              <li className="flex items-start gap-3">
-                <FaMapMarkerAlt className="mt-1 shrink-0 text-white" size={16} />
-                <span className="leading-relaxed">
-                  Jl. Kakap No. 2, Kec. Tuminting, <br />
-                  Kota Manado, Prov. Sulawesi Utara
-                </span>
+            <ul className="space-y-2 text-sm text-white/90 font-semibold">
+              <li className="flex gap-2 items-start">
+                <FaMapMarkerAlt className="mt-0.5 text-[#f4b400]" />
+                <span>Jl. Kakap No. 2, Kec. Tuminting, Kota Manado, Sulawesi Utara</span>
               </li>
-              <li className="flex items-center gap-3">
-                <FaPhoneAlt className="shrink-0 text-white" size={16} />
+              <li className="flex gap-2 items-center">
+                <FaPhoneAlt className="text-[#f4b400]" />
                 <span>082395358120</span>
               </li>
-              <li className="flex items-center gap-3">
-                <FaEnvelope className="shrink-0 text-white" size={16} />
-                <a
-                  href="mailto:smpnegeri3manadosulut@gmail.com"
-                  className="hover:text-yellow-300 transition-colors">
-                  smpnegeri3manadosulut@gmail.com
-                </a>
+              <li className="flex gap-2 items-center">
+                <FaEnvelope className="text-[#f4b400]" />
+                <span>smpnegeri3manadosulut@gmail.com</span>
               </li>
             </ul>
           </div>
 
-          {/* KOLOM 2: Navigasi */}
-          <div className="flex flex-col space-y-6 lg:pl-10">
-            <h3 className="text-2xl font-bold tracking-wide">Navigasi</h3>
-            <ul className="space-y-3 text-gray-100 text-sm sm:text-base font-medium">
+          {/* KOLOM 2 */}
+          <div>
+            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Menu Utama</h3>
+            <ul className="space-y-2 text-sm text-white/80 ">
               <li>
-                <a
-                  href="/"
-                  className="hover:text-yellow-300 hover:translate-x-1 inline-block transition-all duration-300">
+                <a href="/" className="hover:text-[#f4b400] transition">
                   Beranda
                 </a>
               </li>
               <li>
-                <a
-                  href="/visi-misi"
-                  className="hover:text-yellow-300 hover:translate-x-1 inline-block transition-all duration-300">
-                  Visi dan Misi
+                <a href="/profil-sekolah" className="hover:text-[#f4b400] transition">
+                  Profil Sekolah
                 </a>
               </li>
               <li>
-                <a
-                  href="/sejarah"
-                  className="hover:text-yellow-300 hover:translate-x-1 inline-block transition-all duration-300">
-                  Sejarah
+                <a href="/visi-misi" className="hover:text-[#f4b400] transition">
+                  Visi & Misi
                 </a>
               </li>
               <li>
-                <a
-                  href="/berita"
-                  className="hover:text-yellow-300 hover:translate-x-1 inline-block transition-all duration-300">
-                  Postingan
+                <a href="/guru" className="hover:text-[#f4b400] transition">
+                  Data Guru
+                </a>
+              </li>
+              <li>
+                <a href="/alumni" className="hover:text-[#f4b400] transition">
+                  Data Alumni
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* KOLOM 3: Ikuti Kami (Social Media) */}
-          <div className="flex flex-col space-y-6">
-            <h3 className="text-2xl font-bold tracking-wide">Ikuti Kami</h3>
-            <div className="flex items-center gap-4">
+          {/* KOLOM 3 */}
+          <div>
+            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Informasi</h3>
+            <ul className="space-y-2 text-sm text-white/80">
+              <li>
+                <a href="/berita" className="hover:text-[#f4b400] transition">
+                  Berita
+                </a>
+              </li>
+              <li>
+                <a href="/pengumuman" className="hover:text-[#f4b400] transition">
+                  Pengumuman
+                </a>
+              </li>
+              <li>
+                <a href="/agenda" className="hover:text-[#f4b400] transition">
+                  Agenda Sekolah
+                </a>
+              </li>
+              <li>
+                <a href="/galeri" className="hover:text-[#f4b400] transition">
+                  Galeri Foto
+                </a>
+              </li>
+              <li>
+                <a href="/kontak" className="hover:text-[#f4b400] transition">
+                  Kontak & Lokasi
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* KOLOM 4 */}
+          <div>
+            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Ikuti Kami</h3>
+
+            <div className="flex gap-3 mb-4">
               <a
-                href="#"
+                href="https://facebook.com/smpn3manado"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-yellow-400 hover:text-[#b30000] transition-all duration-300"
-                title="Facebook">
-                <FaFacebook size={20} />
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition"
+                aria-label="Facebook SMPN 3 Manado">
+                <FaFacebook size={22} />
               </a>
               <a
-                href="#"
+                href="https://instagram.com/smpn3manado"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-yellow-400 hover:text-[#b30000] transition-all duration-300"
-                title="Instagram">
-                <FaInstagram size={20} />
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition"
+                aria-label="Instagram SMPN 3 Manado">
+                <FaInstagram size={22} />
               </a>
             </div>
+            <p className="text-xs text-white/70 mt-2">Follow untuk update terbaru sekolah!</p>
           </div>
         </div>
 
-        {/* --- BAGIAN BAWAH (Copyright) --- */}
-        <div className="pt-6 border-t border-white/20 text-center flex flex-col md:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-gray-200">
-          <p>&copy; {currentYear} SMP Negeri 3 Manado. All rights reserved.</p>
-          <p className="font-medium text-white/60">Dikelola oleh Tim IT SMP Negeri 3 Manado</p>
+        {/* BOTTOM */}
+        <div className="mt-10 pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-white/80">
+          <p>
+            © {currentYear} <span className="font-bold text-[#f4b400]">SMP Negeri 3 Manado</span>
+          </p>
+          <p>
+            Dikelola oleh <span className="font-semibold text-[#003366]">Tim IT SMPN 3 Manado</span>
+          </p>
         </div>
       </div>
     </footer>

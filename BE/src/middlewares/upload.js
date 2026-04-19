@@ -31,4 +31,5 @@ const limits = { fileSize: 10 * 1024 * 1024 }; // 10MB
 module.exports = {
   galeri: multer({ storage: createStorage('galeri'), fileFilter, limits }),
   prestasi: multer({ storage: createStorage('prestasi'), fileFilter, limits }),
+  berita: multer({ storage: createStorage('berita'), fileFilter, limits }),
 };

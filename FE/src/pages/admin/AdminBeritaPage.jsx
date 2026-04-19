@@ -37,16 +37,30 @@ const AdminBeritaPage = () => {
     fetchBerita();
   }, []);
 
-  const handleSave = async (formData) => {
+  const handleSave = async (data) => {
     setIsSubmitting(true);
+
     try {
+      const form = new FormData();
+
+      form.append('judul', data.judul);
+      form.append('kategori', data.kategori);
+      form.append('isi_konten', data.isi_konten);
+      form.append('status', data.status);
+
+      // ⬅️ ini penting
+      if (data.gambar) {
+        form.append('gambar', data.gambar);
+      }
+
       if (editingData) {
-        await beritaApi.updateBerita(editingData.id_berita, formData);
+        await beritaApi.updateBerita(editingData.id_berita, form);
         toast.success('Berita berhasil diperbarui');
       } else {
-        await beritaApi.addBerita(formData);
+        await beritaApi.addBerita(form);
         toast.success('Berita berhasil diposting');
       }
+
       setIsModalOpen(false);
       fetchBerita();
     } catch (error) {

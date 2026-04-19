@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import { Pagination, Autoplay } from 'swiper/modules';
-import { FaArrowRight, FaArrowLeft, FaClock, FaTag } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaArrowRight, FaNewspaper, FaFire } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { beritaApi } from '../../../../Api/beritaApi';
 
-/* ─────────────────────────────────────────────
-   UTILITY HELPERS
-───────────────────────────────────────────── */
+/* ─── HELPERS ─── */
 const formatDate = (dateString) => {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString('id-ID', {
@@ -24,123 +18,165 @@ const stripHtml = (str) => {
   return str.replace(/<[^>]*>?/gm, '');
 };
 
-/* ─────────────────────────────────────────────
-   SKELETON CARD
-───────────────────────────────────────────── */
-const SkeletonCard = () => (
-  <div
-    className="flex flex-col md:flex-row gap-0 rounded-2xl overflow-hidden bg-white animate-pulse shadow-sm border border-gray-100"
-    style={{ height: 320 }}>
-    <div className="w-full md:w-5/12 bg-gray-200 h-48 md:h-full" />
-    <div className="flex-1 p-6 flex flex-col gap-3 justify-center">
-      <div className="h-3 bg-gray-200 rounded w-1/4" />
-      <div className="h-5 bg-gray-200 rounded w-full" />
-      <div className="h-5 bg-gray-200 rounded w-3/4" />
-      <div className="h-3 bg-gray-100 rounded w-full mt-2" />
-      <div className="h-3 bg-gray-100 rounded w-5/6" />
-      <div className="mt-auto flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-gray-200" />
-        <div className="h-3 bg-gray-200 rounded w-24" />
-      </div>
+/* ─── SKELETON ─── */
+const SkeletonBox = ({ className }) => (
+  <div className={`bg-gray-200 animate-pulse rounded-xl ${className}`} />
+);
+
+const SkeletonFeatured = () => (
+  <div className="flex flex-col gap-3 h-full">
+    <SkeletonBox className="w-full rounded-2xl" style={{ flex: 1 }} />
+    <div className="flex items-center gap-2">
+      <SkeletonBox className="w-6 h-6 rounded-full" />
+      <SkeletonBox className="h-3 w-28" />
+    </div>
+    <SkeletonBox className="h-6 w-full" />
+    <SkeletonBox className="h-6 w-4/5" />
+    <SkeletonBox className="h-4 w-full" />
+    <SkeletonBox className="h-4 w-full" />
+    <SkeletonBox className="h-4 w-3/4" />
+    <SkeletonBox className="h-4 w-20 mt-1" />
+  </div>
+);
+
+const SkeletonSmall = () => (
+  <div className="flex gap-3 py-4 border-b border-gray-100">
+    <SkeletonBox className="w-[110px] h-[78px] shrink-0 rounded-xl" />
+    <div className="flex-1 flex flex-col gap-2">
+      <SkeletonBox className="h-4 w-full" />
+      <SkeletonBox className="h-4 w-4/5" />
+      <SkeletonBox className="h-3 w-full" />
+      <SkeletonBox className="h-3 w-3/4" />
+      <SkeletonBox className="h-3 w-16 mt-1" />
     </div>
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   BERITA CARD
-───────────────────────────────────────────── */
-const BeritaCard = ({ berita }) => {
-  const imgSrc = berita.gambar_url || 'https://placehold.co/600x400/f1f5f9/94a3b8?text=SMPN+3';
+/* ─── FEATURED CARD (kiri) ─── */
+const FeaturedCard = ({ berita }) => {
+  const img = berita.gambar_url || 'https://placehold.co/800x500/f1f5f9/94a3b8?text=SMPN+3';
   const excerpt = stripHtml(berita.isi_konten);
 
   return (
-    <Link
-      to={`/berita/${berita.id_berita}`}
-      className="group flex flex-col md:flex-row rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-500 no-underline"
-      style={{ height: 300 }}>
-      {/* ── GAMBAR KIRI ── */}
-      <div className="relative w-full md:w-[42%] overflow-hidden shrink-0 bg-gray-100 min-h-[150px] sm:min-h-[160px]">
-        {/* Kategori badge */}
-        {berita.kategori && (
-          <span
-            className="absolute top-4 left-4 z-10 flex items-center gap-1.5 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"
-            style={{ background: 'var(--color-primary, #cc0000)' }}>
-            <FaTag size={9} />
-            {berita.kategori}
-          </span>
-        )}
+    <div className="flex flex-col h-full">
+      {/* Gambar — flex-1 supaya mengisi sisa tinggi */}
+      <Link
+        to={`/berita/${berita.id_berita}`}
+        className="block w-full overflow-hidden rounded-2xl bg-gray-100 no-underline"
+        style={{ flex: '1 1 0', minHeight: 0 }}>
         <img
-          src={imgSrc}
+          src={img}
           alt={berita.judul}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 aspect-[4/3]"
-        />
-        {/* Overlay gradient subtle */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(120deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.02) 60%)',
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+          style={{ display: 'block' }}
+          onError={(e) => {
+            e.target.src = 'https://placehold.co/800x500/f1f5f9/94a3b8?text=No+Image';
           }}
         />
-      </div>
+      </Link>
 
-      {/* ── KONTEN KANAN ── */}
-      <div className="flex flex-col justify-between flex-1 px-4 md:px-7 py-4 md:py-6">
-        {/* Tanggal */}
-        <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium mb-3">
-          <FaClock size={10} />
-          <span>{formatDate(berita.tgl_publikasi)}</span>
+      {/* Konten bawah gambar — tinggi tetap, tidak tumbuh */}
+      <div className="flex flex-col gap-2.5 pt-4 shrink-0">
+        {/* Author */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
+            <FaNewspaper size={9} className="text-gray-400" />
+          </div>
+          <span className="text-sm text-gray-500 font-medium">Admin Sekolah</span>
         </div>
 
         {/* Judul */}
-        <h3
-          className="font-extrabold text-gray-900 leading-tight mb-3 line-clamp-2 group-hover:text-red-700 transition-colors duration-300"
-          style={{ fontSize: 'clamp(1rem, 1.4vw, 1.3rem)' }}>
-          {berita.judul}
-        </h3>
+        <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
+          <h2
+            className="font-extrabold text-gray-900 leading-snug group-hover:text-red-700 transition-colors duration-200 line-clamp-2"
+            style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.45rem)' }}>
+            {berita.judul}
+          </h2>
+        </Link>
 
-        {/* Divider tipis */}
-        <div className="h-px w-10 bg-red-600 mb-3 rounded-full transition-all duration-500 group-hover:w-20" />
+        {/* Excerpt — max 3 baris */}
+        <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">
+          {excerpt || 'Baca berita selengkapnya di halaman berita kami.'}
+        </p>
 
-        {/* Excerpt */}
-        <p className="text-gray-500 text-sm leading-relaxed line-clamp-3 flex-1">{excerpt}</p>
-
-        {/* Footer: Author + CTA */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-          {/* Author */}
-          <div className="flex items-center gap-2.5">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-              style={{ background: 'var(--color-primary, #cc0000)' }}>
-              A
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-800 leading-none">Admin Sekolah</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">SMPN 3 Manado</p>
-            </div>
-          </div>
-          {/* CTA */}
-          <span
-            className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-full text-white transition-all duration-300 group-hover:gap-3 group-hover:pr-5"
-            style={{ background: 'var(--color-primary, #cc0000)' }}>
-            Baca
-            <FaArrowRight
-              size={11}
-              className="transition-transform duration-300 group-hover:translate-x-1"
-            />
-          </span>
-        </div>
+        {/* Selengkapnya */}
+        <Link
+          to={`/berita`}
+          className="inline-flex items-center gap-1.5 text-sm font-bold no-underline group w-fit"
+          style={{ color: 'var(--color-primary, #cc0000)' }}>
+          Selengkapnya
+          <FaArrowRight
+            size={11}
+            className="group-hover:translate-x-1 transition-transform duration-200"
+          />
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 };
 
+/* ─── SMALL CARD (kanan) — dengan excerpt ─── */
+const SmallCard = ({ berita, isLast }) => {
+  const img = berita.gambar_url || 'https://placehold.co/200x200/f1f5f9/94a3b8?text=SMPN+3';
+  const excerpt = stripHtml(berita.isi_konten);
+
+  return (
+    <div className={`flex gap-3 py-4 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+      {/* Thumbnail */}
+      <Link
+        to={`/berita/${berita.id_berita}`}
+        className="shrink-0 block rounded-xl overflow-hidden bg-gray-100 no-underline"
+        style={{ width: 110, height: 110 }}>
+        <img
+          src={img}
+          alt={berita.judul}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = 'https://placehold.co/200x200/f1f5f9/94a3b8?text=No+Image';
+          }}
+        />
+      </Link>
+
+      {/* Teks */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-1">
+        {/* Judul */}
+        <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
+          <h4
+            className="font-bold text-gray-800 leading-snug line-clamp-2 group-hover:text-red-700 transition-colors duration-200"
+            style={{ fontSize: 'clamp(0.8rem, 1.1vw, 0.9rem)' }}>
+            {berita.judul}
+          </h4>
+        </Link>
+
+        {/* Excerpt — max 2 baris */}
+        {excerpt && (
+          <p className="text-gray-400 leading-relaxed line-clamp-2" style={{ fontSize: '0.75rem' }}>
+            {excerpt}
+          </p>
+        )}
+
+        {/* Selengkapnya */}
+        <Link
+          to={`/berita`}
+          className="inline-flex items-center gap-1 text-xs font-bold no-underline group w-fit mt-0.5"
+          style={{ color: 'var(--color-primary, #cc0000)' }}>
+          Selengkapnya
+          <FaArrowRight
+            size={9}
+            className="group-hover:translate-x-0.5 transition-transform duration-200"
+          />
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+/* ─── MAIN COMPONENT ─── */
 const BeritaSingkat = () => {
   const [dataBerita, setDataBerita] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
-  const swiperRef = useRef(null);
 
+  /* ── Fetch — TIDAK DIUBAH ── */
   useEffect(() => {
     const fetchBerita = async () => {
       try {
@@ -156,126 +192,107 @@ const BeritaSingkat = () => {
     fetchBerita();
   }, []);
 
+  const featured = dataBerita[0] || null;
+  const sideList = dataBerita.slice(1, 4); // 3 item
+
   return (
-    <section className="w-full py-16">
-      <div className="w-full max-w-[1280px] mx-auto px-2 sm:px-3 md:px-8">
+    <section className="w-full py-14 md:py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
         {/* ── HEADER ── */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-10">
           <div>
-            {/* Label kecil di atas */}
             <p
-              className="text-xs font-bold uppercase tracking-widest mb-2"
+              className="text-xs font-black uppercase tracking-[0.18em] mb-1.5"
               style={{ color: 'var(--color-primary, #cc0000)' }}>
-              Terkini
+              Informasi Sekolah
             </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-              Berita &{' '}
-              <span
-                className="relative inline-block"
-                style={{ color: 'var(--color-primary, #cc0000)' }}>
-                Pengumuman
-                {/* Garis bawah dekoratif */}
-                <span
-                  className="absolute left-0 -bottom-1 h-1 w-full rounded-full opacity-20"
-                  style={{ background: 'var(--color-primary, #cc0000)' }}
-                />
-              </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+              Berita & <span style={{ color: 'var(--color-primary, #cc0000)' }}>Pengumuman</span>
             </h2>
           </div>
-
-          {/* Navigasi Custom */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              ref={prevRef}
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:border-red-600 hover:text-red-600 hover:bg-red-50 transition-all duration-200 shadow-sm">
-              <FaArrowLeft size={13} />
-            </button>
-            <button
-              ref={nextRef}
-              onClick={() => swiperRef.current?.slideNext()}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-md hover:opacity-90"
-              style={{ background: 'var(--color-primary, #cc0000)' }}>
-              <FaArrowRight size={13} />
-            </button>
-            <Link
-              to="/berita"
-              className="ml-2 text-xs font-bold uppercase tracking-wide text-gray-400 hover:text-red-600 transition-colors duration-200 hidden md:block">
-              Lihat Semua →
-            </Link>
-          </div>
-        </div>
-
-        {/* ── SLIDER AREA ── */}
-        {isLoading ? (
-          <div className="flex flex-col gap-4">
-            <SkeletonCard />
-          </div>
-        ) : dataBerita.length === 0 ? (
-          <div className="text-center text-gray-400 py-16 text-sm">
-            Belum ada berita yang dipublikasikan.
-          </div>
-        ) : (
-          <>
-            <Swiper
-              modules={[Pagination, Autoplay]}
-              onSwiper={(swiper) => {
-                swiperRef.current = swiper;
-              }}
-              spaceBetween={20}
-              slidesPerView={1}
-              breakpoints={{
-                360: { slidesPerView: 1 },
-                600: { slidesPerView: 1.03 },
-                768: { slidesPerView: 1.08 },
-                1024: { slidesPerView: 1.15 },
-              }}
-              autoplay={{
-                delay: 5500,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-              }}
-              pagination={{
-                clickable: true,
-                renderBullet: (index, className) =>
-                  `<span class="${className}" style="background:var(--color-primary,#cc0000);width:20px;height:4px;border-radius:2px;opacity:0.35;transition:all 0.3s;"></span>`,
-              }}
-              className="pb-0"
-              style={{
-                '--swiper-pagination-bullet-inactive-color': '#cc0000',
-                '--swiper-pagination-color': '#cc0000',
-              }}>
-              {dataBerita.map((berita) => (
-                <SwiperSlide key={berita.id_berita} className="h-auto">
-                  <BeritaCard berita={berita} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            {/* Custom position for swiper bullets/pagination */}
-            <div className="flex justify-center mt-8">
-              {/* Swiper automatically renders pagination here if you use a selector. We need to move it out of the card. */}
-              {/* The only way is to override .swiper-pagination class placement */}
-              <div
-                className="swiper-pagination"
-                style={{
-                  position: 'static',
-                  marginTop: 0,
-                  marginBottom: 0,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: '6px',
-                }}
-              />
-            </div>
-          </>
-        )}
-
-        {/* Link semua berita — mobile only */}
-        <div className="mt-2 text-center md:hidden">
-          <Link to="/berita" className="text-sm font-bold text-red-600 hover:underline">
-            Lihat Semua Berita →
+          <Link
+            to="/berita"
+            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-red-600 transition-colors duration-200 shrink-0 group no-underline">
+            Lihat Semua
+            <FaArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
+
+        {/* ── BODY ── */}
+        {isLoading ? (
+          <div
+            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10"
+            style={{ alignItems: 'stretch' }}>
+            <SkeletonFeatured />
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+              <SkeletonBox className="h-5 w-24 mb-4" />
+              {[1, 2, 3].map((n) => (
+                <SkeletonSmall key={n} />
+              ))}
+            </div>
+          </div>
+        ) : dataBerita.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-2xl border border-dashed border-gray-200">
+            <FaNewspaper size={36} className="text-gray-300 mb-3" />
+            <p className="text-gray-400 text-sm font-medium">
+              Belum ada berita yang dipublikasikan.
+            </p>
+          </div>
+        ) : (
+          /*
+           * items-stretch → kedua kolom sama tinggi
+           * Kolom kiri pakai flex-col h-full → gambar mengisi sisa ruang
+           * Kolom kanan pakai flex-col → konten tersebar merata
+           */
+          <div
+            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10"
+            style={{ alignItems: 'stretch' }}>
+            {/* KIRI — Featured */}
+            {featured && <FeaturedCard berita={featured} />}
+
+            {/* KANAN — Box Terbaru */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-5 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-1 shrink-0">
+                <FaFire size={18} style={{ color: 'var(--color-primary, #cc0000)' }} />
+                <h3 className="text-lg font-extrabold text-gray-900">Terbaru</h3>
+              </div>
+
+              {/* List — flex-1 supaya mengisi sisa tinggi box */}
+              <div className="flex flex-col flex-1">
+                {sideList.length > 0 ? (
+                  sideList.map((item, i) => (
+                    <SmallCard
+                      key={item.id_berita}
+                      berita={item}
+                      isLast={i === sideList.length - 1}
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm py-6 text-center">
+                    Tidak ada berita lainnya.
+                  </p>
+                )}
+              </div>
+
+              {/* Footer lihat semua */}
+              {dataBerita.length > 4 && (
+                <div className="pt-4 mt-2 border-t border-gray-100 shrink-0">
+                  <Link
+                    to="/berita"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold no-underline group"
+                    style={{ color: 'var(--color-primary, #cc0000)' }}>
+                    Lihat semua berita
+                    <FaArrowRight
+                      size={10}
+                      className="group-hover:translate-x-0.5 transition-transform"
+                    />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

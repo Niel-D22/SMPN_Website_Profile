@@ -6,10 +6,14 @@ const MAX_SIZE_MB = 10;
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
 const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
-  const [formData, setFormData] = useState({ judul_foto: '', deskripsi: '' });
+  const [formData, setFormData] = useState({
+    judul_foto: '',
+    deskripsi: '',
+    kategori: 'umum', // ✅ field baru
+  });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
-  const [fileError, setFileError] = useState(''); // ← state untuk error file
+  const [fileError, setFileError] = useState('');
 
   const isEditMode = initialData !== null;
 
@@ -19,14 +23,15 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
         setFormData({
           judul_foto: initialData.judul_foto || '',
           deskripsi: initialData.deskripsi || '',
+          kategori: initialData.kategori || 'umum', // ✅ ambil dari data existing
         });
         setPreviewUrl(initialData.file_url ? mediaUrl(initialData.file_url) : '');
       } else {
-        setFormData({ judul_foto: '', deskripsi: '' });
+        setFormData({ judul_foto: '', deskripsi: '', kategori: 'umum' });
         setPreviewUrl('');
       }
       setSelectedFile(null);
-      setFileError(''); // reset error saat modal dibuka
+      setFileError('');
     }
   }, [isOpen, initialData, isEditMode]);
 
@@ -36,17 +41,15 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validasi ukuran di frontend sebelum kirim ke server
     if (file.size > MAX_SIZE_BYTES) {
       setFileError(
         `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal ${MAX_SIZE_MB}MB.`
       );
       setSelectedFile(null);
-      e.target.value = ''; // reset input file
+      e.target.value = '';
       return;
     }
 
-    // Validasi tipe file
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       setFileError('Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP.');
@@ -55,20 +58,21 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
       return;
     }
 
-    setFileError(''); // clear error jika valid
+    setFileError('');
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (fileError) return; // jangan submit jika ada error file
+    if (fileError) return;
     if (!formData.judul_foto || !formData.deskripsi) return;
     if (!isEditMode && !selectedFile) return;
 
     const data = new FormData();
     data.append('judul_foto', formData.judul_foto);
     data.append('deskripsi', formData.deskripsi);
+    data.append('kategori', formData.kategori); // ✅ kirim ke BE
     if (selectedFile) data.append('foto', selectedFile);
 
     onSave(data);
@@ -76,14 +80,21 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
 
   if (!isOpen) return null;
 
+  // Label badge kategori
+  const kategoriLabel = {
+    umum: { label: 'Umum', color: '#6b7280' },
+    fasilitas: { label: 'Fasilitas', color: '#0284c7' },
+    ekskul: { label: 'Ekskul', color: 'var(--color-primary, #b91c1c)' },
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4">
       <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up max-h-full flex flex-col">
-        {/* Header */}
+        {/* ── Header ── */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             {isEditMode ? (
-              <FaEdit className="text-blue-600" />
+              <FaEdit className="text-primary" />
             ) : (
               <FaUpload className="text-primary" />
             )}
@@ -95,7 +106,7 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
-          {/* Preview Gambar */}
+          {/* ── Preview Gambar ── */}
           <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden relative group">
             {previewUrl ? (
               <>
@@ -117,7 +128,7 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
             )}
           </div>
 
-          {/* Input File + Error */}
+          {/* ── Input File + Error ── */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
               {isEditMode ? 'Ganti File Foto (Opsional)' : 'Pilih File Foto'}
@@ -127,12 +138,10 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
               accept="image/*"
               onChange={handleFileChange}
               required={!isEditMode}
-              className={`w-full bg-gray-50 p-3 rounded-xl border focus:bg-white focus:ring-2 focus:ring-primary outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer ${
+              className={`w-full bg-gray-50 p-3 rounded-xl border focus:bg-white focus:ring-2 focus:ring-primary outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-primary hover:file:bg-red-100 cursor-pointer ${
                 fileError ? 'border-red-400 bg-red-50' : 'border-gray-200'
               }`}
             />
-
-            {/* Pesan error file — muncul jika ada error */}
             {fileError ? (
               <div className="mt-2 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-xl text-xs font-medium">
                 <FaExclamationTriangle className="mt-0.5 shrink-0" size={12} />
@@ -150,7 +159,7 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
             )}
           </div>
 
-          {/* Judul */}
+          {/* ── Judul ── */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
               Judul Media
@@ -166,7 +175,37 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
             />
           </div>
 
-          {/* Deskripsi */}
+          {/* ── Kategori ✅ field baru ── */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+              Kategori
+            </label>
+            {/* Pilihan dengan button visual supaya lebih jelas */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { value: 'umum', label: 'Umum', desc: 'Kegiatan umum' },
+                { value: 'fasilitas', label: 'Fasilitas', desc: 'Sarana & prasarana' },
+                { value: 'ekskul', label: 'Ekskul', desc: 'Ekstrakurikuler' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setFormData((p) => ({ ...p, kategori: opt.value }))}
+                  className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 text-center transition-all duration-200 cursor-pointer ${
+                    formData.kategori === opt.value
+                      ? 'border-primary bg-red-50 text-primary'
+                      : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300'
+                  }`}>
+                  <span className="text-sm font-extrabold leading-tight">{opt.label}</span>
+                  <span className="text-[10px] mt-0.5 font-medium opacity-70">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
+            {/* Hidden input untuk nilai aktual — tetap terkirim jika perlu */}
+            <input type="hidden" name="kategori" value={formData.kategori} />
+          </div>
+
+          {/* ── Deskripsi ── */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
               Deskripsi Kegiatan
@@ -181,7 +220,7 @@ const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting })
             />
           </div>
 
-          {/* Tombol Aksi */}
+          {/* ── Tombol Aksi ── */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

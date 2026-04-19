@@ -1,6 +1,7 @@
 import React from 'react';
-import { FaEdit, FaTrash, FaImage } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaImage, FaTag } from 'react-icons/fa';
 import { mediaUrl } from '../../../config/apiBase';
+
 const formatTanggal = (dateString) => {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString('id-ID', {
@@ -30,9 +31,10 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
           </div>
         )}
 
-        {/* Label Badge di Kiri Atas */}
+        {/* Label Badge di Kiri Atas diganti kategori */}
         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[10px] font-bold text-gray-700 shadow-sm">
-          <FaImage className="text-primary" size={12} /> IMAGE
+          <FaTag className="text-blue-400" size={12} />
+          {item.kategori ? item.kategori.charAt(0).toUpperCase() + item.kategori.slice(1) : 'Umum'}
         </div>
 
         {/* Overlay Tombol Aksi (Muncul saat di-hover) */}
@@ -58,12 +60,15 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
           {item.judul_foto}
         </h3>
 
-        {/* Ini implementasi UX Deskripsi yang kamu minta */}
-        <p
-          className="text-sm text-gray-500 mt-1.5 line-clamp-2 leading-relaxed flex-1"
-          title={item.deskripsi}>
-          {item.deskripsi || <span className="italic text-gray-400">Tidak ada deskripsi</span>}
-        </p>
+        {/* Deskripsi & Kategori */}
+        <div className="mt-1.5 flex flex-row flex-wrap items-center gap-2">
+          <p
+            className="text-sm text-gray-500 line-clamp-2 leading-relaxed flex-1"
+            title={item.deskripsi}>
+            {item.deskripsi || <span className="italic text-gray-400">Tidak ada deskripsi</span>}
+          </p>
+          {/* Kategori di bagian atas sudah ditampilkan, tidak perlu di sini */}
+        </div>
 
         {/* Footer Card: Tanggal */}
         <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">

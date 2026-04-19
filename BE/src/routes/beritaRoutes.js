@@ -1,25 +1,23 @@
+// file: routes/beritaRoutes.js
 const express = require('express');
 const router = express.Router();
+
+const verifyToken = require('../middlewares/auth');
+const upload = require('../middlewares/upload');
 const beritaController = require('../controllers/beritaController');
-const verifyToken = require('../middlewares/auth'); // Import satpam di sini
 
-// 1. PUBLIC (Siapa saja bisa lihat daftar berita)
-// Tidak pakai verifyToken
-router.get('/public', beritaController.getBeritaPublic); // Untuk pengunjung
+// ===== PUBLIC =====
+router.get('/public', beritaController.getBeritaPublic);
 
-// 2. ADMIN (Hanya admin yang bisa lihat semua berita)
-router.get('/admin', verifyToken, beritaController.getBeritaAdmin); // Untuk tabel admin
+// ===== ADMIN =====
+router.get('/admin', verifyToken, beritaController.getBeritaAdmin);
 
-// 3. PUBLIC (Siapa saja bisa lihat detail satu berita)
+// ===== BY ID (WAJIB PALING BAWAH DI ANTARA GET YANG LAIN) =====
 router.get('/:id', beritaController.getBeritaById);
 
-// 4. ADMIN (Hanya admin yang bisa tambah berita)
-router.post('/', verifyToken, beritaController.addBerita);
-
-// 5. edit berita (ADMIN only)
-router.put('/:id', verifyToken, beritaController.updateBerita);
-
-// 6. hapus berita (ADMIN only)
+// ===== POST, PUT, DELETE =====
+router.post('/', verifyToken, upload.berita.single('gambar'), beritaController.addBerita);
+router.put('/:id', verifyToken, upload.berita.single('gambar'), beritaController.updateBerita);
 router.delete('/:id', verifyToken, beritaController.deleteBerita);
 
 module.exports = router;

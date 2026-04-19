@@ -16,7 +16,7 @@ const cardData = [
     desc: 'Didukung oleh tenaga pendidik profesional, berpengalaman, dan berdedikasi tinggi untuk kesuksesan siswa.',
     imgUrl:
       'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=600&auto=format&fit=crop',
-    link: '/guru',
+    link: '/direktori-staf',
   },
   {
     id: 3,
