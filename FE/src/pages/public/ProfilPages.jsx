@@ -10,7 +10,7 @@ import {
   FaChevronRight,
   FaCheckCircle,
 } from 'react-icons/fa';
-import { profilSekolahApi } from '../../Api/ProfilApi ';
+import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
