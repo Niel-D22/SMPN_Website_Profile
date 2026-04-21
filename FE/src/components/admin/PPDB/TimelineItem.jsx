@@ -8,33 +8,37 @@ const formatTanggal = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', options);
 };
 
+// Data sudah mengikuti field sesuai instruksi
 const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
-  // --- LOGIKA STATUS OTOMATIS ---
-  const now = new Date();
-  const start = new Date(item.tanggal_mulai);
-  const end = new Date(item.tanggal_selesai);
-  end.setHours(23, 59, 59, 999); // Set jam ke akhir hari
-
+  // Cek status secara dinamis dari field "status"
   let statusConfig = {
-    text: 'BELUM DIMULAI',
+    text: '',
     colorBox: 'bg-gray-200 text-gray-500',
     colorText: 'text-yellow-600',
     icon: <span className="font-bold text-xl">{index + 1}</span>,
   };
-
-  if (now > end) {
+  // Opsi status PPDB
+  if (item.status === 'selesai') {
     statusConfig = {
       text: 'SELESAI',
       colorBox: 'bg-green-500 text-white shadow-green-500/30 shadow-lg',
       colorText: 'text-green-600',
       icon: <FaCheck size={20} />,
     };
-  } else if (now >= start && now <= end) {
+  } else if (item.status === 'berlangsung') {
     statusConfig = {
       text: 'BERLANGSUNG',
       colorBox: 'bg-blue-500 text-white shadow-blue-500/30 shadow-lg',
       colorText: 'text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md',
       icon: <FaRegClock size={22} />,
+    };
+  } else {
+    // default ke AKAN DATANG (atau status lain yang bukan selesai/berlangsung)
+    statusConfig = {
+      text: 'AKAN DATANG',
+      colorBox: 'bg-gray-200 text-gray-500',
+      colorText: 'text-yellow-600',
+      icon: <FaRegClock size={20} />,
     };
   }
 
@@ -75,9 +79,8 @@ const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
           {statusConfig.text !== 'SELESAI' && (
             <span
               className={`text-[10px] font-bold tracking-wider uppercase ${statusConfig.colorText}`}>
-              {statusConfig.text === 'BELUM DIMULAI' && (
-                <FaRegClock className="inline mr-1 mb-0.5" />
-              )}
+              {statusConfig.icon}
+              {/* Hanya tampilkan ikon kecil di "akan datang", kalau perlu */}
               {statusConfig.text}
             </span>
           )}

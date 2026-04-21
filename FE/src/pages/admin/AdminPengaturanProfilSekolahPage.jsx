@@ -4,6 +4,7 @@ import { profilSekolahApi } from '../../Api/profilApi';
 import Skeleton from '../../components/ui/Skeleton';
 import { toast } from 'react-toastify';
 import ModalKonfirmasi from '../../components/admin/ModalKonfirmasi';
+import 'animate.css';
 
 const AdminPengaturanProfilSekolahPage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +93,7 @@ const AdminPengaturanProfilSekolahPage = () => {
   // --- TAMPILAN LOADING SKELETON YANG SUPER DETAIL ---
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 lg:p-10">
+      <div className="min-h-screen bg-gray-50 p-6 lg:p-10 animate__animated animate__fadeInUp animate__faster">
         {/* Header Page Skeleton */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>

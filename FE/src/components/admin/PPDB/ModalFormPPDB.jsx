@@ -1,171 +1,274 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaImage, FaSave, FaUpload, FaEdit } from 'react-icons/fa';
+import { createPortal } from 'react-dom';
+import { FaTimes, FaSave, FaPlus, FaEdit, FaCalendarAlt } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
-// Helper: Fungsi untuk mengubah File gambar menjadi Teks Base64
-const convertFileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result); // Mengembalikan string Base64
-    reader.onerror = (error) => reject(error);
-  });
+// Helper yang lebih tangguh (robust) untuk mengambil hanya YYYY-MM-DD
+const getValidDateString = (dateData) => {
+  if (!dateData) return '';
+  try {
+    if (typeof dateData === 'string' && dateData.includes('T')) {
+      return dateData.split('T')[0];
+    }
+    const d = new Date(dateData);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString().split('T')[0];
+    }
+  } catch (error) {
+    return '';
+  }
+  return '';
 };
 
-const ModalFormGaleri = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
-  const [formData, setFormData] = useState({
-    judul_foto: '',
-    deskripsi: '',
-    file_url: '', // Kita akan isi ini dengan teks Base64
-  });
+const emptyForm = {
+  judul: '',
+  deskripsi: '',
+  tanggal_mulai: '',
+  tanggal_selesai: '',
+  status: 'akan_datang',
+};
 
+const ModalFormPPDB = ({ isOpen, onClose, onSave, initialData, isSubmitting, id_admin }) => {
+  const [formData, setFormData] = useState(emptyForm);
   const isEditMode = initialData !== null;
 
   useEffect(() => {
-    if (isOpen) {
-      if (isEditMode) {
-        setFormData({
-          judul_foto: initialData.judul_foto,
-          deskripsi: initialData.deskripsi,
-          file_url: initialData.file_url,
-        });
-      } else {
-        setFormData({ judul_foto: '', deskripsi: '', file_url: '' });
-      }
+    if (!isOpen) return;
+
+    if (isEditMode && initialData) {
+      // Pastikan format tanggal sudah bersih saat dimasukkan ke state
+      setFormData({
+        judul: initialData.judul || '',
+        deskripsi: initialData.deskripsi || '',
+        tanggal_mulai: getValidDateString(initialData.tanggal_mulai),
+        tanggal_selesai: getValidDateString(initialData.tanggal_selesai),
+        status: initialData.status || 'akan_datang',
+        id_timeline: initialData.id_timeline,
+      });
+    } else {
+      setFormData(emptyForm);
     }
   }, [isOpen, initialData, isEditMode]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  // Saat Admin memilih foto dari laptop
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Tunggu proses konversi gambar jadi teks
-      const base64String = await convertFileToBase64(file);
-
-      // Simpan teks panjang tersebut ke state file_url
-      setFormData({ ...formData, file_url: base64String });
-    }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // KITA KEMBALI MENGIRIM DATA SEBAGAI JSON BIASA
-    onSave(formData);
+
+    if (!formData.judul.trim()) {
+      toast.error('Judul (Nama Tahapan) wajib diisi.');
+      return;
+    }
+
+    if (!formData.tanggal_mulai || !formData.tanggal_selesai) {
+      toast.error('Tanggal mulai dan tanggal selesai wajib diisi.');
+      return;
+    }
+
+    const startDate = new Date(formData.tanggal_mulai);
+    const endDate = new Date(formData.tanggal_selesai);
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    if (endDate < startDate) {
+      toast.error('Tanggal selesai tidak boleh sebelum tanggal mulai.');
+      return;
+    }
+
+    // ✅ FIX: pastikan status ikut terkirim
+    const dataToSave = {
+      judul: formData.judul,
+      deskripsi: formData.deskripsi,
+      tanggal_mulai: formData.tanggal_mulai,
+      tanggal_selesai: formData.tanggal_selesai,
+      status: formData.status, // PENTING
+    };
+
+    onSave(dataToSave);
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4">
-      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up max-h-full flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+  const inputClass =
+    'w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition text-sm text-gray-800 min-h-[44px]';
+
+  const STATUS_OPTIONS = [
+    {
+      value: 'akan_datang',
+      label: 'Akan Datang',
+      color: 'text-blue-600 bg-blue-50 border-blue-200',
+    },
+    {
+      value: 'berlangsung',
+      label: 'Sedang Berlangsung',
+      color: 'text-green-600 bg-green-50 border-green-200',
+    },
+    { value: 'selesai', label: 'Selesai', color: 'text-gray-500 bg-gray-50 border-gray-200' },
+  ];
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}>
+      <div
+        className="bg-white w-full max-w-md sm:max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl sm:rounded-t-3xl shrink-0">
+          <div className="flex items-center gap-2">
             {isEditMode ? (
-              <FaEdit className="text-blue-600" />
+              <FaEdit className="text-blue-600" size={15} />
             ) : (
-              <FaUpload className="text-primary" />
+              <FaCalendarAlt className="text-primary" size={15} />
             )}
-            {isEditMode ? 'Edit Data Galeri' : 'Unggah Media Baru'}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-primary transition">
-            <FaTimes size={20} />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
+              {isEditMode ? 'Ubah Tahapan PPDB' : 'Tambah Tahapan Baru'}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-red-50 transition"
+            aria-label="Tutup">
+            <FaTimes size={17} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
-          {/* Visual Preview Gambar */}
-          <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden relative group">
-            {formData.file_url ? (
-              <>
-                <img src={formData.file_url} alt="Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-white font-bold text-sm">Klik "Pilih File" untuk mengganti</p>
-                </div>
-              </>
-            ) : (
-              <div className="text-center p-4">
-                <div className="bg-white p-3 rounded-full inline-block shadow-sm mb-2 text-primary">
-                  <FaImage size={24} />
-                </div>
-                <p className="text-xs font-bold text-gray-500">Preview Gambar</p>
-                <p className="text-[10px] text-gray-400 mt-1">
-                  Pilih file foto dari perangkat Anda
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* INPUT FILE UNTUK UPLOAD */}
+        {/* Body */}
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-6 space-y-4 overflow-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch' }}>
+          {/* Judul (Nama Tahapan) */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-              Pilih File Foto
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              required={!isEditMode}
-              className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-              Judul Media
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Judul Tahapan
             </label>
             <input
               type="text"
-              name="judul_foto"
-              value={formData.judul_foto}
+              name="judul"
+              value={formData.judul}
               onChange={handleChange}
               required
-              placeholder="Contoh: Upacara Bendera 17 Agustus"
-              className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition"
+              placeholder="Contoh: Sosialisasi & Pemadanan Data"
+              className={inputClass}
             />
           </div>
 
+          {/* Deskripsi */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-              Deskripsi Kegiatan
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Deskripsi <span className="normal-case font-normal text-gray-400">(Opsional)</span>
             </label>
             <textarea
               name="deskripsi"
               value={formData.deskripsi}
               onChange={handleChange}
-              required
-              placeholder="Ceritakan momen dalam foto ini..."
-              className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none h-24 resize-none transition"></textarea>
+              placeholder="Jelaskan syarat atau petunjuk tahapan ini..."
+              className="w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none h-20 sm:h-24 resize-none transition text-sm"
+            />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
+          {/* Tanggal Mulai + Selesai */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                Tanggal Mulai
+              </label>
+              <input
+                type="date"
+                name="tanggal_mulai"
+                value={formData.tanggal_mulai}
+                onChange={handleChange}
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                Tanggal Selesai
+              </label>
+              <input
+                type="date"
+                name="tanggal_selesai"
+                value={formData.tanggal_selesai}
+                onChange={handleChange}
+                required
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {/* Status — pill selector */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              Status
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {STATUS_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, status: opt.value })}
+                  className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold transition-all min-h-[44px] ${
+                    formData.status === opt.value
+                      ? opt.color + ' border-current'
+                      : 'border-gray-200 bg-gray-50 text-gray-400 hover:border-gray-300'
+                  }`}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer Tombol */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-3 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition">
+              className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition min-h-[44px]">
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 rounded-xl bg-primary hover:bg-red-800 text-white font-bold transition shadow-lg shadow-primary/30 flex items-center gap-2 disabled:opacity-70">
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-primary hover:bg-red-800 text-white font-bold transition shadow-lg shadow-primary/30 flex items-center justify-center gap-2 disabled:opacity-60 min-h-[44px]">
               {isSubmitting ? (
-                'Menyimpan...'
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Menyimpan...
+                </span>
               ) : isEditMode ? (
                 <>
-                  <FaSave /> Simpan
+                  <FaSave size={13} /> Simpan Perubahan
                 </>
               ) : (
                 <>
-                  <FaUpload /> Unggah
+                  <FaPlus size={13} /> Tambah Tahapan
                 </>
               )}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
-export default ModalFormGaleri;
+export default ModalFormPPDB;

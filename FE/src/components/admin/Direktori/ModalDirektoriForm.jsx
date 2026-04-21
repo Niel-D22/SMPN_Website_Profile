@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaPlus, FaEdit, FaSave, FaUserTie, FaImage } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
-// Array pilihan Jabatan
 const JABATAN_OPTIONS = [
   'Kepala Sekolah',
   'Wakil Kepala Sekolah',
@@ -12,7 +13,6 @@ const JABATAN_OPTIONS = [
   'Lainnya',
 ];
 
-// Helper: Konversi File ke Base64 Teks
 const convertToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -27,7 +27,7 @@ const emptyForm = {
   nip: '',
   jabatan: '',
   mata_pelajaran: '',
-  foto_url: '', // Akan diisi teks Base64
+  foto_url: '',
 };
 
 const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
@@ -49,58 +49,79 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const base64 = await convertToBase64(file);
-      setFormData({ ...formData, foto_url: base64 });
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran foto terlalu besar! Maksimal 2MB.');
+      return;
     }
+
+    const base64 = await convertToBase64(file);
+    setFormData({ ...formData, foto_url: base64 });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData); // Mengirim object JSON biasa (cocok dengan req.body backend)
+    onSave(formData);
   };
-
-  const inputClass =
-    'w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-red-700 outline-none transition text-gray-800 text-sm';
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-4">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+  const inputClass =
+    'w-full bg-gray-50 p-3 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-red-700 outline-none transition text-gray-800 text-sm min-h-[44px]';
+
+  // ✅ createPortal — render langsung ke document.body
+  // sehingga tidak terpengaruh CSS/transform dari parent manapun
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}>
+      <div
+        className="bg-white w-full max-w-md sm:max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl sm:rounded-t-3xl shrink-0">
           <div className="flex items-center gap-2">
             {isEditMode ? (
-              <FaEdit className="text-blue-600" size={18} />
+              <FaEdit className="text-blue-600" size={16} />
             ) : (
-              <FaUserTie className="text-red-700" size={18} />
+              <FaUserTie className="text-red-700" size={16} />
             )}
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">
               {isEditMode ? 'Ubah Data Pegawai' : 'Tambah Pegawai Baru'}
             </h2>
           </div>
+          {/* ✅ Touch target 44px */}
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-red-700 transition">
-            <FaTimes size={20} />
+            className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-red-700 hover:bg-red-50 transition"
+            aria-label="Tutup modal">
+            <FaTimes size={17} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
-          {/* Foto Profil Upload */}
-          <div className="flex flex-col items-center justify-center mb-4">
-            <div className="relative w-24 h-24 rounded-full border-4 border-gray-100 bg-gray-50 overflow-hidden mb-3 shadow-sm group">
+        {/* Body — scrollable */}
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-6 space-y-4 overflow-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch' }}>
+          {/* Foto Profil */}
+          <div className="flex flex-col items-center justify-center">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-gray-100 bg-gray-50 overflow-hidden shadow-sm group">
               {formData.foto_url ? (
                 <img src={formData.foto_url} alt="Preview" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
-                  <FaImage size={30} />
+                  <FaImage size={26} />
                 </div>
               )}
-              {/* Overlay Ganti Foto */}
               <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <span className="text-white text-[10px] font-bold">Ganti Foto</span>
+                <span className="text-white text-[10px] font-bold text-center px-1">
+                  Ganti Foto
+                </span>
                 <input
                   type="file"
                   accept="image/*"
@@ -109,11 +130,12 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
                 />
               </label>
             </div>
-            <p className="text-[10px] text-gray-400 text-center">
+            <p className="text-[10px] text-gray-400 text-center mt-2">
               Klik area foto untuk mengunggah (Maks 2MB)
             </p>
           </div>
 
+          {/* Nama Lengkap */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
               Nama Lengkap & Gelar
@@ -129,7 +151,8 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* NIP + Jabatan — 1 kolom di mobile, 2 kolom di sm+ */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
                 NIP (Nomor Induk)
@@ -143,7 +166,6 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
                 className={inputClass}
               />
             </div>
-
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
                 Jabatan
@@ -166,6 +188,7 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
             </div>
           </div>
 
+          {/* Mata Pelajaran */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
               Mata Pelajaran yang Diampu
@@ -180,34 +203,48 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
             />
           </div>
 
-          {/* Tombol Submit */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-2">
+          {/* Footer Tombol */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-3 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition">
+              className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition min-h-[44px]">
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold transition flex items-center gap-2 disabled:opacity-60 shadow-md">
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-md min-h-[44px]">
               {isSubmitting ? (
-                'Menyimpan...'
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Menyimpan...
+                </span>
               ) : isEditMode ? (
                 <>
-                  <FaSave /> Simpan Perubahan
+                  <FaSave size={13} /> Simpan Perubahan
                 </>
               ) : (
                 <>
-                  <FaPlus /> Tambah Pegawai
+                  <FaPlus size={13} /> Tambah Pegawai
                 </>
               )}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body // ✅ Portal ke body — bebas dari stacking context parent
   );
 };
 

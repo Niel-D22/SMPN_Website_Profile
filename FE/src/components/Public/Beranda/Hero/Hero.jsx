@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaUserCircle } from 'react-icons/fa';
 
 const Hero = () => {
   return (
@@ -15,11 +16,7 @@ const Hero = () => {
       <div className="max-w-screen-xl mx-auto px-4 -mt-24 md:-mt-32 relative z-10">
         <div className="bg-white rounded-[30px] shadow-2xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 border border-gray-100">
           <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
-            <img
-              src="../../../../../public/Images/marco.jpg"
-              alt="Kepala Sekolah"
-              className="w-full h-full object-cover"
-            />
+            <FaUserCircle className="text-gray-400 w-full h-full" />
           </div>
 
           <div className="flex-grow text-center md:text-left">

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { FaPlus, FaSearch, FaTrophy, FaChartLine } from 'react-icons/fa';
-
 import { prestasiApi } from '../../Api/prestasiApi';
 import PrestasiItem from '../../components/admin/Prestasi/PrestasiItem';
 import ModalFormPrestasi, {
   TINGKAT_OPTIONS,
 } from '../../components/admin/Prestasi/ModalFormPrestasi';
 import ModalKonfirmasi from '../../components/admin/ModalKonfirmasi';
+import 'animate.css';
 
 const TABS = ['Semua', ...TINGKAT_OPTIONS];
 
@@ -99,23 +99,23 @@ const AdminPrestasiPage = () => {
 
   const stats = useMemo(() => {
     const year = new Date().getFullYear();
-    const tahunIni = list.filter((p) => Number(p.tahun_meraih) === year).length;
-    const nasional = list.filter((p) =>
-      (p.tingkat || '').toLowerCase().includes('nasional')
-    ).length;
-    return { total: list.length, tahunIni, nasional };
+    return {
+      total: list.length,
+      tahunIni: list.filter((p) => Number(p.tahun_meraih) === year).length,
+      nasional: list.filter((p) => (p.tingkat || '').toLowerCase().includes('nasional')).length,
+    };
   }, [list]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-10 relative">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+    <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate__animated animate__fadeInUp animate__faster">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
             Prestasi Siswa
           </h1>
-          <p className="mt-2 text-sm text-gray-600 max-w-xl">
-            Kelola pencatatan prestasi lomba dan penghargaan. Data ini dapat ditampilkan di halaman
-            publik sekolah.
+          <p className="mt-0.5 text-xs sm:text-sm text-gray-600 max-w-xl">
+            Kelola pencatatan prestasi lomba dan penghargaan yang ditampilkan di halaman publik.
           </p>
         </div>
         <button
@@ -124,55 +124,63 @@ const AdminPrestasiPage = () => {
             setEditingData(null);
             setIsModalOpen(true);
           }}
-          className="shrink-0 inline-flex items-center justify-center gap-2 bg-primary hover:bg-red-800 text-white px-5 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-red-900/25 transition">
-          <FaPlus size={14} /> Tambah prestasi
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-red-800 text-white px-4 py-3 sm:px-5 rounded-xl font-bold text-sm shadow-lg shadow-red-900/25 transition min-h-[44px] w-full sm:w-auto">
+          <FaPlus size={13} /> Tambah Prestasi
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-red-50 text-primary flex items-center justify-center">
-            <FaChartLine size={20} />
+      {/* Stats Cards — 1 kolom di mobile, 3 di sm+ */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+        {[
+          {
+            icon: <FaChartLine size={18} />,
+            bg: 'bg-red-50',
+            color: 'text-primary',
+            label: 'Total Tercatat',
+            val: stats.total,
+          },
+          {
+            icon: <FaTrophy size={18} />,
+            bg: 'bg-amber-50',
+            color: 'text-amber-700',
+            label: 'Prestasi Tahun Ini',
+            val: stats.tahunIni,
+          },
+          {
+            icon: <FaTrophy size={18} />,
+            bg: 'bg-blue-50',
+            color: 'text-blue-700',
+            label: 'Tingkat Nasional',
+            val: stats.nasional,
+          },
+        ].map((s, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-sm flex items-center gap-3 sm:gap-4">
+            <div
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${s.bg} ${s.color} flex items-center justify-center shrink-0`}>
+              {s.icon}
+            </div>
+            <div>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide">
+                {s.label}
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 tabular-nums">{s.val}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-              Total tercatat
-            </p>
-            <p className="text-2xl font-bold text-gray-900 tabular-nums">{stats.total}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
-            <FaTrophy size={20} />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-              Prestasi tahun ini
-            </p>
-            <p className="text-2xl font-bold text-gray-900 tabular-nums">{stats.tahunIni}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-            <FaTrophy size={20} />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-              Tingkat nasional
-            </p>
-            <p className="text-2xl font-bold text-gray-900 tabular-nums">{stats.nasional}</p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-1 overflow-x-auto p-1 scrollbar-thin">
+      {/* Toolbar Filter + Search */}
+      <div className="bg-white p-2 sm:p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5 sm:mb-6">
+        {/* Tabs scroll horizontal */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0 hide-scrollbar">
           {TABS.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+              className={`px-3 py-2 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all min-h-[36px] ${
                 activeTab === tab
                   ? 'bg-primary text-white shadow-md shadow-red-900/20'
                   : 'text-gray-500 hover:bg-gray-50'
@@ -181,50 +189,52 @@ const AdminPrestasiPage = () => {
             </button>
           ))}
         </div>
-        <div className="relative w-full lg:w-80 shrink-0 px-2 pb-2 lg:pb-0 lg:pr-2">
-          <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+        {/* Search */}
+        <div className="relative w-full lg:w-72 shrink-0">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={13} />
           <input
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari lomba, nama, tingkat, atau tahun…"
-            className="w-full bg-gray-50 py-2.5 pl-10 pr-4 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary border border-transparent focus:border-primary transition"
+            placeholder="Cari lomba, nama, tingkat…"
+            className="w-full bg-gray-50 py-2.5 pl-9 pr-4 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary border border-transparent focus:border-primary transition"
           />
         </div>
       </div>
 
+      {/* Grid Konten */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-              <div className="h-36 skeleton-shimmer" />
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm animate-pulse">
+              <div className="h-32 sm:h-36 bg-gray-200" />
               <div className="p-4 space-y-3">
-                <div className="h-5 w-4/5 skeleton-shimmer rounded-lg" />
-                <div className="h-4 w-full skeleton-shimmer rounded-lg" />
+                <div className="h-4 w-4/5 bg-gray-200 rounded-lg" />
+                <div className="h-3 w-full bg-gray-200 rounded-lg" />
               </div>
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 mb-4 text-primary/40">
-            <FaTrophy size={28} />
+        <div className="text-center py-14 sm:py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-50 mb-4 text-primary/40">
+            <FaTrophy size={26} />
           </div>
-          <p className="text-gray-700 font-semibold">
+          <p className="text-gray-700 font-semibold text-sm sm:text-base">
             {list.length === 0
               ? 'Belum ada prestasi yang dicatat.'
               : 'Tidak ada data untuk filter ini.'}
           </p>
-          <p className="text-sm text-gray-500 mt-1 max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-sm mx-auto px-4">
             {list.length === 0
-              ? 'Klik “Tambah prestasi” untuk mencatat lomba atau penghargaan pertama.'
+              ? 'Klik "Tambah Prestasi" untuk mencatat lomba atau penghargaan pertama.'
               : 'Ubah tab tingkat atau kata kunci pencarian.'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {filtered.map((item) => (
             <PrestasiItem
               key={item.id_prestasi}
@@ -261,7 +271,7 @@ const AdminPrestasiPage = () => {
         }}
         onConfirm={confirmDelete}
         judul="Hapus prestasi?"
-        pesan="Data prestasi ini akan dihapus permanen dari basis data. Tindakan ini tidak dapat dibatalkan."
+        pesan="Data prestasi ini akan dihapus permanen. Tindakan ini tidak dapat dibatalkan."
         teksKonfirmasi="Ya, hapus"
         teksBatal="Batal"
       />

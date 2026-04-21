@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { dashboardApi } from '../../Api/dashboardApi'; // Import API Dashboard
 import { toast } from 'react-toastify';
+import 'animate.css';
 
 // --- DATA DUMMY GRAFIK ---
 const chartData = [
@@ -70,7 +71,7 @@ const AdminDashboardPage = () => {
   // Komponen Loading Sederhana
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 animate__animated animate__fadeInUp animate__faster">
         <FaCircleNotch className="animate-spin text-blue-600 mb-2" size={40} />
       </div>
     );

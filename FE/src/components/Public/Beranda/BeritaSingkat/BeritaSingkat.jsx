@@ -19,8 +19,8 @@ const stripHtml = (str) => {
 };
 
 /* ─── SKELETON ─── */
-const SkeletonBox = ({ className }) => (
-  <div className={`bg-gray-200 animate-pulse rounded-xl ${className}`} />
+const SkeletonBox = ({ className, style }) => (
+  <div className={`bg-gray-200 animate-pulse rounded-xl ${className}`} style={style} />
 );
 
 const SkeletonFeatured = () => (
@@ -41,7 +41,17 @@ const SkeletonFeatured = () => (
 
 const SkeletonSmall = () => (
   <div className="flex gap-3 py-4 border-b border-gray-100">
-    <SkeletonBox className="w-[110px] h-[78px] shrink-0 rounded-xl" />
+    <SkeletonBox
+      className="rounded-xl"
+      style={{
+        width: 'clamp(75px, 20vw, 110px)',
+        height: 'clamp(55px, 18vw, 78px)',
+        minWidth: 60,
+        minHeight: 45,
+        maxWidth: 110,
+        maxHeight: 78,
+      }}
+    />
     <div className="flex-1 flex flex-col gap-2">
       <SkeletonBox className="h-4 w-full" />
       <SkeletonBox className="h-4 w-4/5" />
@@ -68,7 +78,13 @@ const FeaturedCard = ({ berita }) => {
           src={img}
           alt={berita.judul}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-          style={{ display: 'block' }}
+          style={{
+            display: 'block',
+            aspectRatio: '16/10',
+            width: '100%',
+            height: 'auto',
+            maxHeight: 350,
+          }}
           onError={(e) => {
             e.target.src = 'https://placehold.co/800x500/f1f5f9/94a3b8?text=No+Image';
           }}
@@ -89,13 +105,27 @@ const FeaturedCard = ({ berita }) => {
         <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
           <h2
             className="font-extrabold text-gray-900 leading-snug group-hover:text-red-700 transition-colors duration-200 line-clamp-2"
-            style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.45rem)' }}>
+            style={{
+              fontSize: 'clamp(1.1rem, 4vw, 1.45rem)', // responsive font-size
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              display: '-webkit-box',
+              overflow: 'hidden',
+            }}>
             {berita.judul}
           </h2>
         </Link>
 
         {/* Excerpt — max 3 baris */}
-        <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">
+        <p
+          className="text-gray-500 text-sm leading-relaxed line-clamp-3"
+          style={{
+            fontSize: 'clamp(0.85rem, 3vw, 1rem)',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            display: '-webkit-box',
+            overflow: 'hidden',
+          }}>
           {excerpt || 'Baca berita selengkapnya di halaman berita kami.'}
         </p>
 
@@ -103,7 +133,7 @@ const FeaturedCard = ({ berita }) => {
         <Link
           to={`/berita`}
           className="inline-flex items-center gap-1.5 text-sm font-bold no-underline group w-fit"
-          style={{ color: 'var(--color-primary, #cc0000)' }}>
+          style={{ color: 'var(--color-primary, #cc0000)', fontSize: 'inherit' }}>
           Selengkapnya
           <FaArrowRight
             size={11}
@@ -121,12 +151,24 @@ const SmallCard = ({ berita, isLast }) => {
   const excerpt = stripHtml(berita.isi_konten);
 
   return (
-    <div className={`flex gap-3 py-4 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+    <div
+      className={`flex gap-3 py-4 ${!isLast ? 'border-b border-gray-100' : ''} items-center`}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+      }}>
       {/* Thumbnail */}
       <Link
         to={`/berita/${berita.id_berita}`}
         className="shrink-0 block rounded-xl overflow-hidden bg-gray-100 no-underline"
-        style={{ width: 110, height: 110 }}>
+        style={{
+          width: 'clamp(66px, 22vw, 110px)',
+          height: 'clamp(50px, 22vw, 110px)',
+          minWidth: 60,
+          minHeight: 45,
+          maxHeight: 110,
+          maxWidth: 110,
+        }}>
         <img
           src={img}
           alt={berita.judul}
@@ -134,6 +176,7 @@ const SmallCard = ({ berita, isLast }) => {
           onError={(e) => {
             e.target.src = 'https://placehold.co/200x200/f1f5f9/94a3b8?text=No+Image';
           }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </Link>
 
@@ -143,14 +186,28 @@ const SmallCard = ({ berita, isLast }) => {
         <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
           <h4
             className="font-bold text-gray-800 leading-snug line-clamp-2 group-hover:text-red-700 transition-colors duration-200"
-            style={{ fontSize: 'clamp(0.8rem, 1.1vw, 0.9rem)' }}>
+            style={{
+              fontSize: 'clamp(0.85rem, 2.7vw, 0.95rem)',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              display: '-webkit-box',
+              overflow: 'hidden',
+            }}>
             {berita.judul}
           </h4>
         </Link>
 
         {/* Excerpt — max 2 baris */}
         {excerpt && (
-          <p className="text-gray-400 leading-relaxed line-clamp-2" style={{ fontSize: '0.75rem' }}>
+          <p
+            className="text-gray-400 leading-relaxed line-clamp-2"
+            style={{
+              fontSize: 'clamp(0.7rem, 2vw, 0.82rem)',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              display: '-webkit-box',
+              overflow: 'hidden',
+            }}>
             {excerpt}
           </p>
         )}
@@ -159,7 +216,10 @@ const SmallCard = ({ berita, isLast }) => {
         <Link
           to={`/berita`}
           className="inline-flex items-center gap-1 text-xs font-bold no-underline group w-fit mt-0.5"
-          style={{ color: 'var(--color-primary, #cc0000)' }}>
+          style={{
+            color: 'var(--color-primary, #cc0000)',
+            fontSize: 'clamp(0.75rem, 2vw, 0.90rem)',
+          }}>
           Selengkapnya
           <FaArrowRight
             size={9}
@@ -196,103 +256,121 @@ const BeritaSingkat = () => {
   const sideList = dataBerita.slice(1, 4); // 3 item
 
   return (
-    <section className="w-full py-14 md:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+    <section className="w-full py-7 md:py-16 lg:py-20 bg-white">
+      <div className="max-w-[98vw] md:max-w-7xl mx-auto px-2 xs:px-3 sm:px-6 lg:px-10">
         {/* ── HEADER ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-3 md:mb-10">
           <div>
-            <p
-              className="text-xs font-black uppercase tracking-[0.18em] mb-1.5"
-              style={{ color: 'var(--color-primary, #cc0000)' }}>
-              Informasi Sekolah
-            </p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+            <h2
+              className="font-extrabold text-gray-900 leading-tight"
+              style={{
+                fontSize: 'clamp(1.25rem, 5vw, 2.4rem)',
+                lineHeight: '1.16',
+              }}>
               Berita & <span style={{ color: 'var(--color-primary, #cc0000)' }}>Pengumuman</span>
             </h2>
           </div>
-          <Link
-            to="/berita"
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-red-600 transition-colors duration-200 shrink-0 group no-underline">
-            Lihat Semua
-            <FaArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
-          </Link>
         </div>
 
         {/* ── BODY ── */}
-        {isLoading ? (
-          <div
-            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10"
-            style={{ alignItems: 'stretch' }}>
-            <SkeletonFeatured />
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <SkeletonBox className="h-5 w-24 mb-4" />
-              {[1, 2, 3].map((n) => (
-                <SkeletonSmall key={n} />
-              ))}
-            </div>
-          </div>
-        ) : dataBerita.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 rounded-2xl border border-dashed border-gray-200">
-            <FaNewspaper size={36} className="text-gray-300 mb-3" />
-            <p className="text-gray-400 text-sm font-medium">
-              Belum ada berita yang dipublikasikan.
-            </p>
-          </div>
-        ) : (
-          /*
-           * items-stretch → kedua kolom sama tinggi
-           * Kolom kiri pakai flex-col h-full → gambar mengisi sisa ruang
-           * Kolom kanan pakai flex-col → konten tersebar merata
-           */
-          <div
-            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10"
-            style={{ alignItems: 'stretch' }}>
-            {/* KIRI — Featured */}
-            {featured && <FeaturedCard berita={featured} />}
-
-            {/* KANAN — Box Terbaru */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-5 flex flex-col">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-1 shrink-0">
-                <FaFire size={18} style={{ color: 'var(--color-primary, #cc0000)' }} />
-                <h3 className="text-lg font-extrabold text-gray-900">Terbaru</h3>
+        <div
+          className="
+            grid
+            grid-cols-1
+            lg:grid-cols-[1.07fr_1fr]
+            gap-4 
+            xs:gap-6
+            md:gap-8
+            lg:gap-10
+            items-stretch
+          ">
+          {isLoading ? (
+            <>
+              <SkeletonFeatured />
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 xs:p-4 sm:p-5 flex flex-col">
+                <SkeletonBox className="h-5 w-24 mb-4" />
+                {[1, 2, 3].map((n) => (
+                  <SkeletonSmall key={n} />
+                ))}
               </div>
+            </>
+          ) : dataBerita.length === 0 ? (
+            <div
+              className="
+              col-span-full
+              flex flex-col items-center justify-center 
+              py-12 xs:py-16 sm:py-20 
+              rounded-2xl border border-dashed border-gray-200">
+              <FaNewspaper size={30} className="text-gray-300 mb-2" />
+              <p
+                className="text-gray-400 text-sm font-medium"
+                style={{
+                  fontSize: 'clamp(0.91rem, 2.6vw, 1.03rem)',
+                }}>
+                Belum ada berita yang dipublikasikan.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* KIRI — Featured */}
+              <div className="flex flex-col min-h-0">
+                {featured && <FeaturedCard berita={featured} />}
+              </div>
+              {/* KANAN — Box Terbaru */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-3 xs:px-4 md:px-5 py-4 xs:py-5 flex flex-col h-full min-h-[210px]">
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-1 shrink-0">
+                  <FaFire size={18} style={{ color: 'var(--color-primary, #cc0000)' }} />
+                  <h3
+                    className="font-extrabold text-gray-900"
+                    style={{
+                      fontSize: 'clamp(1.02rem, 2.3vw, 1.18rem)',
+                    }}>
+                    Terbaru
+                  </h3>
+                </div>
 
-              {/* List — flex-1 supaya mengisi sisa tinggi box */}
-              <div className="flex flex-col flex-1">
-                {sideList.length > 0 ? (
-                  sideList.map((item, i) => (
-                    <SmallCard
-                      key={item.id_berita}
-                      berita={item}
-                      isLast={i === sideList.length - 1}
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-400 text-sm py-6 text-center">
-                    Tidak ada berita lainnya.
-                  </p>
+                {/* List — flex-1 supaya mengisi sisa tinggi box */}
+                <div className="flex flex-col flex-1 min-h-[90px]">
+                  {sideList.length > 0 ? (
+                    sideList.map((item, i) => (
+                      <SmallCard
+                        key={item.id_berita}
+                        berita={item}
+                        isLast={i === sideList.length - 1}
+                      />
+                    ))
+                  ) : (
+                    <p
+                      className="text-gray-400 text-sm py-6 text-center"
+                      style={{ fontSize: 'clamp(0.81rem, 2vw, 0.99rem)' }}>
+                      Tidak ada berita lainnya.
+                    </p>
+                  )}
+                </div>
+
+                {/* Footer lihat semua */}
+                {dataBerita.length > 4 && (
+                  <div className="pt-3 mt-1 border-t border-gray-100 shrink-0">
+                    <Link
+                      to="/berita"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold no-underline group"
+                      style={{
+                        color: 'var(--color-primary, #cc0000)',
+                        fontSize: 'clamp(0.75rem, 2vw, 0.92rem)',
+                      }}>
+                      Lihat semua berita
+                      <FaArrowRight
+                        size={10}
+                        className="group-hover:translate-x-0.5 transition-transform"
+                      />
+                    </Link>
+                  </div>
                 )}
               </div>
-
-              {/* Footer lihat semua */}
-              {dataBerita.length > 4 && (
-                <div className="pt-4 mt-2 border-t border-gray-100 shrink-0">
-                  <Link
-                    to="/berita"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold no-underline group"
-                    style={{ color: 'var(--color-primary, #cc0000)' }}>
-                    Lihat semua berita
-                    <FaArrowRight
-                      size={10}
-                      className="group-hover:translate-x-0.5 transition-transform"
-                    />
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

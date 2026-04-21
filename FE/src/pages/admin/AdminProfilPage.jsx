@@ -4,6 +4,7 @@ import FormKeamananAkun from '../../components/admin/AdminProfil/FormKeamananAku
 import { profilApi } from '../../Api/adminProfilApi';
 import Skeleton from '../../components/ui/Skeleton'; // Sesuaikan path import-nya!
 import toast from 'react-hot-toast';
+import 'animate.css';
 
 const AdminProfilPage = () => {
   const [adminData, setAdminData] = useState(null);
@@ -42,7 +43,7 @@ const AdminProfilPage = () => {
   // Responsive Skeleton Loading
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto py-8 px-4 space-y-8">
+      <div className="max-w-6xl mx-auto py-8 px-4 space-y-8 animate__animated animate__fadeInUp animate__faster">
         {/* Skeleton Header */}
         <div>
           <Skeleton className="h-8 w-3/5 sm:w-1/3 rounded-md mb-2" />

@@ -4,28 +4,39 @@ import Sidebar from '../components/admin/Sidebar';
 import Header from '../components/admin/Header';
 
 const AdminLayout = () => {
-  // Samakan logika state dengan yang dibutuhkan Sidebar.jsx
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // State untuk minimize Sidebar Desktop
+  const [minimized, setMinimized] = useState(false);
 
-  const handleToggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // ✅ STATE BARU: Untuk mengontrol buka/tutup Sidebar Mobile
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleToggleMinimize = () => setMinimized((prev) => !prev);
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* HAPUS pembungkus div di sini. 
-        Biarkan Sidebar mengatur posisinya sendiri (karena sudah pakai fixed).
-      */}
-      <Sidebar />
+      {/* SIDEBAR WRAPPER */}
+      {/* ✅ PERBAIKAN: "hidden lg:block" dihapus agar versi mobile tetap bisa di-render di background.
+          Kita akali dengan w-0 di mobile, dan lg:w-64 / lg:w-20 di desktop. */}
+      <div
+        className={`
+          transition-all duration-300 shrink-0
+          ${minimized ? 'w-0 lg:w-20' : 'w-0 lg:w-64'}
+        `}>
+        <Sidebar
+          minimized={minimized}
+          onToggleMinimize={handleToggleMinimize}
+          mobileOpen={isMobileMenuOpen}
+          setMobileOpen={setIsMobileMenuOpen}
+        />
+      </div>
 
-      {/* Area Konten Utama:
-        Gunakan 'lg:ml-64' agar sama dengan breakpoint Sidebar (1024px).
-      */}
-      <div className="flex-1 flex flex-col h-screen transition-all lg:ml-64">
-        {/* Header */}
-        <Header onMobileMenuClick={handleToggleSidebar} />
+      {/* MAIN AREA */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
+        {/* HEADER */}
+        {/* ✅ PERBAIKAN: Kirim trigger setIsMobileMenuOpen ke tombol burger di Header */}
+        <Header onMobileMenuClick={setIsMobileMenuOpen} />
 
-        {/* Tempat render halaman konten */}
+        {/* CONTENT */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />
         </main>

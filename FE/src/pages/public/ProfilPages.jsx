@@ -1,82 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FaMapMarkerAlt,
   FaPhone,
   FaEnvelope,
-  FaGlobe,
-  FaAward,
   FaUsers,
   FaBookOpen,
   FaBuilding,
   FaChevronRight,
-  FaStar,
   FaCheckCircle,
-  FaBuilding as FaKelas,
-  FaCameraRetro, // Tambahan Icon
-  FaRunning, // Tambahan Icon
 } from 'react-icons/fa';
+import { profilSekolahApi } from '../../api/profilApi';
+import { direktoriApi } from '../../Api/direktoriApi';
+import 'animate.css';
 
-/* ── DATA PROFIL ── */
-const PROFIL = {
-  nama: 'SMP Negeri 3 Manado',
-  npsn: '40100512',
-  nsm: '201176001003',
-  status: 'Negeri',
-  akreditasi: 'A',
-  tahunBerdiri: '1965',
-  kepalaSekolah: 'Drs. H. Johny Mokoginta, M.Pd',
-  alamat: 'Jl. Diponegoro No. 1, Wenang, Kota Manado, Sulawesi Utara 95111',
-  telepon: '(0431) 864279',
-  email: 'smpn3manado@gmail.com',
-  website: 'smpn3manado.sch.id',
-  deskripsi:
-    'SMP Negeri 3 Manado adalah salah satu sekolah menengah pertama negeri unggulan di Kota Manado yang telah berdiri sejak tahun 1965. Dengan pengalaman lebih dari setengah abad, sekolah ini terus berkomitmen menghadirkan pendidikan berkualitas tinggi yang membentuk karakter, kecerdasan, dan kreativitas generasi penerus bangsa.',
-  deskripsi2:
-    'Sekolah ini telah melahirkan ribuan alumni berprestasi yang kini berkarya di berbagai bidang—mulai dari akademisi, profesional, hingga pemimpin daerah. Kami terus berinovasi dalam metode pembelajaran dan pengembangan infrastruktur untuk memastikan setiap siswa mendapat pengalaman belajar terbaik.',
-};
+// Komponen Skeleton
+const SkeletonBox = ({ className }) => (
+  <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />
+);
 
-const STATS = [
-  { label: 'Total Siswa', value: '900+', icon: <FaUsers /> },
-  { label: 'Tenaga Pendidik', value: '60+', icon: <FaBookOpen /> },
-  { label: 'Kelas', value: '24', icon: <FaBuilding /> },
-];
-
-// Data Preview Fasilitas (Tampilkan 3 saja di halaman profil)
-const FASILITAS = [
-  {
-    nama: 'Laboratorium Komputer',
-    img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop',
-  },
-  {
-    nama: 'Perpustakaan Digital',
-    img: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&auto=format&fit=crop',
-  },
-  {
-    nama: 'Lapangan Olahraga Terpadu',
-    img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&auto=format&fit=crop',
-  },
-];
-
-// Data Preview Ekskul
-const EKSKUL = [
-  'Pramuka',
-  'PMR',
-  'Basket',
-  'Voli',
-  'Futsal',
-  'Seni Tari',
-  'Paduan Suara',
-  'English Club',
-];
-
-/* ── COMPONENT ── */
 const ProfilPages = () => {
+  const [profilData, setProfilData] = useState(null);
+  const [totalGuru, setTotalGuru] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSemuaData = async () => {
+      try {
+        const [dataProfil, dataGuru] = await Promise.all([
+          profilSekolahApi.getProfilSekolah(),
+          direktoriApi.getGuru(),
+        ]);
+        setProfilData(dataProfil);
+
+        let jumlahGuru = 0;
+        if (Array.isArray(dataGuru?.data)) jumlahGuru = dataGuru.data.length;
+        else if (Array.isArray(dataGuru)) jumlahGuru = dataGuru.length;
+        else if (typeof dataGuru?.total === 'number') jumlahGuru = dataGuru.total;
+        setTotalGuru(jumlahGuru);
+      } catch (error) {
+        console.error('Gagal mengambil data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSemuaData();
+  }, []);
+
+  const jumlahSiswa = profilData?.jumlah_siswa || 900;
+  const jumlahKelas = Math.ceil(jumlahSiswa / 28);
+
+  const STATS_DYNAMIC = [
+    { label: 'Total Siswa', value: `${jumlahSiswa}+`, icon: <FaUsers /> },
+    { label: 'Tenaga Pendidik', value: `${totalGuru}+`, icon: <FaBookOpen /> },
+    { label: 'Kelas', value: jumlahKelas.toString(), icon: <FaBuilding /> },
+  ];
+
   return (
-    <div className="min-h-screen bg-white pb-24">
-      {/* ══════════════════════════════
-          HERO SECTION
-      ══════════════════════════════ */}
+    <div className="min-h-screen bg-white pb-24 animate__animated animate__fadeInUp animate__faster">
+      {/* HERO */}
       <section className="relative w-full min-h-[70vh] flex items-end justify-start overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -92,41 +74,60 @@ const ProfilPages = () => {
               'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.15) 100%)',
           }}
         />
-
         <div className="relative z-10 w-full max-w-[1240px] mx-auto px-6 lg:px-10 pb-14 pt-32">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-4 max-w-3xl">
-            SMP Negeri 3<br />
-            <span style={{ color: 'var(--color-primary, #cc0000)' }}>Manado</span>
-          </h1>
-          <p className="text-white/75 text-base md:text-lg max-w-xl leading-relaxed">
-            Berdiri sejak 1965 · Jl. Diponegoro No. 1, Wenang, Manado
-          </p>
+          {isLoading ? (
+            <>
+              <SkeletonBox className="w-20 h-20 mb-6 rounded-full bg-white/20" />
+              <SkeletonBox className="w-2/3 h-12 mb-4 bg-white/20" />
+              <SkeletonBox className="w-1/2 h-5 bg-white/20" />
+            </>
+          ) : (
+            <>
+              {profilData?.logo_url && (
+                <img
+                  src={profilData.logo_url}
+                  alt="Logo"
+                  className="w-20 h-20 mb-6 object-contain"
+                />
+              )}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-4 max-w-3xl">
+                {profilData?.nama_sekolah}
+              </h1>
+              <p className="text-white/75 text-base md:text-lg max-w-xl leading-relaxed">
+                {profilData?.alamat}
+              </p>
+            </>
+          )}
         </div>
       </section>
 
-      {/* ══════════════════════════════
-          STATS BAR
-      ══════════════════════════════ */}
+      {/* STATS BAR */}
       <section style={{ background: 'var(--color-primary, #cc0000)' }}>
         <div className="max-w-[1240px] mx-auto px-6 lg:px-10">
-          <div className="w-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-0">
-            {STATS.map((stat, i) => (
+          <div className="w-full flex flex-col md:flex-row items-center justify-center">
+            {STATS_DYNAMIC.map((stat, i) => (
               <div
                 key={i}
-                className={
-                  `flex-1 flex items-center gap-5 justify-center px-6 py-5 ` +
-                  (i !== 0 ? 'border-t md:border-t-0 md:border-l border-white/25' : '')
-                }>
+                className={`flex-1 flex items-center gap-5 justify-center px-6 py-5 ${i !== 0 ? 'border-t md:border-t-0 md:border-l border-white/25' : ''}`}>
                 <div className="flex-shrink-0 bg-white/10 rounded-full w-12 h-12 flex items-center justify-center">
                   <span className="text-white text-2xl">{stat.icon}</span>
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="text-white font-bold text-2xl md:text-3xl leading-none">
-                    {stat.value}
-                  </span>
-                  <span className="text-white/80 text-xs font-semibold uppercase tracking-wider mt-1">
-                    {stat.label}
-                  </span>
+                  {isLoading ? (
+                    <>
+                      <SkeletonBox className="w-16 h-7 mb-1 bg-white/20" />
+                      <SkeletonBox className="w-24 h-3 bg-white/20" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-white font-bold text-2xl md:text-3xl leading-none">
+                        {stat.value}
+                      </span>
+                      <span className="text-white/80 text-xs font-semibold uppercase tracking-wider mt-1">
+                        {stat.label}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -134,12 +135,10 @@ const ProfilPages = () => {
         </div>
       </section>
 
-      {/* ══════════════════════════════
-          DESKRIPSI + IDENTITAS
-      ══════════════════════════════ */}
+      {/* DESKRIPSI + IDENTITAS */}
       <section className="max-w-[1240px] mx-auto px-6 lg:px-10 py-16 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-20 items-start">
-          {/* Kiri — teks */}
+          {/* Kiri */}
           <div>
             <p
               className="text-xs font-black uppercase tracking-[0.18em] mb-3"
@@ -147,12 +146,23 @@ const ProfilPages = () => {
               Tentang Sekolah
             </p>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight mb-6">
-              Melahirkan Generasi Unggul Sejak Enam Dekade
+              Melahirkan Generasi Unggul
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-4 text-base">{PROFIL.deskripsi}</p>
-            <p className="text-gray-500 leading-relaxed text-sm">{PROFIL.deskripsi2}</p>
 
-            {/* Poin keunggulan */}
+            {isLoading ? (
+              <div className="flex flex-col gap-3">
+                <SkeletonBox className="w-full h-4" />
+                <SkeletonBox className="w-full h-4" />
+                <SkeletonBox className="w-3/4 h-4" />
+                <SkeletonBox className="w-full h-4 mt-2" />
+                <SkeletonBox className="w-5/6 h-4" />
+              </div>
+            ) : (
+              <p className="text-gray-600 leading-relaxed mb-4 text-base whitespace-pre-wrap">
+                {profilData?.sejarah || 'Belum ada data sejarah sekolah.'}
+              </p>
+            )}
+
             <div className="mt-8 flex flex-col gap-3">
               {[
                 'Kurikulum Merdeka Belajar',
@@ -178,7 +188,7 @@ const ProfilPages = () => {
                 Visi & Misi <FaChevronRight size={11} />
               </Link>
               <Link
-                to="/guru"
+                to="/direktori-staf"
                 className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-full text-sm border border-gray-200 text-gray-700 hover:border-red-300 hover:text-red-700 transition-all no-underline">
                 Guru & Staf <FaChevronRight size={11} />
               </Link>
@@ -194,124 +204,51 @@ const ProfilPages = () => {
             </div>
             <div className="divide-y divide-gray-100 bg-white">
               {[
-                { label: 'NPSN', value: PROFIL.npsn },
-                { label: 'NSM', value: PROFIL.nsm },
-                { label: 'Status', value: PROFIL.status },
-                { label: 'Akreditasi', value: PROFIL.akreditasi, highlight: true },
-                { label: 'Tahun Berdiri', value: PROFIL.tahunBerdiri },
-                { label: 'Kepala Sekolah', value: PROFIL.kepalaSekolah },
+                { label: 'NPSN', value: profilData?.npsn },
+                { label: 'Status', value: 'Negeri' },
+                { label: 'Akreditasi', value: profilData?.akreditas || 'A', highlight: true },
               ].map((row, i) => (
                 <div key={i} className="flex items-start justify-between px-6 py-3.5 gap-4">
                   <span className="text-gray-400 text-xs font-semibold uppercase tracking-wide shrink-0 pt-0.5">
                     {row.label}
                   </span>
-                  <span
-                    className={`text-sm font-bold text-right ${row.highlight ? 'text-green-600' : 'text-gray-800'}`}>
-                    {row.highlight ? `✓ ${row.value}` : row.value}
-                  </span>
+                  {isLoading ? (
+                    <SkeletonBox className="w-24 h-4" />
+                  ) : (
+                    <span
+                      className={`text-sm font-bold text-right ${row.highlight ? 'text-green-600' : 'text-gray-800'}`}>
+                      {row.highlight ? `✓ ${row.value}` : row.value}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* Kontak */}
             <div className="px-6 py-5 bg-gray-50 border-t border-gray-100 flex flex-col gap-3">
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <FaMapMarkerAlt style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                <span className="leading-snug">{PROFIL.alamat}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <FaPhone style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                <span>{PROFIL.telepon}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <FaEnvelope style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                <span>{PROFIL.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
-                <FaGlobe style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                <span>{PROFIL.website}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════
-          PREVIEW FASILITAS & EKSKUL (BARU)
-      ══════════════════════════════ */}
-      <section className="bg-gray-50 py-16 md:py-24 border-t border-gray-100">
-        <div className="max-w-[1240px] mx-auto px-6 lg:px-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-2">
-                Fasilitas & Ekstrakurikuler
-              </h2>
-              <p className="text-gray-500 text-sm md:text-base">
-                Lingkungan belajar yang mendukung pengembangan minat dan bakat siswa.
-              </p>
-            </div>
-
-            {/* Tombol Lihat Selengkapnya (Arahkan ke halaman galeri fasilitas/ekskul) */}
-            <Link
-              to="/galeri-fasilitas"
-              className="group inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all no-underline shrink-0">
-              Lihat Selengkapnya
-              <FaChevronRight
-                size={10}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start">
-            {/* KOLOM KIRI: Galeri Fasilitas Mini */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {FASILITAS.map((fasilitas, index) => (
-                <div
-                  key={index}
-                  className="relative group rounded-2xl overflow-hidden aspect-[4/5] bg-gray-200">
-                  <img
-                    src={fasilitas.img}
-                    alt={fasilitas.nama}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
-                    <h4 className="text-white font-bold text-sm tracking-wide leading-snug drop-shadow-md">
-                      {fasilitas.nama}
-                    </h4>
+              {isLoading ? (
+                <>
+                  <SkeletonBox className="w-full h-4" />
+                  <SkeletonBox className="w-3/4 h-4" />
+                  <SkeletonBox className="w-1/2 h-4" />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <FaMapMarkerAlt
+                      style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }}
+                    />
+                    <span className="leading-snug">{profilData?.alamat}</span>
                   </div>
-                  {/* Ikon Kamera pojok kanan atas */}
-                  <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md p-1.5 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                    <FaCameraRetro size={12} />
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <FaPhone style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
+                    <span>{profilData?.no_telepon}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* KOLOM KANAN: Daftar Ekstrakurikuler (Bentuk Pill/Tags) */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 h-full">
-              <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
-                <div className="p-2.5 rounded-lg bg-red-50 text-red-600">
-                  <FaRunning size={20} />
-                </div>
-                <h3 className="font-extrabold text-gray-800 text-lg">Daftar Ekstrakurikuler</h3>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5">
-                {EKSKUL.map((item, index) => (
-                  <span
-                    key={index}
-                    className="inline-block px-3 py-1.5 bg-gray-50 border border-gray-200 text-gray-600 text-xs font-bold rounded-full hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-default">
-                    {item}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-8 text-center">
-                <p className="text-xs text-gray-400 italic">
-                  *Terdapat lebih dari 15+ pilihan ekstrakurikuler aktif lainnya.
-                </p>
-              </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <FaEnvelope style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
+                    <span>{profilData?.email_sekolah}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { faqApi } from '../../Api/faqApi'; // Sesuaikan path ini dengan lokasimu
+import 'animate.css';
 
 const Faq = () => {
   const [faqs, setFaqs] = useState([]);
@@ -30,7 +31,7 @@ const Faq = () => {
   };
 
   return (
-    <section className=" py-24 px-6 sm:px-8 lg:px-12  min-h-screen">
+    <section className=" py-24 px-6 sm:px-8 lg:px-12  animate__animated animate__fadeInUp animate__faster min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* === HEADER FAQ === */}
         <div className="text-center mb-16">

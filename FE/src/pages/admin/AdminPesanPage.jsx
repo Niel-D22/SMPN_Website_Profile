@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import { pesanApi } from '../../Api/pesanApi';
 import Skeleton from '../../components/ui/Skeleton';
-import PesanItem from '../../components/admin/Pesan/PesanItem'; // Import Komponen 1
-import ModalBalasPesan from '../../components/admin/Pesan/ModalBalasPesan'; // Import Komponen 2
+import PesanItem from '../../components/admin/Pesan/PesanItem';
+import ModalBalasPesan from '../../components/admin/Pesan/ModalBalasPesan';
+import 'animate.css';
 
 const AdminPesanPage = () => {
   const [pesanList, setPesanList] = useState([]);
@@ -50,9 +51,8 @@ const AdminPesanPage = () => {
   };
 
   // 3. Handle Kirim Balasan (Diterima dari Modal)
-
   const handleKirimBalasan = async (jawabanText) => {
-    if (!jawabanText.trim()) return toast.warning('Tulis jawaban terlebih dahulu!');
+    if (!jawabanText.trim()) return toast.error('Tulis jawaban terlebih dahulu!');
 
     setIsSubmitting(true);
     try {
@@ -106,34 +106,72 @@ const AdminPesanPage = () => {
 
   // 4. Handle Hapus
   const handleHapus = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus pesan ini?')) return;
-    try {
-      await pesanApi.hapusPesan(id);
-      setPesanList((prev) => prev.filter((p) => p.id_pesan !== id));
-      toast.success('Pesan berhasil dihapus.');
-    } catch (error) {
-      toast.error('Gagal menghapus pesan.');
+    // Ubah konfirmasi alert ke custom toast + confirm UI
+    // (Respon mobile-first: toast + confirm, jangan window.confirm)
+    let confirmContainer = document.createElement('div');
+    confirmContainer.className =
+      'fixed z-[9999] inset-0 flex items-center justify-center bg-black/40';
+    const confirmBox = document.createElement('div');
+    confirmBox.className =
+      'bg-white rounded-xl shadow-xl max-w-[90vw] w-[320px] p-5 flex flex-col items-center gap-4 animate__animated animate__fadeInUp';
+    confirmBox.innerHTML = `
+      <div class="text-lg font-semibold text-gray-900 text-center">Yakin ingin menghapus pesan ini?</div>
+      <div class="flex w-full justify-between gap-2 mt-1">
+        <button id="batalBtn" class="w-1/2 py-2 px-4 rounded-lg bg-gray-100 text-gray-700 text-base font-medium active:bg-gray-200">Batal</button>
+        <button id="hapusBtn" class="w-1/2 py-2 px-4 rounded-lg bg-primary text-white text-base font-semibold active:bg-primary/90">Hapus</button>
+      </div>
+    `;
+    confirmContainer.appendChild(confirmBox);
+    document.body.appendChild(confirmContainer);
+
+    function cleanUp() {
+      document.body.removeChild(confirmContainer);
     }
+
+    return new Promise((resolve) => {
+      confirmBox.querySelector('#batalBtn').onclick = () => {
+        cleanUp();
+        resolve(false);
+      };
+      confirmBox.querySelector('#hapusBtn').onclick = () => {
+        cleanUp();
+        resolve(true);
+      };
+    }).then(async (shouldDelete) => {
+      if (!shouldDelete) return;
+
+      try {
+        await pesanApi.hapusPesan(id);
+        setPesanList((prev) => prev.filter((p) => p.id_pesan !== id));
+        toast.success('Pesan berhasil dihapus.');
+      } catch (error) {
+        toast.error('Gagal menghapus pesan.');
+      }
+    });
   };
 
   // --- SKELETON LOADING ---
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 lg:p-10">
-        <div className="flex justify-between items-center mb-8">
+      <div className="min-h-screen bg-gray-50 px-2 py-4 sm:px-4 md:px-8 lg:px-16 lg:py-10 animate__animated animate__fadeInUp animate__faster">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-10">
           <div>
-            <Skeleton className="h-8 w-48 mb-2 rounded-md" />
-            <Skeleton className="h-4 w-64 rounded-md" />
+            <Skeleton className="h-7 w-40 mb-2 rounded-md" />
+            <Skeleton className="h-3 w-52 rounded-md" />
           </div>
-          <Skeleton className="h-10 w-40 rounded-full" />
+          <div className="mt-2 sm:mt-0 flex-shrink-0">
+            <Skeleton className="h-9 w-32 rounded-full" />
+          </div>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 flex gap-4">
-              <Skeleton className="h-12 w-12 rounded-xl shrink-0" />
-              <div className="w-full space-y-3">
-                <Skeleton className="h-5 w-40 rounded-md" />
-                <Skeleton className="h-16 w-full rounded-xl" />
+            <div
+              key={i}
+              className="bg-white p-4 rounded-xl border border-gray-100 flex gap-4 flex-wrap items-center">
+              <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
+              <div className="w-full space-y-2 md:space-y-3">
+                <Skeleton className="h-4 w-32 rounded-md" />
+                <Skeleton className="h-12 w-full rounded-xl" />
               </div>
             </div>
           ))}
@@ -144,25 +182,29 @@ const AdminPesanPage = () => {
 
   // --- TAMPILAN UTAMA ---
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 lg:p-10 relative">
+    <div className="min-h-screen bg-gray-50 py-4 px-2 sm:px-4 md:px-10 md:py-8 relative">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Pesan & Buku Tamu</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-[1.6rem] sm:text-3xl font-bold text-gray-900 tracking-tight leading-snug">
+            Pesan &amp; Buku Tamu
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1 leading-snug">
             Interaksi langsung dengan publik dan wali murid.
           </p>
         </div>
-
-        <div className="flex items-center gap-2 bg-red-50 text-primary px-4 py-2 rounded-full border border-primary/10 font-semibold text-sm">
-          <FaCheckCircle className="text-primary" /> Semua Pesan Terbalas
+        <div className="flex items-center gap-2 bg-red-50 text-primary px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-primary/10 font-semibold text-xs sm:text-sm touch-auto min-h-[44px]">
+          <FaCheckCircle className="text-primary text-lg" />
+          <span>Semua Pesan Terbalas</span>
         </div>
       </div>
 
-      {/* DAFTAR PESAN (Mapping Komponen PesanItem) */}
-      <div className="space-y-4">
+      {/* DAFTAR PESAN */}
+      <div className="space-y-3 md:space-y-4">
         {pesanList.length === 0 ? (
-          <div className="text-center py-20 text-gray-400 font-medium">Belum ada pesan masuk.</div>
+          <div className="text-center py-12 sm:py-20 text-gray-400 font-medium text-base">
+            Belum ada pesan masuk.
+          </div>
         ) : (
           pesanList.map((pesan) => (
             <PesanItem
@@ -182,6 +224,8 @@ const AdminPesanPage = () => {
         pesan={selectedPesan}
         onKirim={handleKirimBalasan}
         isSubmitting={isSubmitting}
+        // Pastikan Modal memberi responsivitas: uk-modal (lihat ModalBalasPesan), misal gunakan Tailwind berikut pada modal container:
+        // 'w-full max-w-md mx-auto rounded-2xl shadow-lg bg-white max-h-[90vh] overflow-y-auto px-4 py-5'
       />
     </div>
   );

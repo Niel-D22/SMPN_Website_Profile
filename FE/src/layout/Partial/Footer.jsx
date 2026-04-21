@@ -1,141 +1,207 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { Link } from 'react-router-dom';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { SiTiktok } from 'react-icons/si';
+
+import { profilSekolahApi } from '../../api/profilApi';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [profil, setProfil] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Warna utama: Merah maroon #b30000, biru navy #003366, abu2 #f4f6fb, accent emas #f4b400, teks putih.
-  // Ganti menu sesuai menu utama website
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const data = await profilSekolahApi.getProfilSekolah();
+        setProfil(data);
+      } catch (err) {
+        console.error('Gagal ambil profil:', err);
+      }
+    };
+
+    fetchProfil();
+  }, []);
+
+  // Responsive listener
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640); // Tailwind's "sm"
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Sosial media links yang diberikan user
+  const sosialMediaLinks = {
+    facebook: 'https://www.facebook.com/share/1ASy4gfZbe/',
+    instagram: 'https://www.instagram.com/spentig_mdo?igsh=MTZydWw3MHV4ejl6Zg==',
+    tiktok: 'https://www.tiktok.com/@smpnegeri3manado?_r=1&_t=ZS-95iaL7lyfSq',
+  };
+
+  // Tailwind breakpoint for mobile size tweaks
+  const logoClass = isMobile
+    ? 'w-14 h-14 object-contain rounded-xl'
+    : 'w-20 h-20 object-contain rounded-xl';
+
+  const headingClass = isMobile
+    ? 'font-bold mb-2 text-white text-base tracking-wide'
+    : 'font-bold mb-4 text-white text-lg tracking-wide';
+
+  const iconButtonClass = isMobile
+    ? 'w-9 h-9 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition'
+    : 'w-11 h-11 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition';
+
+  const iconSize = isMobile ? 16 : 22;
+  const gridClass = isMobile
+    ? 'grid grid-cols-1 gap-7'
+    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10';
+
+  const textSizeSm = isMobile ? 'text-xs' : 'text-sm';
+  const textSizeFootNote = isMobile ? 'text-[11px]' : 'text-xs';
+  const sectionGap = isMobile ? 'px-3 py-6' : 'px-6 lg:px-12 py-12';
+
   return (
     <footer className="bg-[#b30000] text-white mt-16 rounded-t-3xl">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
-        {/* GRID 4 KOLOM */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* KOLOM 1: BRAND + KONTAK */}
-          <div className="space-y-4">
-            <img
-              src="../../../public/Images/LogoSekolah.png"
-              alt="Logo"
-              className="w-20 h-20 object-contain rounded-xl"
-            />
+      <div className={`max-w-7xl mx-auto ${sectionGap}`}>
+        <div className={gridClass}>
+          {/* KOLOM 1 */}
+          <div className="space-y-3 sm:space-y-4">
+            {profil?.logo_url && <img src={profil.logo_url} alt="Logo" className={logoClass} />}
 
-            <p className="text-sm text-white/80 leading-relaxed font-medium">
-              SMP NEGERI 3 MANADO — Sekolah Unggul, Berkarakter dan Berprestasi!
+            <p className={`${textSizeSm} text-white/80 leading-relaxed font-medium`}>
+              {profil?.nama_sekolah || 'Nama Sekolah'} — Sekolah Unggul, Berkarakter dan
+              Berprestasi!
             </p>
 
-            <ul className="space-y-2 text-sm text-white/90 font-semibold">
+            <ul className={`space-y-1 sm:space-y-2 ${textSizeSm} text-white/90 font-semibold`}>
               <li className="flex gap-2 items-start">
-                <FaMapMarkerAlt className="mt-0.5 text-[#f4b400]" />
-                <span>Jl. Kakap No. 2, Kec. Tuminting, Kota Manado, Sulawesi Utara</span>
+                <FaMapMarkerAlt
+                  className={`mt-0.5 ${isMobile ? 'text-base' : ''} text-[#f4b400]`}
+                  size={iconSize - 3}
+                />
+                <span>{profil?.alamat || '-'}</span>
               </li>
               <li className="flex gap-2 items-center">
-                <FaPhoneAlt className="text-[#f4b400]" />
-                <span>082395358120</span>
+                <FaPhoneAlt className="text-[#f4b400]" size={iconSize - 3} />
+                <span>{profil?.no_telepon || '-'}</span>
               </li>
               <li className="flex gap-2 items-center">
-                <FaEnvelope className="text-[#f4b400]" />
-                <span>smpnegeri3manadosulut@gmail.com</span>
+                <FaEnvelope className="text-[#f4b400]" size={iconSize - 3} />
+                <span>{profil?.email_sekolah || '-'}</span>
               </li>
             </ul>
           </div>
 
           {/* KOLOM 2 */}
           <div>
-            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Menu Utama</h3>
-            <ul className="space-y-2 text-sm text-white/80 ">
+            <h3 className={headingClass}>Menu Utama</h3>
+            <ul className={`space-y-1 sm:space-y-2 ${textSizeSm} text-white/80`}>
               <li>
-                <a href="/" className="hover:text-[#f4b400] transition">
+                <Link to="/" className="hover:text-[#f4b400] transition">
                   Beranda
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/profil-sekolah" className="hover:text-[#f4b400] transition">
-                  Profil Sekolah
-                </a>
+                <Link to="/profil" className="hover:text-[#f4b400] transition">
+                  Profil
+                </Link>
               </li>
               <li>
-                <a href="/visi-misi" className="hover:text-[#f4b400] transition">
+                <Link to="/visi-misi" className="hover:text-[#f4b400] transition">
                   Visi & Misi
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/guru" className="hover:text-[#f4b400] transition">
-                  Data Guru
-                </a>
+                <Link to="/direktori-staf" className="hover:text-[#f4b400] transition">
+                  Direktori Staf
+                </Link>
               </li>
               <li>
-                <a href="/alumni" className="hover:text-[#f4b400] transition">
-                  Data Alumni
-                </a>
+                <Link to="/prestasi" className="hover:text-[#f4b400] transition">
+                  Prestasi
+                </Link>
               </li>
             </ul>
           </div>
 
           {/* KOLOM 3 */}
           <div>
-            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Informasi</h3>
-            <ul className="space-y-2 text-sm text-white/80">
+            <h3 className={headingClass}>Informasi</h3>
+            <ul className={`space-y-1 sm:space-y-2 ${textSizeSm} text-white/80`}>
               <li>
-                <a href="/berita" className="hover:text-[#f4b400] transition">
+                <Link to="/berita" className="hover:text-[#f4b400] transition">
                   Berita
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/pengumuman" className="hover:text-[#f4b400] transition">
-                  Pengumuman
-                </a>
+                <Link to="/ppdb" className="hover:text-[#f4b400] transition">
+                  PPDB
+                </Link>
               </li>
               <li>
-                <a href="/agenda" className="hover:text-[#f4b400] transition">
-                  Agenda Sekolah
-                </a>
+                <Link to="/faq" className="hover:text-[#f4b400] transition">
+                  FAQ
+                </Link>
               </li>
               <li>
-                <a href="/galeri" className="hover:text-[#f4b400] transition">
-                  Galeri Foto
-                </a>
-              </li>
-              <li>
-                <a href="/kontak" className="hover:text-[#f4b400] transition">
-                  Kontak & Lokasi
-                </a>
+                <Link to="/galeri" className="hover:text-[#f4b400] transition">
+                  Galeri
+                </Link>
               </li>
             </ul>
           </div>
 
           {/* KOLOM 4 */}
           <div>
-            <h3 className="font-bold mb-4 text-white text-lg tracking-wide">Ikuti Kami</h3>
-
-            <div className="flex gap-3 mb-4">
+            <h3 className={headingClass}>Ikuti Kami</h3>
+            <div className={`flex gap-2 sm:gap-3 mb-2 sm:mb-4`}>
               <a
-                href="https://facebook.com/smpn3manado"
+                href={sosialMediaLinks.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition"
-                aria-label="Facebook SMPN 3 Manado">
-                <FaFacebook size={22} />
+                aria-label="Facebook"
+                className={iconButtonClass}>
+                <FaFacebook size={iconSize} />
               </a>
               <a
-                href="https://instagram.com/smpn3manado"
+                href={sosialMediaLinks.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#003366] hover:bg-[#f4b400] hover:text-[#b30000] transition"
-                aria-label="Instagram SMPN 3 Manado">
-                <FaInstagram size={22} />
+                aria-label="Instagram"
+                className={iconButtonClass}>
+                <FaInstagram size={iconSize} />
+              </a>
+              <a
+                href={sosialMediaLinks.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className={iconButtonClass}>
+                <SiTiktok size={iconSize} />
               </a>
             </div>
-            <p className="text-xs text-white/70 mt-2">Follow untuk update terbaru sekolah!</p>
+
+            <p className={`${textSizeFootNote} text-white/70 mt-2`}>
+              Follow untuk update terbaru sekolah!
+            </p>
           </div>
         </div>
 
         {/* BOTTOM */}
-        <div className="mt-10 pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-white/80">
+        <div
+          className={`mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-2 sm:gap-3 ${textSizeSm} text-white/80`}>
           <p>
-            © {currentYear} <span className="font-bold text-[#f4b400]">SMP Negeri 3 Manado</span>
+            © {currentYear}{' '}
+            <span className="font-bold text-[#f4b400]">{profil?.nama_sekolah || 'Sekolah'}</span>
           </p>
-          <p>
-            Dikelola oleh <span className="font-semibold text-[#003366]">Tim IT SMPN 3 Manado</span>
+          <p className={`${isMobile ? 'text-center' : ''}`}>
+            Dikembangkan oleh{' '}
+            <span className="font-semibold text-[#003366]">
+              Mahasiswa Teknik Informatika Universitas Katolik De La Salle
+            </span>
           </p>
         </div>
       </div>
