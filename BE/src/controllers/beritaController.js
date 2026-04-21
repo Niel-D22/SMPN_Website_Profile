@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 
-// A. PUBLIC (hanya status active)
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
 const getBeritaPublic = async (req, res) => {
   try {
     const data = await pool.query(
@@ -13,7 +14,6 @@ const getBeritaPublic = async (req, res) => {
   }
 };
 
-// B. ADMIN (semua data)
 const getBeritaAdmin = async (req, res) => {
   try {
     const data = await pool.query('SELECT * FROM berita_pengumuman ORDER BY id_berita DESC');
@@ -24,115 +24,99 @@ const getBeritaAdmin = async (req, res) => {
   }
 };
 
-// C. TAMBAH BERITA
 const addBerita = async (req, res) => {
+  const { judul, isi_konten, kategori, status } = req.body;
+  const id_admin = req.admin ? req.admin.id : null;
+
+  if (!judul || !isi_konten || !kategori) {
+    return res.status(400).json({ message: 'Judul, isi_konten, dan kategori wajib diisi!' });
+  }
+
   try {
-    const { judul, isi_konten, kategori, status } = req.body;
-
-    if (!judul || !isi_konten || !kategori) {
-      return res.status(400).json({
-        message: 'Judul, isi_konten, dan kategori wajib diisi!',
-      });
-    }
-
-    // ambil file
-    const gambar_url = req.file ? `/uploads/berita/${req.file.filename}` : null;
+    // ✅ Simpan gambar_url dengan URL lengkap
+    const gambar_url = req.file ? `${BASE_URL}/uploads/berita/${req.file.filename}` : null;
 
     const result = await pool.query(
       `INSERT INTO berita_pengumuman 
-       (judul, isi_konten, kategori, status, gambar_url) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [judul, isi_konten, kategori, status || 'active', gambar_url]
+       (judul, isi_konten, kategori, status, gambar_url, id_admin) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [judul, isi_konten, kategori, status || 'active', gambar_url, id_admin]
     );
 
-    res.status(201).json({
-      message: 'Berita berhasil ditambahkan',
-      data: result.rows[0],
-    });
+    res.status(201).json({ message: 'Berita berhasil dibuat!', data: result.rows[0] });
   } catch (error) {
     console.error('Error addBerita:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// D. DETAIL BERITA
 const getBeritaById = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id || isNaN(id)) {
-      return res.status(400).json({ message: 'ID tidak valid' });
+      return res.status(400).json({ message: 'ID berita tidak valid' });
     }
-
-    const result = await pool.query('SELECT * FROM berita_pengumuman WHERE id_berita = $1', [id]);
-
-    if (result.rows.length === 0) {
+    const data = await pool.query('SELECT * FROM berita_pengumuman WHERE id_berita = $1', [id]);
+    if (data.rows.length === 0) {
       return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }
-
-    res.json(result.rows[0]);
+    res.json(data.rows[0]);
   } catch (error) {
     console.error('Error getBeritaById:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// E. UPDATE BERITA
 const updateBerita = async (req, res) => {
   try {
     const { id } = req.params;
-    const { judul, isi_konten, kategori, status } = req.body;
+    const { kategori, judul, isi_konten, status } = req.body;
 
     if (!id || isNaN(id)) {
-      return res.status(400).json({ message: 'ID tidak valid' });
+      return res.status(400).json({ message: 'ID berita tidak valid' });
+    }
+    if (!kategori || !judul || !isi_konten) {
+      return res.status(400).json({ message: 'Kategori, judul, dan isi_konten wajib diisi!' });
     }
 
-    if (!judul || !isi_konten || !kategori) {
-      return res.status(400).json({
-        message: 'Judul, isi_konten, dan kategori wajib diisi!',
-      });
-    }
+    // ✅ Ambil gambar lama kalau tidak ada file baru
+    const existing = await pool.query(
+      'SELECT gambar_url FROM berita_pengumuman WHERE id_berita = $1',
+      [id]
+    );
+    const oldGambarUrl = existing.rows[0]?.gambar_url;
 
-    // ambil file baru kalau ada
-    let gambar_url = req.file ? `/uploads/berita/${req.file.filename}` : req.body.gambar_url;
+    const gambar_url = req.file ? `${BASE_URL}/uploads/berita/${req.file.filename}` : oldGambarUrl; // ✅ pakai gambar lama kalau tidak ada file baru
 
     const result = await pool.query(
       `UPDATE berita_pengumuman 
-       SET judul=$1, isi_konten=$2, kategori=$3, status=$4, gambar_url=$5 
+       SET kategori=$1, judul=$2, isi_konten=$3, status=$4, gambar_url=$5 
        WHERE id_berita=$6 RETURNING *`,
-      [judul, isi_konten, kategori, status || 'active', gambar_url, id]
+      [kategori, judul, isi_konten, status || 'active', gambar_url, id]
     );
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }
 
-    res.json({
-      message: 'Berita berhasil diupdate',
-      data: result.rows[0],
-    });
+    res.json({ message: 'Berita berhasil diperbarui!', data: result.rows[0] });
   } catch (error) {
     console.error('Error updateBerita:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// F. DELETE
 const deleteBerita = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id || isNaN(id)) {
-      return res.status(400).json({ message: 'ID tidak valid' });
+      return res.status(400).json({ message: 'ID berita tidak valid' });
     }
-
     const result = await pool.query('DELETE FROM berita_pengumuman WHERE id_berita = $1', [id]);
-
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }
-
-    res.json({ message: 'Berita berhasil dihapus' });
+    res.json({ message: 'Berita berhasil dihapus!' });
   } catch (error) {
     console.error('Error deleteBerita:', error);
     res.status(500).json({ error: error.message });
@@ -144,6 +128,6 @@ module.exports = {
   getBeritaAdmin,
   addBerita,
   getBeritaById,
-  updateBerita,
   deleteBerita,
+  updateBerita,
 };

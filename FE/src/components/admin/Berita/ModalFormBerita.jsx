@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus, FaImage } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-
-const BACKEND_URL = 'http://localhost:3000';
+import { mediaUrl } from '../../../config/apiBase'; // ✅ import mediaUrl
 
 const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
   const [formData, setFormData] = useState({
@@ -18,21 +17,13 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        let existingImageUrl = initialData.gambar_url || '';
-        if (existingImageUrl && !existingImageUrl.startsWith('http')) {
-          if (existingImageUrl.startsWith('/')) {
-            existingImageUrl = `${BACKEND_URL}${existingImageUrl}`;
-          } else {
-            existingImageUrl = `${BACKEND_URL}/uploads/${existingImageUrl}`;
-          }
-        }
         setFormData({
           judul: initialData.judul || '',
           kategori: initialData.kategori || 'Berita',
           status: initialData.status || 'active',
           isi_konten: initialData.isi_konten || '',
           gambar: null,
-          gambar_url: existingImageUrl,
+          gambar_url: initialData.gambar_url || '', // ✅ simpan apa adanya dari DB
           preview: '',
         });
       } else {
@@ -56,11 +47,7 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
         toast.error('Ukuran gambar terlalu besar! Maksimal 5MB.');
         return;
       }
-      setFormData({
-        ...formData,
-        gambar: file,
-        preview: URL.createObjectURL(file),
-      });
+      setFormData({ ...formData, gambar: file, preview: URL.createObjectURL(file) });
     }
   };
 
@@ -74,16 +61,15 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
   const inputClass =
     'w-full bg-[#f8f9fa] p-3 sm:p-3.5 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 outline-none transition text-sm text-gray-800 font-medium';
 
+  // ✅ Gunakan mediaUrl() untuk construct URL gambar
+  const displayImage = formData.preview || mediaUrl(formData.gambar_url);
+
   return (
-    // ✅ FIX UTAMA: Pastikan modal ini di-render di root level (gunakan Portal jika perlu)
-    // Overlay: fixed + inset-0 + z-[9999] memastikan menutupi seluruh layar
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4"
-      // ✅ Klik backdrop = tutup modal
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}>
-      {/* Modal Container: mobile-first, max lebar 2xl di desktop */}
       <div
         className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl sm:rounded-[24px] shadow-2xl flex flex-col max-h-[90vh] animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}>
@@ -92,7 +78,6 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
           <h2 className="text-base sm:text-lg font-extrabold text-gray-800">
             {initialData ? 'Ubah Berita' : 'Unggah Berita Baru'}
           </h2>
-          {/* Touch target minimal 44px */}
           <button
             onClick={onClose}
             className="w-11 h-11 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition"
@@ -101,20 +86,17 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
           </button>
         </div>
 
-        {/* Body — scrollable */}
+        {/* Body */}
         <form
           onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto"
           style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Area Upload Gambar */}
           <div className="relative w-full h-44 sm:h-56 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50/50 transition-all overflow-hidden flex flex-col items-center justify-center cursor-pointer group">
-            {formData.preview || formData.gambar_url ? (
+            {displayImage ? (
               <>
-                <img
-                  src={formData.preview || formData.gambar_url}
-                  alt="Cover"
-                  className="w-full h-full object-cover"
-                />
+                {/* ✅ pakai displayImage yang sudah di-resolve oleh mediaUrl() */}
+                <img src={displayImage} alt="Cover" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white mb-2">
                     <FaImage size={18} />
@@ -156,7 +138,7 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
             />
           </div>
 
-          {/* Kategori + Status — 1 kolom di mobile, 2 kolom di sm+ */}
+          {/* Kategori + Status */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1.5">Kategori</label>

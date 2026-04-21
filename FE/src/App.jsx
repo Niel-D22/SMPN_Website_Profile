@@ -1,5 +1,6 @@
+import React, { useEffect } from 'react';
 import './App.css';
-
+import { pengunjungApi } from './Api/pengunjungApi';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
@@ -37,6 +38,13 @@ import AdminGaleriPage from './pages/admin/AdminGaleriPage.jsx';
 import AdminFAQPage from './pages/admin/AdminFAQPage';
 
 function App() {
+  useEffect(() => {
+    // Catat 1 kunjungan saat website dibuka
+    if (!sessionStorage.getItem('visited')) {
+      pengunjungApi.recordVisit().catch(() => console.log('Gagal catat pengunjung'));
+      sessionStorage.setItem('visited', 'true');
+    }
+  }, []);
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />

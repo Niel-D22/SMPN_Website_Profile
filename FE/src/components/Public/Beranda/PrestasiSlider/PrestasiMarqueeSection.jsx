@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { prestasiApi } from '../../../../Api/prestasiApi';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
 const normalizeImg = (img) => {
   if (!img) return null;

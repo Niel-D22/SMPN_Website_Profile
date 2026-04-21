@@ -44,18 +44,27 @@ const AdminBeritaPage = () => {
       form.append('kategori', data.kategori);
       form.append('isi_konten', data.isi_konten);
       form.append('status', data.status);
-      if (data.gambar) form.append('gambar', data.gambar);
+
+      if (data.gambar) {
+        form.append('gambar', data.gambar);
+        console.log('✅ Gambar ada:', data.gambar.name); // ← cek ini
+      } else {
+        console.log('❌ Gambar kosong'); // ← kalau ini muncul, masalah di modal
+      }
 
       if (editingData) {
-        await beritaApi.updateBerita(editingData.id_berita, form);
+        const result = await beritaApi.updateBerita(editingData.id_berita, form);
+        console.log('Response update:', result); // ← lihat gambar_url yang disimpan
         toast.success('Berita berhasil diperbarui');
       } else {
-        await beritaApi.addBerita(form);
+        const result = await beritaApi.addBerita(form);
+        console.log('Response add:', result); // ← lihat gambar_url yang disimpan
         toast.success('Berita berhasil diposting');
       }
       setIsModalOpen(false);
       fetchBerita();
     } catch (error) {
+      console.error('Error:', error.response?.data);
       toast.error('Gagal menyimpan berita');
     } finally {
       setIsSubmitting(false);

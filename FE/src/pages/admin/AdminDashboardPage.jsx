@@ -16,26 +16,20 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { dashboardApi } from '../../Api/dashboardApi'; // Import API Dashboard
-import { toast } from 'react-toastify';
+import { dashboardApi } from '../../Api/dashboardApi'; // Untuk statistik 4 kotak atas
+import { pengunjungApi } from '../../Api/pengunjungApi'; // Untuk grafik bawah
+import toast from 'react-hot-toast'; // Gunakan react-hot-toast sesuai aturanmu
 import 'animate.css';
 
-// --- DATA DUMMY GRAFIK ---
-const chartData = [
-  { name: 'Sen', pengunjung: 400 },
-  { name: 'Sel', pengunjung: 600 },
-  { name: 'Rab', pengunjung: 800 },
-  { name: 'Kam', pengunjung: 500 },
-  { name: 'Jum', pengunjung: 900 },
-  { name: 'Sab', pengunjung: 1200 },
-  { name: 'Min', pengunjung: 1100 },
-];
-
 const AdminDashboardPage = () => {
-  const [filterWaktu, setFilterWaktu] = useState('7 Hari Terakhir');
+  // ============================================
+  // SEMUA STATE WAJIB ADA DI DALAM KOMPONEN INI
+  // ============================================
   const [isLoading, setIsLoading] = useState(true);
+  const [filterWaktu, setFilterWaktu] = useState('7 Hari Terakhir');
+  const [chartData, setChartData] = useState([]);
 
-  // STATE UNTUK MENAMPUNG DATA API
+  // STATE UNTUK MENAMPUNG DATA API (4 Kotak Atas)
   const [stats, setStats] = useState({
     total_siswa: 0,
     total_guru: 0,
@@ -43,7 +37,7 @@ const AdminDashboardPage = () => {
     pesan_baru: 0,
   });
 
-  // MENGAMBIL DATA DARI BACKEND SAAT HALAMAN DIBUKA
+  // 1. MENGAMBIL DATA DARI BACKEND SAAT HALAMAN DIBUKA (Statistik)
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
@@ -61,6 +55,28 @@ const AdminDashboardPage = () => {
 
     fetchDashboardStats();
   }, []);
+
+  // 2. MENGAMBIL DATA CHART BERDASARKAN FILTER
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        let res;
+        if (filterWaktu === '7 Hari Terakhir') {
+          res = await pengunjungApi.getStats7Hari();
+        } else {
+          res = await pengunjungApi.getStatsBulanIni();
+        }
+
+        // Sesuaikan dengan respon backend kamu, jika berupa array:
+        setChartData(res || []);
+      } catch {
+        setChartData([]);
+        toast.error('Gagal memuat grafik pengunjung.');
+      }
+    };
+
+    fetchChartData();
+  }, [filterWaktu]);
 
   const today = new Date().toLocaleDateString('id-ID', {
     day: 'numeric',
@@ -164,7 +180,7 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* GRAFIK PENGUNJUNG (Takes full width) */}
-      <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-gray-100 shadow-sm">
+      <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-gray-100 shadow-sm overflow-x-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <h2 className="text-lg font-bold text-gray-900">Statistik Pengunjung Website</h2>
           <select
@@ -176,7 +192,7 @@ const AdminDashboardPage = () => {
           </select>
         </div>
 
-        <div className="h-[350px] w-full">
+        <div className="h-[350px] min-w-[500px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />

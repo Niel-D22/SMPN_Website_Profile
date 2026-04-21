@@ -12,6 +12,7 @@ const galeriRoutes = require('./src/routes/galeriRoutes');
 const pesanRoutes = require('./src/routes/pesanRoutes');
 const guruRoutes = require('./src/routes/guruRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const pengunjungRoutes = require('./src/routes/pengunjungRoutes');
 const app = express();
 
 // Middleware
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Gunakan Rute
+app.use('/api/pengunjung', pengunjungRoutes);
 app.use('/api/profil', profilRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/berita', beritaRoutes);

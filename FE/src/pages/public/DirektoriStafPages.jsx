@@ -3,8 +3,7 @@ import { FaUserTie, FaSearch, FaIdBadge, FaBookReader, FaChevronDown } from 'rea
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
-const BACKEND_URL = 'http://localhost:5000';
-
+const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 // Helper untuk membaca URL gambar dari database
 const getImageUrl = (fotoString) => {
   const defaultImg =

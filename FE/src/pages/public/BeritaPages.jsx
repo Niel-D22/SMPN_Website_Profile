@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 import { beritaApi } from '../../Api/beritaApi';
 import 'animate.css';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
 const formatTanggal = (dateString) => {
   if (!dateString) return 'Baru-baru ini';

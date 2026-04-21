@@ -11,7 +11,7 @@ import { prestasiApi } from '../../Api/prestasiApi';
 import 'animate.css';
 import PrestasiHero from '../../../public/Images/prestasiHero.jpg';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
 const PrestasiPages = () => {
   const [dataPrestasi, setDataPrestasi] = useState([]);
