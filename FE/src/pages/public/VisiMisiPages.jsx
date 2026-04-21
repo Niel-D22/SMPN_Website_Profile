@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaLightbulb, FaBullseye, FaCheckCircle, FaChevronDown } from 'react-icons/fa';
-import { profilSekolahApi } from '../../api/profilApi';
+import { profilSekolahApi } from '../../Api/ProfilApi';
 import 'animate.css';
 
 const SkeletonBox = ({ className }) => (

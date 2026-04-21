@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FormProfilSekolah from '../../components/admin/ProfilSekolah/FormProfilSekolah';
-import { profilSekolahApi } from '../../Api/profilApi';
+import { profilSekolahApi } from '../../Api/ProfilApi';
 import Skeleton from '../../components/ui/Skeleton';
 import { toast } from 'react-toastify';
 import ModalKonfirmasi from '../../components/admin/ModalKonfirmasi';

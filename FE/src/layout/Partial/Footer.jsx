@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaFacebook, FaInstagram } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
-import { profilSekolahApi } from '../../api/profilApi';
+import { profilSekolahApi } from '../../Api/ProfilApi';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
