@@ -78,7 +78,7 @@ const AdminBeritaPage = () => {
   return (
     // ✅ Hapus min-h-screen — biarkan layout admin yang atur tinggi
     // ✅ Padding mobile kecil, makin besar di layar lebih lebar
-    <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+    <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate__animated animate__fadeInUp animate__faster">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>

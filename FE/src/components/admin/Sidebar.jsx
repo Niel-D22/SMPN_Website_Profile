@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import {
   FaHome,
   FaNewspaper,
@@ -17,7 +19,11 @@ import {
   FaAngleRight,
 } from 'react-icons/fa';
 
-const TutWuriHandayaniImg = ({ size = 30, className = '' }) => (
+// GANTI: Import dari adminProfilApi (BUKAN profilSekolahApi)
+import { profilApi } from '../../Api/adminProfilApi'; // Field2: username, email, nama_lengkap
+
+// LOGO SEKOLAH (Logo Atas di Sidebar, JANGAN HAPUS)
+const TutWuriHandayaniImg = ({ size = 56, className = '' }) => (
   <img
     src="/Images/LogoSekolah.png"
     alt="Tut Wuri Handayani"
@@ -29,16 +35,43 @@ const TutWuriHandayaniImg = ({ size = 30, className = '' }) => (
   />
 );
 
-// PERHATIKAN: Saya menambahkan props "mobileOpen" dan "setMobileOpen"
-// Ini agar Sidebar bisa dikendalikan oleh tombol burger yang ada di Header
 const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [adminProfile, setAdminProfile] = useState({
+    username: 'admin',
+    email: '',
+    nama_lengkap: '',
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Ambil profil admin dari API, field2: username, email, nama_lengkap
+  useEffect(() => {
+    async function fetchAdminProfile() {
+      try {
+        // Standar ekspor di adminProfilApi.js: profilApi
+        const profil = await profilApi.getProfile();
+        if (profil && profil.username) {
+          setAdminProfile({
+            username: profil.username,
+            email: profil.email || '',
+            nama_lengkap: profil.nama_lengkap || '',
+          });
+        }
+      } catch (error) {
+        setAdminProfile({
+          username: 'admin',
+          email: '',
+          nama_lengkap: '',
+        });
+      }
+    }
+    fetchAdminProfile();
   }, []);
 
   const menuItems = [
@@ -61,7 +94,6 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
   };
 
   const handleNavClick = () => {
-    // Tutup sidebar mobile saat menu diklik
     if (setMobileOpen) setMobileOpen(false);
   };
 
@@ -73,18 +105,24 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
   // Sidebar content for desktop
   const SidebarContent = (
     <>
-      {/* Logo Area */}
+      {/* Logo Area (ATAS SIDEBAR JANGAN DIHAPUS) */}
       <div>
         <div
           className={`flex items-center gap-3 px-6 py-6 border-b border-gray-100 transition-all duration-200 ${minimized ? 'justify-center px-3' : ''}`}>
+          {/* Logo Sekolah TETAP ADA */}
           <button
-            onClick={handleLogoClick}
-            className="focus:outline-none flex items-center justify-center"
-            style={{ background: 'none', border: 'none', padding: 0, margin: 0 }}
-            tabIndex={0}
-            aria-label="Kembali ke halaman utama"
-            type="button">
-            <TutWuriHandayaniImg size={40} />
+            type="button"
+            className={`focus:outline-none ${minimized ? 'p-0' : ''}`}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              padding: 0,
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            tabIndex={-1}
+            onClick={handleLogoClick}>
+            <TutWuriHandayaniImg size={minimized ? 36 : 56} />
           </button>
           {!minimized && (
             <h1 className="font-bold text-gray-800 text-lg whitespace-nowrap">SMPN 3 Manado</h1>
@@ -117,25 +155,22 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
         </div>
       </div>
 
-      {/* User Profile & Logout */}
+      {/* User Profile & Logout (Bagian Bawah, LOGO DIHAPUS) */}
       <div
         className={`p-4 border-t border-gray-200 transition-all duration-200 ${minimized ? 'px-2' : ''}`}>
         <div
           className={`bg-gray-50 p-4 rounded-xl flex items-center ${minimized ? 'justify-center' : 'justify-between'} transition-all`}>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleLogoClick}
-              className="focus:outline-none flex items-center justify-center"
-              style={{ background: 'none', border: 'none', padding: 0, margin: 0 }}
-              tabIndex={0}
-              aria-label="Kembali ke halaman utama"
-              type="button">
-              <TutWuriHandayaniImg size={34} />
-            </button>
+            {/* LOGO DI SINI DIHAPUS, hanya nama/email */}
+            {/* Berikut tampilkan nama lengkap DAN email */}
             {!minimized && (
               <div>
-                <p className="text-sm font-bold text-gray-800">Admin TU</p>
-                <p className="text-xs text-gray-500">Sekolah</p>
+                <p className="text-sm font-bold text-gray-800">
+                  {adminProfile.nama_lengkap ? adminProfile.nama_lengkap : adminProfile.username}
+                </p>
+                {adminProfile.email && (
+                  <p className="text-xs text-gray-500">{adminProfile.email}</p>
+                )}
               </div>
             )}
           </div>
@@ -197,7 +232,8 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
           {/* Header Sidebar Mobile */}
           <div className="flex items-center justify-between px-6 py-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <TutWuriHandayaniImg size={30} />
+              {/* Logo SEKOLAH DI ATAS (TIDAK DIHAPUS) */}
+              <TutWuriHandayaniImg size={42} />
               <h1 className="font-bold text-gray-800 text-lg">SMPN 3 Manado</h1>
             </div>
             <button
@@ -228,6 +264,19 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
                   {item.name}
                 </NavLink>
               ))}
+            </div>
+            {/* Tambahkan Nama Lengkap & Email di bawah menu di mobile */}
+            <div className="mt-6 mb-4 px-2 flex flex-col items-center">
+              {adminProfile.nama_lengkap && (
+                <span className="text-sm font-bold text-gray-800 text-center">
+                  {adminProfile.nama_lengkap}
+                </span>
+              )}
+              {adminProfile.email && (
+                <span className="text-xs text-gray-500 text-center break-all">
+                  {adminProfile.email}
+                </span>
+              )}
             </div>
           </div>
         </aside>

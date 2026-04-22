@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom'; // ✅ tambah import ini
 import { FaTimes, FaPlus, FaImage } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { mediaUrl } from '../../../config/apiBase'; // ✅ import mediaUrl
+import { mediaUrl } from '../../../config/apiBase';
 
 const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
           status: initialData.status || 'active',
           isi_konten: initialData.isi_konten || '',
           gambar: null,
-          gambar_url: initialData.gambar_url || '', // ✅ simpan apa adanya dari DB
+          gambar_url: initialData.gambar_url || '',
           preview: '',
         });
       } else {
@@ -53,14 +54,12 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const data = new FormData();
     data.append('judul', formData.judul);
     data.append('isi_konten', formData.isi_konten);
     data.append('kategori', formData.kategori);
     data.append('status', formData.status);
     if (formData.gambar) data.append('gambar', formData.gambar);
-
     onSave(data);
   };
 
@@ -69,17 +68,18 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
   const inputClass =
     'w-full bg-[#f8f9fa] p-3 sm:p-3.5 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-600 outline-none transition text-sm text-gray-800 font-medium';
 
-  // ✅ Gunakan mediaUrl() untuk construct URL gambar
   const displayImage = formData.preview || mediaUrl(formData.gambar_url);
 
-  return (
+  // ✅ Wrap dengan createPortal — render ke document.body
+  // Modal tidak terpengaruh overflow/transform dari AdminLayout
+  return createPortal(
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}>
       <div
-        className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl sm:rounded-[24px] shadow-2xl flex flex-col max-h-[90vh] animate-fade-in-up"
+        className="bg-white w-full max-w-lg sm:max-w-xl md:max-w-2xl rounded-2xl sm:rounded-[24px] shadow-2xl flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 flex justify-between items-center rounded-t-2xl sm:rounded-t-[24px] shrink-0">
@@ -103,7 +103,6 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
           <div className="relative w-full h-44 sm:h-56 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50/50 transition-all overflow-hidden flex flex-col items-center justify-center cursor-pointer group">
             {displayImage ? (
               <>
-                {/* ✅ pakai displayImage yang sudah di-resolve oleh mediaUrl() */}
                 <img src={displayImage} alt="Cover" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white mb-2">
@@ -221,7 +220,8 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body // ✅ render ke body, bebas dari AdminLayout
   );
 };
 

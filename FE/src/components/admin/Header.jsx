@@ -1,18 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { FaBell, FaBars, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+
+// Import profilApi dari adminProfilApi untuk fetch profil admin
+import { profilApi } from '../../Api/adminProfilApi';
 
 const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [adminProfile, setAdminProfile] = useState({
+    id_admin: 1,
+    username: 'adminSmp3',
+    email: 'danielwarouw01@gmail.com',
+    nama_lengkap: 'daniel22',
+  });
   const navigate = useNavigate();
+
+  // Fetch profil admin saat mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await profilApi();
+        setAdminProfile({
+          id_admin: res.id_admin || 1,
+          username: res.username || '',
+          email: res.email || '',
+          nama_lengkap: res.nama_lengkap || '',
+        });
+      } catch (e) {
+        // Optional: Error handling
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     toast.success('Anda berhasil keluar.');
-    // Langsung ke halaman beranda setelah logout
     navigate('/');
   };
 
@@ -22,13 +48,11 @@ const Header = ({ onMobileMenuClick }) => {
     year: 'numeric',
   });
 
-  // Trigger parent callback, kalau ada
   const handleBurgerClick = () => {
     setMobileSidebarOpen(true);
     if (onMobileMenuClick) onMobileMenuClick(true);
   };
 
-  // Tutup sidebar mobile lokal (jika di-handle di Header, tampilkan overlay sidebar di sini, jika tidak - trigger parent via prop)
   const handleSidebarClose = () => {
     setMobileSidebarOpen(false);
     if (onMobileMenuClick) onMobileMenuClick(false);
@@ -65,16 +89,10 @@ const Header = ({ onMobileMenuClick }) => {
         </div>
       </div>
 
-      {/* Kanan - Tanggal, Notif, Profil */}
+      {/* Kanan - Tanggal, Profil */}
       <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-5">
         {/* Tanggal, desktop only */}
         <div className="hidden lg:block text-xs md:text-sm font-medium text-gray-500">{today}</div>
-
-        {/* Notifikasi, responsif padding dan icon */}
-        <button className="relative text-gray-400 hover:text-red-700 transition p-2 xs:p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-red-200">
-          <FaBell size={20} className="block" />
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-        </button>
 
         {/* Pembatas, width adaptif */}
         <div className="w-px h-6 xs:h-7 sm:h-8 bg-gray-200 mx-1 sm:mx-2"></div>
@@ -95,8 +113,10 @@ const Header = ({ onMobileMenuClick }) => {
             aria-haspopup="menu">
             {/* Nama & role: hanya di desktop */}
             <div className="text-right hidden lg:block">
-              <p className="text-sm font-bold text-gray-800 leading-none">Admin TU</p>
-              <p className="text-xs text-gray-500 mt-0.5">Administrator</p>
+              <p className="text-sm font-bold text-gray-800 leading-none">
+                {adminProfile.nama_lengkap || 'Admin TU'}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">Admin</p>
             </div>
             {/* Icon profil: responsive size */}
             <FaUserCircle className="text-gray-400" size={28} />
@@ -113,8 +133,8 @@ const Header = ({ onMobileMenuClick }) => {
               ">
               {/* Nama only on mobile/tablet */}
               <div className="px-4 py-2 border-b border-gray-100 lg:hidden">
-                <p className="font-bold text-gray-800">Admin TU</p>
-                <span className="text-xs text-gray-500">Administrator</span>
+                <p className="font-bold text-gray-800">{adminProfile.nama_lengkap || 'Admin TU'}</p>
+                <span className="text-xs text-gray-500">Admin</span>
               </div>
               <button
                 onClick={handleLogout}
