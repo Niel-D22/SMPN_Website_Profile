@@ -71,11 +71,6 @@ const Footer = () => {
           <div className="space-y-3 sm:space-y-4">
             {profil?.logo_url && <img src={profil.logo_url} alt="Logo" className={logoClass} />}
 
-            <p className={`${textSizeSm} text-white/80 leading-relaxed font-medium`}>
-              {profil?.nama_sekolah || 'Nama Sekolah'} — Sekolah Unggul, Berkarakter dan
-              Berprestasi!
-            </p>
-
             <ul className={`space-y-1 sm:space-y-2 ${textSizeSm} text-white/90 font-semibold`}>
               <li className="flex gap-2 items-start">
                 <FaMapMarkerAlt
