@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { galeri: upload } = require('../config/claudinaryConfig'); // ← update destructure
+const { galeri: upload } = require('../config/cloudinary'); // ← update destructure
 const galeriController = require('../controllers/galeriController');
 const verifyToken = require('../middlewares/auth');
 

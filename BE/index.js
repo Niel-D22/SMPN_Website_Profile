@@ -15,6 +15,11 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const pengunjungRoutes = require('./src/routes/pengunjungRoutes');
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -35,6 +40,10 @@ app.use('/api/guru', guruRoutes);
 // Rute Tes (Pintu masuk utama)
 app.get('/', (req, res) => {
   res.send('Selamat datang di API SMPN 3 Manado! (Arsitektur Baru 🚀)');
+});
+app.use((err, req, res, next) => {
+  console.error('🔴 GLOBAL ERROR:', err.message, err.stack);
+  res.status(500).json({ message: err.message });
 });
 
 // Jalankan Server

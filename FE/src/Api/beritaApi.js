@@ -25,12 +25,16 @@ export const beritaApi = {
     const res = await api.get(`/berita/${id}`);
     return res.data;
   },
-
   updateBerita: async (id, formData) => {
-    const res = await api.put(`/berita/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return res.data;
+    try {
+      const res = await api.put(`/berita/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (error) {
+      console.error('Detail error:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
 
   deleteBerita: async (id) => {

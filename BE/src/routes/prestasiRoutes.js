@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { prestasi: upload } = require('../config/claudinaryConfig');
+const { prestasi: upload } = require('../config/cloudinary');
 const prestasiController = require('../controllers/prestasiController');
 const verifyToken = require('../middlewares/auth');
 

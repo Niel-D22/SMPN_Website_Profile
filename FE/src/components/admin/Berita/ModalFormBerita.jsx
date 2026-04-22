@@ -53,7 +53,15 @@ const ModalFormBerita = ({ isOpen, onClose, onSave, initialData, isSubmitting })
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+
+    const data = new FormData();
+    data.append('judul', formData.judul);
+    data.append('isi_konten', formData.isi_konten);
+    data.append('kategori', formData.kategori);
+    data.append('status', formData.status);
+    if (formData.gambar) data.append('gambar', formData.gambar);
+
+    onSave(data);
   };
 
   if (!isOpen) return null;

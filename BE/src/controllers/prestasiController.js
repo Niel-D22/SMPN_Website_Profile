@@ -37,84 +37,47 @@ const addPrestasi = async (req, res) => {
   const { nama_lomba, nama_pemenang, tingkat, tahun_meraih } = req.body;
   const id_admin = req.admin?.id;
 
-  if (id_admin == null) return res.status(403).json({ message: 'Token admin tidak valid' });
-  if (!nama_lomba || !nama_pemenang || !tingkat || !tahun_meraih) {
-    if (req.files?.length) req.files.forEach((f) => fs.existsSync(f.path) && fs.unlinkSync(f.path));
-    return res.status(400).json({ message: 'Semua field wajib diisi' });
-  }
-
-  try {
-    const files = req.files || [];
-    let foto_url_simpan = null;
-
-    if (files.length > 0) {
-      // Gabungkan semua nama file jadi 1 Array, lalu ubah ke string JSON
-      const filePaths = files.map((f) => f.path);
-      foto_url_simpan = JSON.stringify(filePaths);
-    }
-
-    // INSERT HANYA 1 KALI (TIDAK ADA LOOPING)
-    const result = await pool.query(
-      `INSERT INTO prestasi (nama_lomba, nama_pemenang, tingkat, tahun_meraih, foto_url, id_admin)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [nama_lomba, nama_pemenang, tingkat, tahun_meraih, foto_url_simpan, id_admin]
-    );
-
-    res.status(201).json({ message: 'Prestasi berhasil dicatat!', data: result.rows[0] });
-  } catch (error) {
-    if (req.files?.length) req.files.forEach((f) => fs.existsSync(f.path) && fs.unlinkSync(f.path));
-    console.error('Error addPrestasi:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// PUT update prestasi (Multi Foto)
-const updatePrestasi = async (req, res) => {
-  const { id } = req.params;
-  const { nama_lomba, nama_pemenang, tingkat, tahun_meraih, existing_fotos } = req.body;
-  const id_admin = req.admin?.id;
-
-  if (id_admin == null) {
-    if (req.files?.length) req.files.forEach((f) => fs.unlinkSync(f.path));
+  if (!id_admin) {
     return res.status(403).json({ message: 'Token admin tidak valid' });
   }
 
-  try {
-    // 1. Ambil foto-foto lama yang masih dipertahankan admin (dari frontend)
-    let fotoLamaDipertahankan = [];
-    if (existing_fotos) {
-      fotoLamaDipertahankan = JSON.parse(existing_fotos);
-    }
+  const files = req.files || [];
 
-    // 2. Ambil foto-foto baru yang baru saja diupload
-    const fileBaru = req.files || [];
-    const pathFileBaru = fileBaru.map((f) => f.path);
+  const foto_url = files.map((f) => f.path);
+  // ini HARUS Cloudinary URL
 
-    // 3. Gabungkan foto lama dan foto baru
-    const finalFotos = [...fotoLamaDipertahankan, ...pathFileBaru];
-    const foto_url_simpan = finalFotos.length > 0 ? JSON.stringify(finalFotos) : null;
+  const result = await pool.query(
+    `INSERT INTO prestasi 
+    (nama_lomba, nama_pemenang, tingkat, tahun_meraih, foto_url, id_admin)
+    VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+    [nama_lomba, nama_pemenang, tingkat, tahun_meraih, JSON.stringify(foto_url), id_admin]
+  );
 
-    // 4. Hapus foto lama di server yang DIBUANG oleh admin
-    const resultDb = await pool.query('SELECT foto_url FROM prestasi WHERE id_prestasi = $1', [id]);
-    const fotoDbLama = parseFotoUrl(resultDb.rows[0]?.foto_url);
+  res.status(201).json(result.rows[0]);
+};
 
-    const fotoDibuang = fotoDbLama.filter((url) => !fotoLamaDipertahankan.includes(url));
-    hapusFileFisik(fotoDibuang); // Eksekusi hapus file dari server
+const updatePrestasi = async (req, res) => {
+  const { id } = req.params;
+  const { nama_lomba, nama_pemenang, tingkat, tahun_meraih, existing_fotos } = req.body;
 
-    // 5. Lakukan UPDATE database HANYA 1 KALI
-    const result = await pool.query(
-      `UPDATE prestasi SET nama_lomba=$1, nama_pemenang=$2, tingkat=$3, tahun_meraih=$4, foto_url=$5, id_admin=$6 WHERE id_prestasi=$7 RETURNING *`,
-      [nama_lomba, nama_pemenang, tingkat, tahun_meraih, foto_url_simpan, id_admin, id]
-    );
-
-    if (result.rowCount === 0) return res.status(404).json({ message: 'Data tidak ditemukan' });
-
-    res.json({ message: 'Data prestasi diperbarui!', data: result.rows[0] });
-  } catch (error) {
-    if (req.files?.length) req.files.forEach((f) => fs.unlinkSync(f.path));
-    console.error('Error updatePrestasi:', error);
-    res.status(500).json({ error: error.message });
+  const id_admin = req.admin?.id;
+  if (!id_admin) {
+    return res.status(403).json({ message: 'Token admin tidak valid' });
   }
+
+  const oldFotos = existing_fotos ? JSON.parse(existing_fotos) : [];
+  const newFotos = (req.files || []).map((f) => f.path);
+
+  const finalFotos = [...oldFotos, ...newFotos];
+
+  const result = await pool.query(
+    `UPDATE prestasi 
+     SET nama_lomba=$1, nama_pemenang=$2, tingkat=$3, tahun_meraih=$4, foto_url=$5
+     WHERE id_prestasi=$6 RETURNING *`,
+    [nama_lomba, nama_pemenang, tingkat, tahun_meraih, JSON.stringify(finalFotos), id]
+  );
+
+  res.json(result.rows[0]);
 };
 
 // DELETE hapus prestasi (dan semua fotonya)
