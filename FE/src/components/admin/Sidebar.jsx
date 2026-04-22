@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
 import { NavLink, useNavigate } from 'react-router-dom';
-
 import {
   FaHome,
   FaNewspaper,
@@ -18,15 +16,12 @@ import {
   FaAngleLeft,
   FaAngleRight,
 } from 'react-icons/fa';
+import { profilApi } from '../../Api/adminProfilApi';
 
-// GANTI: Import dari adminProfilApi (BUKAN profilSekolahApi)
-import { profilApi } from '../../Api/adminProfilApi'; // Field2: username, email, nama_lengkap
-
-// LOGO SEKOLAH (Logo Atas di Sidebar, JANGAN HAPUS)
 const TutWuriHandayaniImg = ({ size = 56, className = '' }) => (
   <img
     src="/Images/LogoSekolah.png"
-    alt="Tut Wuri Handayani"
+    alt="Logo Sekolah"
     width={size}
     height={size}
     className={className}
@@ -35,8 +30,20 @@ const TutWuriHandayaniImg = ({ size = 56, className = '' }) => (
   />
 );
 
+const menuItems = [
+  { name: 'Dashboard', icon: <FaHome />, path: '/admin/dashboard' },
+  { name: 'Berita & Pengumuman', icon: <FaNewspaper />, path: '/admin/berita' },
+  { name: 'Direktori', icon: <FaUsers />, path: '/admin/direktori' },
+  { name: 'Prestasi', icon: <FaTrophy />, path: '/admin/prestasi' },
+  { name: 'Galeri', icon: <FaImages />, path: '/admin/galeri' },
+  { name: 'Timeline PPDB', icon: <FaCalendarAlt />, path: '/admin/ppdb' },
+  { name: 'FAQ', icon: <FaQuestionCircle />, path: '/admin/faq' },
+  { name: 'Pesan & Kontak', icon: <FaEnvelope />, path: '/admin/pesan' },
+  { name: 'Pengaturan', icon: <FaCog />, path: '/admin/pengaturan' },
+  { name: 'Profil Admin', icon: <FaUserCircle />, path: '/admin/profil' },
+];
+
 const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [adminProfile, setAdminProfile] = useState({
     username: 'admin',
     email: '',
@@ -45,242 +52,182 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Ambil profil admin dari API, field2: username, email, nama_lengkap
-  useEffect(() => {
     async function fetchAdminProfile() {
       try {
-        // Standar ekspor di adminProfilApi.js: profilApi
         const profil = await profilApi.getProfile();
-        if (profil && profil.username) {
+        if (profil?.username) {
           setAdminProfile({
             username: profil.username,
             email: profil.email || '',
             nama_lengkap: profil.nama_lengkap || '',
           });
         }
-      } catch (error) {
-        setAdminProfile({
-          username: 'admin',
-          email: '',
-          nama_lengkap: '',
-        });
+      } catch {
+        // fallback default
       }
     }
     fetchAdminProfile();
   }, []);
 
-  const menuItems = [
-    { name: 'Dashboard', icon: <FaHome />, path: '/admin/dashboard' },
-    { name: 'Berita & Pengumuman', icon: <FaNewspaper />, path: '/admin/berita' },
-    { name: ' Direktori', icon: <FaUsers />, path: '/admin/direktori' },
-    { name: 'Prestasi', icon: <FaTrophy />, path: '/admin/prestasi' },
-    { name: 'Galeri', icon: <FaImages />, path: '/admin/galeri' },
-    { name: 'Timeline PPDB', icon: <FaCalendarAlt />, path: '/admin/ppdb' },
-    { name: 'FAQ', icon: <FaQuestionCircle />, path: '/admin/faq' },
-    { name: 'Pesan & Kontak', icon: <FaEnvelope />, path: '/admin/pesan' },
-    { name: 'Pengaturan', icon: <FaCog />, path: '/admin/pengaturan' },
-    { name: 'Profil Admin', icon: <FaUserCircle />, path: '/admin/profil' },
-  ];
-
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('admin_nama');
-    window.location.href = '/login';
+    navigate('/login');
   };
 
+  // ✅ Tutup sidebar DAN hapus blur saat nav diklik
   const handleNavClick = () => {
     if (setMobileOpen) setMobileOpen(false);
   };
 
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    navigate('/');
+  // ✅ Tutup sidebar DAN hapus blur saat backdrop diklik
+  const handleBackdropClick = () => {
+    if (setMobileOpen) setMobileOpen(false);
   };
 
-  // Sidebar content for desktop
-  const SidebarContent = (
-    <>
-      {/* Logo Area (ATAS SIDEBAR JANGAN DIHAPUS) */}
-      <div>
-        <div
-          className={`flex items-center gap-3 px-6 py-6 border-b border-gray-100 transition-all duration-200 ${minimized ? 'justify-center px-3' : ''}`}>
-          {/* Logo Sekolah TETAP ADA */}
-          <button
-            type="button"
-            className={`focus:outline-none ${minimized ? 'p-0' : ''}`}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              padding: 0,
-              outline: 'none',
-              cursor: 'pointer',
-            }}
-            tabIndex={-1}
-            onClick={handleLogoClick}>
-            <TutWuriHandayaniImg size={minimized ? 36 : 56} />
-          </button>
-          {!minimized && (
-            <h1 className="font-bold text-gray-800 text-lg whitespace-nowrap">SMPN 3 Manado</h1>
-          )}
-        </div>
+  const displayName = adminProfile.nama_lengkap || adminProfile.username;
 
-        {/* Menu Items */}
-        <div className={`flex flex-col gap-1 ${minimized ? 'px-2' : 'px-4'} mt-6`}>
-          {menuItems.map((item, index) => (
-            <NavLink
-              key={index}
-              to={item.path}
-              onClick={handleNavClick}
-              title={minimized ? item.name : undefined}
-              className={({ isActive }) =>
-                `flex items-center ${minimized ? 'justify-center' : 'gap-3'} px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-red-700 text-white shadow-md'
-                    : 'text-gray-500 hover:bg-red-50 hover:text-red-700'
-                }`
-              }
-              style={{
-                paddingLeft: minimized ? '0.1rem' : undefined,
-                paddingRight: minimized ? '0.1rem' : undefined,
-              }}>
-              <span className="text-lg">{item.icon}</span>
-              {!minimized && item.name}
-            </NavLink>
-          ))}
-        </div>
-      </div>
-
-      {/* User Profile & Logout (Bagian Bawah, LOGO DIHAPUS) */}
-      <div
-        className={`p-4 border-t border-gray-200 transition-all duration-200 ${minimized ? 'px-2' : ''}`}>
-        <div
-          className={`bg-gray-50 p-4 rounded-xl flex items-center ${minimized ? 'justify-center' : 'justify-between'} transition-all`}>
-          <div className="flex items-center gap-3">
-            {/* LOGO DI SINI DIHAPUS, hanya nama/email */}
-            {/* Berikut tampilkan nama lengkap DAN email */}
-            {!minimized && (
-              <div>
-                <p className="text-sm font-bold text-gray-800">
-                  {adminProfile.nama_lengkap ? adminProfile.nama_lengkap : adminProfile.username}
-                </p>
-                {adminProfile.email && (
-                  <p className="text-xs text-gray-500">{adminProfile.email}</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className={`w-full mt-3 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 py-2 rounded-lg text-sm font-semibold transition ${
-            minimized ? 'justify-center px-0' : ''
-          }`}>
-          <FaSignOutAlt /> {!minimized && 'Keluar'}
-        </button>
-      </div>
-
-      {/* Tombol minimize/expand (Hanya Desktop) */}
-      <button
-        onClick={onToggleMinimize}
-        className={`absolute -right-4 top-[45%] z-50 hidden lg:flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded-full shadow transition hover:bg-gray-50`}
-        style={{ transform: 'translateY(-50%)' }}
-        aria-label={minimized ? 'Perbesar sidebar' : 'Minimize sidebar'}
-        type="button"
-        tabIndex={0}>
-        {minimized ? <FaAngleRight size={20} /> : <FaAngleLeft size={20} />}
-      </button>
-    </>
+  // Menu list — dipakai di desktop & mobile
+  const MenuList = ({ onClick }) => (
+    <div className="flex flex-col gap-1 px-4 mt-6 pb-4">
+      {menuItems.map((item) => (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          onClick={onClick}
+          title={minimized ? item.name : undefined}
+          className={({ isActive }) =>
+            `flex items-center ${minimized ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl text-sm font-bold transition-colors ${
+              isActive
+                ? 'bg-red-700 text-white shadow-md'
+                : 'text-gray-600 hover:bg-red-50 hover:text-red-700'
+            }`
+          }>
+          <span className="text-lg shrink-0">{item.icon}</span>
+          {!minimized && <span>{item.name}</span>}
+        </NavLink>
+      ))}
+    </div>
   );
 
   return (
     <>
-      {/* ❌ TOMBOL BURGER FLOATING DI SINI SUDAH SAYA HAPUS BIAR TIDAK BENTROK DENGAN HEADER ❌ */}
-
-      {/* Sidebar Desktop (>=1024px/lg) */}
+      {/* ── DESKTOP SIDEBAR ── */}
       <div
-        className={`h-screen bg-white border-r border-gray-200 flex-col justify-between fixed left-0 top-0 hidden lg:flex z-30 transition-all duration-300 ${minimized ? 'w-20' : 'w-64'}`}
-        style={{
-          minWidth: minimized ? '5rem' : '16rem',
-          width: minimized ? '5rem' : '16rem',
-        }}>
-        <div className="relative h-full w-full flex flex-col justify-between">{SidebarContent}</div>
+        className={`hidden lg:flex flex-col h-screen bg-white border-r border-gray-200 fixed left-0 top-0 z-30 transition-all duration-300 ${
+          minimized ? 'w-20' : 'w-64'
+        }`}>
+        {/* Logo */}
+        <div
+          className={`flex items-center gap-3 px-6 py-6 border-b border-gray-100 ${minimized ? 'justify-center px-3' : ''}`}>
+          <button type="button" onClick={() => navigate('/')} className="focus:outline-none">
+            <TutWuriHandayaniImg size={minimized ? 36 : 48} />
+          </button>
+          {!minimized && <h1 className="font-bold text-gray-800 text-lg">SMPN 3 Manado</h1>}
+        </div>
+
+        {/* Menu */}
+        <div className="flex-1 overflow-y-auto">
+          <MenuList onClick={undefined} />
+        </div>
+
+        {/* Profile + Logout */}
+        <div className={`p-4 border-t border-gray-100 ${minimized ? 'px-2' : ''}`}>
+          {!minimized && (
+            <div className="bg-gray-50 px-4 py-3 rounded-xl mb-2">
+              <p className="text-sm font-bold text-gray-800 truncate">{displayName}</p>
+              {adminProfile.email && (
+                <p className="text-xs text-gray-400 truncate">{adminProfile.email}</p>
+              )}
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 py-2.5 rounded-xl text-sm font-bold transition">
+            <FaSignOutAlt />
+            {!minimized && 'Keluar'}
+          </button>
+        </div>
+
+        {/* Tombol minimize */}
+        <button
+          onClick={onToggleMinimize}
+          className="absolute -right-4 top-[45%] z-50 flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded-full shadow hover:bg-gray-50 transition"
+          style={{ transform: 'translateY(-50%)' }}>
+          {minimized ? <FaAngleRight size={16} /> : <FaAngleLeft size={16} />}
+        </button>
       </div>
 
-      {/* Sidebar for Mobile/Tablet (drawer, width < 1024px) */}
-      {isMobile && (
-        <div
-          className={`fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-all duration-300 ${
-            mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          } lg:hidden`}
-          onClick={() => {
-            if (setMobileOpen) setMobileOpen(false);
-          }}
-        />
-      )}
+      {/* ── MOBILE SIDEBAR ── */}
 
-      {isMobile && (
-        <aside
-          className={`fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 flex flex-col justify-between z-[60] transition-transform duration-300 lg:hidden
-            ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
-          `}
-          aria-label="Admin sidebar mobile/tablet">
-          {/* Header Sidebar Mobile */}
-          <div className="flex items-center justify-between px-6 py-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              {/* Logo SEKOLAH DI ATAS (TIDAK DIHAPUS) */}
-              <TutWuriHandayaniImg size={42} />
-              <h1 className="font-bold text-gray-800 text-lg">SMPN 3 Manado</h1>
-            </div>
-            <button
-              className="text-gray-500 hover:text-red-700 p-2 rounded transition bg-gray-50"
-              onClick={() => {
-                if (setMobileOpen) setMobileOpen(false);
-              }}>
-              <FaTimes size={20} />
-            </button>
-          </div>
+      {/* ✅ Backdrop — pointer-events dikontrol via class, bukan render kondisional */}
+      {/* Ini yang fix blur tidak hilang — dulu pakai isMobile check tapi isMobile tidak update */}
+      <div
+        className={`lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={handleBackdropClick} // ✅ klik backdrop = tutup
+        aria-hidden="true"
+      />
 
-          {/* Menu Items Mobile */}
-          <div className="flex-grow overflow-y-auto">
-            <div className="flex flex-col gap-1 px-4 mt-6 pb-6">
-              {menuItems.map((item, index) => (
-                <NavLink
-                  key={index}
-                  to={item.path}
-                  onClick={handleNavClick}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                      isActive
-                        ? 'bg-red-700 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-red-50 hover:text-red-700'
-                    }`
-                  }>
-                  <span className="text-lg">{item.icon}</span>
-                  {item.name}
-                </NavLink>
-              ))}
-            </div>
-            {/* Tambahkan Nama Lengkap & Email di bawah menu di mobile */}
-            <div className="mt-6 mb-4 px-2 flex flex-col items-center">
-              {adminProfile.nama_lengkap && (
-                <span className="text-sm font-bold text-gray-800 text-center">
-                  {adminProfile.nama_lengkap}
-                </span>
-              )}
-              {adminProfile.email && (
-                <span className="text-xs text-gray-500 text-center break-all">
-                  {adminProfile.email}
-                </span>
-              )}
-            </div>
+      {/* Drawer */}
+      <aside
+        className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 flex flex-col z-50 transition-transform duration-300 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+        {/* Header drawer */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <TutWuriHandayaniImg size={38} />
+            <h1 className="font-bold text-gray-800">SMPN 3 Manado</h1>
           </div>
-        </aside>
-      )}
+          {/* ✅ Tombol X tutup sidebar */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-700 transition">
+            <FaTimes size={18} />
+          </button>
+        </div>
+
+        {/* Menu mobile */}
+        <div className="flex-1 overflow-y-auto">
+          {/* ✅ handleNavClick menutup drawer saat menu diklik */}
+          <div className="flex flex-col gap-1 px-4 mt-4 pb-4">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={handleNavClick} // ✅ tutup drawer
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
+                    isActive
+                      ? 'bg-red-700 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-red-50 hover:text-red-700'
+                  }`
+                }>
+                <span className="text-lg">{item.icon}</span>
+                {item.name}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+
+        {/* Profile + Logout mobile */}
+        <div className="p-4 border-t border-gray-100 shrink-0">
+          <div className="bg-gray-50 px-4 py-3 rounded-xl mb-3">
+            <p className="text-sm font-bold text-gray-800">{displayName}</p>
+            {adminProfile.email && (
+              <p className="text-xs text-gray-400 truncate">{adminProfile.email}</p>
+            )}
+          </div>
+          {/* ✅ Logout ada di mobile juga */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-3 rounded-xl text-sm font-bold transition">
+            <FaSignOutAlt /> Keluar
+          </button>
+        </div>
+      </aside>
     </>
   );
 };

@@ -3,33 +3,30 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/admin/Sidebar';
 import Header from '../components/admin/Header';
 
-const SIDEBAR_WIDTH = 256; // 64 * 4 (tailwind: w-64 = 16rem = 256px)
-const SIDEBAR_MINIMIZED_WIDTH = 64; // w-16 = 4rem = 64px
-
 const AdminLayout = () => {
   const [minimized, setMinimized] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleToggleMinimize = () => setMinimized((prev) => !prev);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex bg-gray-50">
       {/* SIDEBAR */}
+      <Sidebar
+        minimized={minimized}
+        onToggleMinimize={handleToggleMinimize}
+        mobileOpen={isMobileMenuOpen}
+        setMobileOpen={setIsMobileMenuOpen}
+      />
+
+      {/* MAIN AREA — ✅ HAPUS overflow-hidden dari sini */}
       <div
-        className={`
-          transition-all duration-300
-          ${minimized ? 'w-16' : 'w-64'}
-          hidden lg:block
-        `}>
-        <Sidebar minimized={minimized} onToggleMinimize={handleToggleMinimize} />
-      </div>
-
-      {/* MAIN AREA */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* HEADER */}
-        <Header onSidebarMinimize={handleToggleMinimize} isSidebarMinimized={minimized} />
-
-        {/* CONTENT */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+          minimized ? 'lg:ml-20' : 'lg:ml-64'
+        }`}>
+        <Header onMobileMenuClick={setIsMobileMenuOpen} />
+        {/* ✅ Hanya main yang scroll */}
+        <main className="flex-1 overflow-y-auto min-h-0">
           <Outlet />
         </main>
       </div>
