@@ -1,7 +1,5 @@
 const pool = require('../config/db');
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-
 const getBeritaPublic = async (req, res) => {
   try {
     const data = await pool.query(
@@ -34,7 +32,7 @@ const addBerita = async (req, res) => {
 
   try {
     // ✅ Simpan gambar_url dengan URL lengkap
-    const gambar_url = req.file ? `${BASE_URL}/uploads/berita/${req.file.filename}` : null;
+    const gambar_url = req.file ? req.file.path : null;
 
     const result = await pool.query(
       `INSERT INTO berita_pengumuman 
@@ -86,7 +84,7 @@ const updateBerita = async (req, res) => {
     );
     const oldGambarUrl = existing.rows[0]?.gambar_url;
 
-    const gambar_url = req.file ? `${BASE_URL}/uploads/berita/${req.file.filename}` : oldGambarUrl; // ✅ pakai gambar lama kalau tidak ada file baru
+    const gambar_url = req.file ? req.file.path : oldGambarUrl; // ✅ pakai gambar lama kalau tidak ada file baru
 
     const result = await pool.query(
       `UPDATE berita_pengumuman 
@@ -101,7 +99,7 @@ const updateBerita = async (req, res) => {
 
     res.json({ message: 'Berita berhasil diperbarui!', data: result.rows[0] });
   } catch (error) {
-    console.error('Error updateBerita:', error);
+    console.error('Error addBerita:', JSON.stringify(error, null, 2)); // ← ganti ini
     res.status(500).json({ error: error.message });
   }
 };

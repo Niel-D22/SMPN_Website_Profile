@@ -49,7 +49,7 @@ const addPrestasi = async (req, res) => {
 
     if (files.length > 0) {
       // Gabungkan semua nama file jadi 1 Array, lalu ubah ke string JSON
-      const filePaths = files.map((f) => `/uploads/prestasi/${f.filename}`);
+      const filePaths = files.map((f) => f.path);
       foto_url_simpan = JSON.stringify(filePaths);
     }
 
@@ -88,7 +88,7 @@ const updatePrestasi = async (req, res) => {
 
     // 2. Ambil foto-foto baru yang baru saja diupload
     const fileBaru = req.files || [];
-    const pathFileBaru = fileBaru.map((f) => `/uploads/prestasi/${f.filename}`);
+    const pathFileBaru = fileBaru.map((f) => f.path);
 
     // 3. Gabungkan foto lama dan foto baru
     const finalFotos = [...fotoLamaDipertahankan, ...pathFileBaru];
