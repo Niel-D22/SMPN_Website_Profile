@@ -23,7 +23,9 @@ const Hero = () => {
             <h2 className="text-[#0c356a] text-2xl md:text-3xl font-bold leading-tight">
               Sambutan Kepala Sekolah
             </h2>
-            <h3 className="text-[#0c356a] text-xl font-semibold mb-3">nama kepalasekolah</h3>
+            <h3 className="text-[#0c356a] text-xl font-semibold mb-3">
+              Olga Mardiane Rarung, S.Pd., M.Pd.
+            </h3>
             <p className="text-gray-600 leading-relaxed text-sm md:text-base max-w-2xl">
               Selamat datang di website resmi SMP Negeri 3 Manado. Kami berkomitmen untuk
               menciptakan lingkungan belajar yang inovatif, berkarakter, dan mencetak generasi
