@@ -119,7 +119,7 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
         }`}>
         {/* Logo */}
         <div
-          className={`flex items-center gap-3 px-6 py-6 border-b border-gray-100 ${minimized ? 'justify-center px-3' : ''}`}>
+          className={`flex items-center gap-3 px-3 py-4 border-b border-gray-100 ${minimized ? 'justify-center px-3' : ''}`}>
           <button type="button" onClick={() => navigate('/')} className="focus:outline-none">
             <TutWuriHandayaniImg size={minimized ? 36 : 48} />
           </button>

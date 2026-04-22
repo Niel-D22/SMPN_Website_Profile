@@ -26,7 +26,7 @@ const AdminLayout = () => {
         }`}>
         <Header onMobileMenuClick={setIsMobileMenuOpen} />
         {/* ✅ Hanya main yang scroll */}
-        <main className="flex-1 overflow-y-auto min-h-0">
+        <main className="flex-1 overflow-y-auto min-h-0 relative">
           <Outlet />
         </main>
       </div>

@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FaGraduationCap,
-  FaUsers,
-  FaTrophy,
-  FaEnvelope,
-  FaCalendarAlt,
-  FaCircleNotch,
-} from 'react-icons/fa';
+import { FaGraduationCap, FaUsers, FaTrophy, FaEnvelope, FaCalendarAlt } from 'react-icons/fa';
 import {
   LineChart,
   Line,
@@ -76,9 +69,38 @@ const AdminDashboardPage = () => {
   });
 
   if (isLoading) {
+    // SKELETON BERSIH (TIDAK ADA ISI KONTEN! HANYA BINGKAI/KOSONG)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 animate__animated animate__fadeInUp animate__faster">
-        <FaCircleNotch className="animate-spin text-blue-600 mb-2" size={40} />
+      <div className="min-h-screen bg-[#f8f9fa] px-2 py-3 sm:p-4 md:p-6 lg:p-10 animate-fade-in-up">
+        {/* HEADER SKELETON */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-6 md:mb-10">
+          <div className="h-8 w-40 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+          <div className="h-8 w-36 bg-gray-200 rounded-xl animate-pulse"></div>
+        </div>
+
+        {/* SUMMARY CARDS SKELETON */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 mb-7 sm:mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl sm:rounded-[20px] p-3 sm:p-5 md:p-6 border border-gray-100 shadow-sm flex flex-col justify-between relative overflow-hidden animate-pulse">
+              <div className="h-8 w-8 bg-gray-100 rounded-lg mb-4"></div>
+              <div className="h-4 w-24 bg-gray-100 rounded mb-2"></div>
+              <div className="h-6 w-20 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
+
+        {/* GRAFIK SKELETON */}
+        <div className="bg-white rounded-xl sm:rounded-[24px] p-2 sm:p-4 md:p-6 border border-gray-100 shadow-sm overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-8 gap-4">
+            <div className="h-6 w-52 bg-gray-100 rounded mb-2"></div>
+            <div className="h-8 w-28 bg-gray-100 rounded-xl"></div>
+          </div>
+          <div className="w-full h-[180px] min-[340px]:h-[220px] sm:h-[280px] md:h-[350px] min-w-0 flex items-center">
+            <div className="w-full h-4/5 bg-gray-100 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
       </div>
     );
   }
