@@ -127,8 +127,41 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
         </div>
 
         {/* Menu */}
-        <div className="flex-1 overflow-y-auto">
-          <MenuList onClick={undefined} />
+        <div
+          className="flex-1 overflow-y-auto scrollbar-thin"
+          style={{
+            scrollbarColor: '#bdbdbd #fff', // batang scroll abu-abu dan background putih
+          }}>
+          <style>
+            {`
+              /* Scrollbar di kiri */
+              .sidebar-scrollbar {
+                direction: rtl;
+              }
+              .sidebar-scrollbar .scroll-content {
+                direction: ltr;
+              }
+              /* Batang scroll merah, track putih */
+              .sidebar-scrollbar::-webkit-scrollbar {
+                width: 1px;
+                background: #fff;
+              }
+              .sidebar-scrollbar::-webkit-scrollbar-thumb {
+                background: #bdbdbd80;
+           
+           
+                border-radius: 8px;
+              }
+              .sidebar-scrollbar::-webkit-scrollbar-corner {
+                background: #fff;
+              }
+            `}
+          </style>
+          <div className="sidebar-scrollbar h-full overflow-y-auto">
+            <div className="scroll-content">
+              <MenuList onClick={undefined} />
+            </div>
+          </div>
         </div>
 
         {/* Profile + Logout */}

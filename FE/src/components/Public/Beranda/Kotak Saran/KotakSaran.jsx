@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPaperPlane, FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaDirections } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { pesanApi } from '../../../../Api/pesanApi';
+import { profilSekolahApi } from '../../../../Api/profilSekolahApi';
 
 const KotakSaran = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,37 @@ const KotakSaran = () => {
     isi_pesan: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // State untuk profil sekolah
+  const [profil, setProfil] = useState({
+    nama_sekolah: '',
+    alamat: '',
+    no_telepon: '',
+    email_sekolah: '',
+  });
+
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const res = await profilSekolahApi.getProfilSekolah();
+        setProfil({
+          nama_sekolah: res.nama_sekolah || '',
+          alamat: res.alamat || '',
+          no_telepon: res.no_telepon || '',
+          email_sekolah: res.email_sekolah || '',
+        });
+      } catch (e) {
+        // fallback: kosongkan, jangan crash
+        setProfil({
+          nama_sekolah: '',
+          alamat: '',
+          no_telepon: '',
+          email_sekolah: '',
+        });
+      }
+    };
+    fetchProfil();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +102,7 @@ const KotakSaran = () => {
                 </h2>
                 <p className="text-white/80 text-xs leading-relaxed mb-6">
                   Punya saran, masukan, atau pertanyaan? Suara Anda sangat berarti untuk kemajuan
-                  SMPN 3 Manado.
+                  {profil.nama_sekolah ? ` ${profil.nama_sekolah}` : ' sekolah kami.'}
                 </p>
 
                 <div className="flex flex-col gap-4">
@@ -78,17 +110,17 @@ const KotakSaran = () => {
                     {
                       icon: <FaMapMarkerAlt className="text-[#003366]" />,
                       label: 'Alamat',
-                      value: 'Jl. Kakap No. 2, Kec. Tuminting, Kota Manado, Sulawesi Utara',
+                      value: profil.alamat || '-',
                     },
                     {
                       icon: <FaPhoneAlt className="text-[#003366]" />,
                       label: 'Telepon',
-                      value: '082395358120',
+                      value: profil.no_telepon || '-',
                     },
                     {
                       icon: <FaEnvelope className="text-[#003366]" />,
                       label: 'Email',
-                      value: 'smpnegeri3manadosulut@gmail.com',
+                      value: profil.email_sekolah || '-',
                     },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3">
@@ -199,7 +231,9 @@ const KotakSaran = () => {
                   <h3 className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight">
                     Lokasi Sekolah
                   </h3>
-                  <p className="text-[10px] sm:text-xs text-gray-400">SMP Negeri 3 Manado</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400">
+                    {profil.nama_sekolah || 'SMP Negeri 3 Manado'}
+                  </p>
                 </div>
               </div>
               <a
@@ -217,7 +251,7 @@ const KotakSaran = () => {
             <div className="relative flex-1 min-h-[260px] sm:min-h-[340px] lg:min-h-0 bg-gray-100">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3609.3070206061243!2d124.84505607447171!3d1.5201734610057316!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32879fe6701a13b1%3A0xc76183683e3ad979!2sSMP%20Negeri%203%20Manado!5e1!3m2!1sid!2sid!4v1776755269157!5m2!1sid!2sid"
-                title="Lokasi SMP Negeri 3 Manado"
+                title={`Lokasi ${profil.nama_sekolah || 'SMP Negeri 3 Manado'}`}
                 className="absolute inset-0 w-full h-full border-0"
                 allowFullScreen
                 loading="lazy"
@@ -231,7 +265,8 @@ const KotakSaran = () => {
                 <FaMapMarkerAlt className="text-[#b30000] text-xs" />
               </div>
               <p className="text-[10px] sm:text-xs text-gray-500 leading-snug">
-                Jl. Kakap No. 2, Kec. Tuminting, Kota Manado, Prov. Sulawesi Utara
+                {profil.alamat ||
+                  'Jl. Kakap No. 2, Kec. Tuminting, Kota Manado, Prov. Sulawesi Utara'}
               </p>
             </div>
           </div>
