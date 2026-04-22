@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import api from '../../Api/axios'; // Pastikan path axios sudah benar
 import toast from 'react-hot-toast';
+import { profilSekolahApi } from '../../Api/profilSekolahApi';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // State untuk data profil sekolah
+  const [logoUrl, setLogoUrl] = useState('');
+  const [namaSekolah, setNamaSekolah] = useState('');
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Ambil data profil sekolah untuk logo_url dan nama_sekolah
+    const fetchProfilSekolah = async () => {
+      try {
+        const data = await profilSekolahApi.getProfilSekolah();
+        setLogoUrl(data.logo_url || '/Images/LogoSekolah.png'); // fallback ke default jika tidak ada
+        setNamaSekolah(data.nama_sekolah || 'SMP Negeri 3 Manado');
+      } catch (err) {
+        setLogoUrl('/Images/LogoSekolah.png');
+        setNamaSekolah('SMP Negeri 3 Manado');
+      }
+    };
+    fetchProfilSekolah();
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -52,18 +73,23 @@ const LoginPage = () => {
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 min-h-[500px] md:min-h-[500px] min-h-[100dvh] md:min-h-0">
         {/* Sisi Kiri - Logo & Nama Sekolah */}
         <div className="w-full md:w-2/5 bg-red-700 p-6 sm:p-10 flex flex-col items-center justify-center text-white relative">
-          <div className="absolute bottom-0 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-white/10 rounded-tl-full"></div>
-          <div className="w-20 h-20 sm:w-28 sm:h-28 bg-gray-300 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-inner border-4 border-white/20">
+          <div className="w-30 h-30 sm:w-40 sm:h-40 rounded-full flex items-center justify-center mb-4 sm:mb-6">
             <img
-              src="../../../public/Images/LogoSekolah.png"
-              alt="Logo SMPN 3 Manado"
-              className="w-14 h-14 sm:w-20 sm:h-20 object-contain"
+              src={logoUrl}
+              alt={namaSekolah}
+              className="w-28 h-28 sm:w-36 sm:h-32 object-contain"
             />
           </div>
+
           <div className="text-center leading-tight">
-            <h2 className="font-bold text-base sm:text-xl uppercase tracking-wider">SMP Negeri</h2>
+            {/* Split namaSekolah jika perlu, atau tampilkan dinamis jika tidak ada pattern fix */}
+            <h2 className="font-bold text-base sm:text-xl uppercase tracking-wider">
+              {namaSekolah?.split('3 MANADO')[0]?.trim() || 'SMP Negeri'}
+            </h2>
             <h1 className="font-extrabold text-2xl sm:text-3xl uppercase tracking-widest mt-1">
-              3 MANADO
+              {namaSekolah?.includes('3 MANADO')
+                ? '3 MANADO'
+                : namaSekolah?.replace('SMP Negeri', '').trim()}
             </h1>
           </div>
         </div>
