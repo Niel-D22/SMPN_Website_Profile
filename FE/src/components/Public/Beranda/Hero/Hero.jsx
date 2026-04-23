@@ -6,7 +6,7 @@ const Hero = () => {
     <section className="relative w-full">
       <div className="w-full h-[400px] md:h-[500px] overflow-hidden relative">
         <img
-          src="/Images/HeroSMP3.png"
+          src="/Images/heroBeranda.png"
           alt="Gedung SMPN 3 Manado"
           className="w-full h-full object-cover"
         />
