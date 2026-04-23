@@ -14,7 +14,7 @@ import {
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
-import HeroSmp3 from '../../../public/images/HeroSmp3.png';
+import HeroSmp3 from '../../../public/images/heroSmp3.png';
 
 // Komponen Skeleton
 const SkeletonBox = ({ className }) => (
