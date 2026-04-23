@@ -14,7 +14,7 @@ import {
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
-import HeroSmp3 from '../../../public/images/heroSmp3.png';
+import heroSmp3 from '../../../public/images/heroSmp3.png';
 
 // Komponen Skeleton
 const SkeletonBox = ({ className }) => (
@@ -65,7 +65,7 @@ const ProfilPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('${HeroSmp3}')`,
+            backgroundImage: `url('${heroSmp3}')`,
           }}
         />
         <div
