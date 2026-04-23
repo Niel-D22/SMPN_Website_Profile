@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaClock, FaCalendarAlt, FaChevronDown } from 'react-icons/fa';
 import { timelineApi } from '../../Api/timelineApi';
 import 'animate.css';
+// Import gambar hero dari folder public/images
+import heroPPDB from '../../../public/Images/heroPPDB.jpg';
 
 // ✅ Pakai status dari DB, bukan hitung otomatis dari tanggal
 const getStatusInfo = (status) => {
@@ -61,8 +63,7 @@ const JadwalPPDB = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1920&auto=format&fit=crop')",
+            backgroundImage: `url('${heroPPDB}')`,
           }}
         />
         <div className="absolute inset-0 bg-black/65" />

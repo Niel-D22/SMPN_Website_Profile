@@ -12,6 +12,7 @@ import {
 import toast from 'react-hot-toast';
 import { beritaApi } from '../../Api/beritaApi';
 import 'animate.css';
+import heroBerita from '../../../public/Images/heroBerita.jpg'; // import dari folder public
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
@@ -25,8 +26,7 @@ const formatTanggal = (dateString) => {
 };
 
 const parseGambarUrl = (gambar_url) => {
-  const fallback =
-    'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1500&q=80';
+  const fallback = heroBerita;
   if (!gambar_url) return [fallback];
   if (Array.isArray(gambar_url) && gambar_url.length > 0)
     return gambar_url.map((u) => normalizeUrl(u));
@@ -136,8 +136,7 @@ const BeritaPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1500&q=80')",
+            backgroundImage: `url('${heroBerita}')`,
           }}
         />
         <div className="absolute inset-0 bg-black/65" />
@@ -146,8 +145,8 @@ const BeritaPages = () => {
             Berita Terkini
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-gray-300 font-medium leading-relaxed drop-shadow-md">
-            Temukan berita, pengumuman, dan informasi terbaru tentang aktivitas, prestasi, serta
-            kegiatan SMPN 3 Manado. Tetap terupdate dengan berbagai kabar penting sekolah!
+            Temukan berita, pengumuman, dan informasi terbaru tentang aktivita, serta kegiatan SMPN
+            3 Manado. Tetap terupdate dengan berbagai kabar penting sekolah!
           </p>
         </div>
         <button

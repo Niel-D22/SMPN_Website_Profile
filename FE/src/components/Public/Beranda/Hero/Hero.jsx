@@ -10,7 +10,6 @@ const Hero = () => {
           alt="Gedung SMPN 3 Manado"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       <div className="max-w-screen-xl mx-auto px-4 -mt-20 md:-mt-32 relative z-10">
