@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserTie, FaSearch, FaIdBadge, FaBookReader, FaChevronDown } from 'react-icons/fa';
+import {
+  FaUserTie,
+  FaSearch,
+  FaIdBadge,
+  FaBookReader,
+  FaChevronDown,
+  FaSearchPlus,
+  FaTimes,
+} from 'react-icons/fa';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
@@ -39,6 +47,11 @@ const DirektoriStafPages = () => {
   const [dataGuru, setDataGuru] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Untuk lightbox/preview foto
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImg, setPreviewImg] = useState('');
+  const [zoom, setZoom] = useState(1);
+
   useEffect(() => {
     const fetchGuru = async () => {
       setIsLoading(true);
@@ -62,8 +75,80 @@ const DirektoriStafPages = () => {
     return nama.includes(cari) || jabatan.includes(cari) || mapel.includes(cari);
   });
 
+  // Untuk buka preview
+  const handlePreview = (src) => {
+    setPreviewImg(src);
+    setPreviewOpen(true);
+    setZoom(1);
+    document.body.style.overflow = 'hidden';
+  };
+
+  // Tutup preview
+  const handleClosePreview = () => {
+    setPreviewOpen(false);
+    setPreviewImg('');
+    setZoom(1);
+    document.body.style.overflow = '';
+  };
+
+  // Zoom in/out
+  const handleZoom = (delta) => {
+    setZoom((z) => {
+      const next = z + delta;
+      if (next < 1) return 1;
+      if (next > 3) return 3;
+      return next;
+    });
+  };
+
+  // Reset zoom on double click
+  const handleDoubleClick = () => {
+    setZoom(zoom === 1 ? 2 : 1);
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] ">
+    <div className="min-h-screen bg-[#f8fafc] relative">
+      {/* Lightbox Foto */}
+      {previewOpen && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-50 animate__animated animate__fadeIn faster"
+          style={{ animationDuration: '.11s' }}>
+          <button
+            aria-label="Tutup preview"
+            className="absolute top-5 right-8 text-white text-3xl sm:text-4xl z-50 p-2 rounded-full bg-black/40 hover:bg-black/80 transition"
+            onClick={handleClosePreview}
+            tabIndex={0}>
+            <FaTimes />
+          </button>
+
+          <img
+            src={previewImg}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              objectFit: 'contain',
+              borderRadius: '1.4rem',
+              boxShadow: '0 20px 40px 0 rgba(30,41,59,.8)',
+              transform: `scale(${zoom})`,
+              transition: 'transform 0.2s',
+              cursor: zoom < 2 ? 'zoom-in' : 'zoom-out',
+            }}
+            alt="guru-preview"
+            onWheel={(e) => {
+              e.preventDefault();
+              handleZoom(e.deltaY < 0 ? 0.2 : -0.2);
+            }}
+            onDoubleClick={handleDoubleClick}
+            tabIndex={0}
+            draggable={false}
+            onClick={() => handleClosePreview()}
+          />
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-center text-white text-xs xs:text-sm opacity-65 px-3">
+            Scroll untuk zoom. Klik untuk keluar.
+          </div>
+        </div>
+      )}
+
       {/* =========================================
           HERO SECTION (Responsif)
       ========================================== */}
@@ -146,20 +231,33 @@ const DirektoriStafPages = () => {
                     relative
                     h-[240px] xs:h-[280px] sm:h-[420px]
                   ">
-                  {/* IMAGE FULL DENGAN FUNGSI HELPER API */}
-                  <img
-                    src={guru.foto_url}
-                    alt={guru.nama_lengkap}
-                    className="
-                      w-full h-full object-cover
-                      transition-transform duration-700 group-hover:scale-105
-                      min-h-[120px] xs:min-h-[160px] sm:min-h-[260px]
-                    "
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://placehold.co/600x800/e2e8f0/64748b?text=Tanpa+Foto';
-                    }}
-                  />
+                  {/* IMAGE PREVIEW + ZOOM */}
+                  <div className="relative w-full h-full cursor-zoom-in group">
+                    <img
+                      src={guru.foto_url}
+                      alt={guru.nama_lengkap}
+                      className="
+                        w-full h-full object-cover
+                        transition-transform duration-700 group-hover:scale-105
+                        min-h-[120px] xs:min-h-[160px] sm:min-h-[260px]
+                      "
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://placehold.co/600x800/e2e8f0/64748b?text=Tanpa+Foto';
+                      }}
+                      onClick={() => handlePreview(guru.foto_url)}
+                      tabIndex={0}
+                      style={{ cursor: 'zoom-in' }}
+                    />
+                    <button
+                      type="button"
+                      title="Perbesar foto"
+                      className="absolute top-[10px] right-[10px] sm:top-[20px] sm:right-[20px] z-10 bg-black/30 group-hover:bg-black/60 text-white rounded-full p-[6px] sm:p-2 opacity-0 group-hover:opacity-100 transition focus:opacity-100 focus:outline-none"
+                      onClick={() => handlePreview(guru.foto_url)}
+                      tabIndex={0}>
+                      <FaSearchPlus className="text-sm sm:text-lg" />
+                    </button>
+                  </div>
 
                   {/* OVERLAY BLUR HANYA BAGIAN BAWAH */}
                   <div className="absolute bottom-0 left-0 w-full h-[38%] xs:h-[40%] bg-gradient-to-t from-black/75 via-black/30 to-transparent backdrop-blur-[2px] pointer-events-none"></div>

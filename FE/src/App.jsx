@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import ScrollToTop from './layout/ScrollToTop.jsx';
 // Pages Public
 import BerandaPage from './pages/public/BerandaPage';
 import ProfilPages from './pages/public/ProfilPages';
@@ -59,6 +60,7 @@ function App() {
       <Toaster position="top-right" reverseOrder={false} />
 
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Publiclayout />}>
             <Route index element={<BerandaPage />} />

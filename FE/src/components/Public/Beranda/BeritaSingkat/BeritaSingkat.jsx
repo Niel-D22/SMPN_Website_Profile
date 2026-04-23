@@ -257,7 +257,7 @@ const BeritaSingkat = () => {
 
   return (
     <section className="w-full py-7 md:py-16 lg:py-20 bg-white">
-      <div className="max-w-[98vw] md:max-w-7xl mx-auto px-2 xs:px-3 sm:px-6 lg:px-10">
+      <div className="max-w-[0vw] md:max-w-[190vh] mx-auto px-2 xs:px-3 sm:px-6 lg:px-10">
         {/* ── HEADER ── */}
         <div
           data-aos="fade-up"

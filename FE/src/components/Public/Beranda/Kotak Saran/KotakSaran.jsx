@@ -72,7 +72,7 @@ const KotakSaran = () => {
 
   return (
     <div className="min-h-screen  px-3 sm:px-6 lg:px-8 py-10 sm:py-16">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6 sm:gap-8">
+      <div className=" max-w-[110vw] md:max-w-[180vh] mx-auto flex flex-col gap-6 sm:gap-8">
         {/* ── JUDUL SECTION ── */}
         <div data-aos="fade-up" className="text-center">
           <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#b30000] bg-red-50 border border-red-100 px-3 py-1 rounded-full mb-3">

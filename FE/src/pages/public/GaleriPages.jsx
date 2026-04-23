@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
+import { createPortal } from 'react-dom'; // ✅ IMPORT PORTAL
 import {
   FaChevronDown,
-  FaSearchPlus,
+  FaSearchPlus, // ✅ IMPORT ICON ZOOM
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
@@ -42,11 +42,14 @@ const getBadgeColor = (kategori) => {
 };
 
 /* =========================
-   LIGHTBOX COMPONENT
+   LIGHTBOX COMPONENT (MODAL KONSISTEN)
 ========================= */
 const Lightbox = ({ items, startIndex, onClose }) => {
   const [idx, setIdx] = useState(startIndex);
   const [imgIdx, setImgIdx] = useState(0);
+
+  // ✅ STATE UNTUK FULLSCREEN ZOOM
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   const currentItem = items[idx];
   const images = parseImages(currentItem.file_url);
@@ -61,103 +64,99 @@ const Lightbox = ({ items, startIndex, onClose }) => {
     setImgIdx((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const saamaGalleryItem = (e) => {
-    e.stopPropagation();
-    setIdx((prev) => (prev + 1) % items.length);
-    setImgIdx(0);
-  };
-
-  return (
+  return createPortal(
+    // ✅ z-[99999] agar berada di atas header utama
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-6"
-      onClick={onClose}>
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6"
+      style={{ pointerEvents: 'auto' }}>
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel utama — card putih */}
+      {/* Panel Modal */}
       <div
-        className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] flex flex-col z-10 overflow-hidden animate-lightbox-up"
+        className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-3xl lg:max-w-4xl max-h-[90vh] flex flex-col z-10 overflow-hidden animate-lightbox-up"
         onClick={(e) => e.stopPropagation()}>
-        {/* Tombol tutup */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-red-600 text-white rounded-full z-30 transition-colors focus:outline-none flex items-center justify-center"
-          style={{ width: 40, height: 40, minWidth: 40, minHeight: 40 }}
-          aria-label="Tutup">
-          <FaTimes size={17} />
-        </button>
-
-        {/* Area foto */}
-        <div
-          className="relative w-full bg-gray-100 shrink-0 overflow-hidden"
-          style={{ aspectRatio: '16/9', maxHeight: '52vh' }}>
-          <img
-            src={images[imgIdx]}
-            alt={currentItem.judul_foto}
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://placehold.co/800x600/e5e7eb/9ca3af?text=Image+Error';
-            }}
-          />
-
-          {/* Navigasi foto dalam 1 item (multi-foto) */}
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={prevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all focus:outline-none flex items-center justify-center"
-                style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
-                aria-label="Foto sebelumnya">
-                <FaChevronLeft size={14} />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all focus:outline-none flex items-center justify-center"
-                style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
-                aria-label="Foto selanjutnya">
-                <FaChevronRight size={14} />
-              </button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full">
-                {imgIdx + 1} / {images.length}
-              </div>
-            </>
-          )}
+        {/* Header Modal - Judul & Tombol Tutup */}
+        <div className="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100 bg-white z-20 shrink-0">
+          <div className="pr-4">
+            <span
+              className={`inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full text-white mb-1 ${getBadgeColor(currentItem.kategori)}`}>
+              {currentItem.kategori}
+            </span>
+            <h2 className="text-base sm:text-xl font-extrabold text-[#003366] line-clamp-2 leading-tight">
+              {currentItem.judul_foto}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 rounded-full transition-colors focus:outline-none flex items-center justify-center shrink-0"
+            style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
+            aria-label="Tutup">
+            <FaTimes size={16} />
+          </button>
         </div>
 
-        {/* Info & thumbnail */}
-        <div className="p-4 sm:p-5 flex flex-col gap-2 overflow-y-auto">
-          {/* Badge kategori */}
-          <span
-            className={`inline-block self-start text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full text-white ${getBadgeColor(currentItem.kategori)}`}>
-            {currentItem.kategori}
-          </span>
+        {/* Area Konten Scrollable */}
+        <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
+          {/* Container Gambar Utama - object-contain & max-h */}
+          <div
+            className="relative w-full mb-4 sm:mb-6 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group cursor-pointer"
+            onClick={() => setIsZoomOpen(true)}>
+            <img
+              src={images[imgIdx]}
+              alt={currentItem.judul_foto}
+              // ✅ AGAR TIDAK KEMOTONG
+              className="w-full h-auto max-h-[50vh] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://placehold.co/800x600/e5e7eb/9ca3af?text=Image+Error';
+              }}
+            />
 
-          <h2 className="text-base sm:text-xl md:text-2xl font-extrabold text-gray-900 leading-tight">
-            {currentItem.judul_foto}
-          </h2>
+            {/* Overlay ikon Zoom saat di-hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+              <div className="bg-black/60 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform scale-75 group-hover:scale-100">
+                <FaSearchPlus size={24} />
+              </div>
+            </div>
 
-          {currentItem.deskripsi && (
-            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-              {currentItem.deskripsi}
-            </p>
-          )}
+            {/* Navigasi multi-foto */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all flex items-center justify-center z-10 focus:outline-none"
+                  style={{ width: 32, height: 32 }}>
+                  <FaChevronLeft size={14} />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all flex items-center justify-center z-10 focus:outline-none"
+                  style={{ width: 32, height: 32 }}>
+                  <FaChevronRight size={14} />
+                </button>
+                <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold z-10">
+                  {imgIdx + 1} / {images.length}
+                </div>
+              </>
+            )}
+          </div>
 
-          {/* Thumbnail strip multi-foto */}
+          {/* Thumbnail strip jika foto lebih dari 1 */}
           {images.length > 1 && (
-            <div className="flex gap-2 mt-1 overflow-x-auto pb-1">
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
               {images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setImgIdx(i)}
-                  className={`shrink-0 w-14 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden border-2 transition-all focus:outline-none ${
+                  className={`shrink-0 w-16 h-12 sm:w-20 sm:h-14 rounded-lg overflow-hidden border-2 transition-all focus:outline-none ${
                     i === imgIdx
                       ? 'border-[#003366] scale-105'
                       : 'border-transparent opacity-60 hover:opacity-100'
                   }`}>
                   <img
                     src={src}
-                    alt={`Foto ${i + 1}`}
+                    alt={`Thumbnail ${i + 1}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.src = 'https://placehold.co/80x60/e2e8f0/64748b?text=?';
@@ -168,38 +167,73 @@ const Lightbox = ({ items, startIndex, onClose }) => {
             </div>
           )}
 
-          {/* Indikator item galeri */}
+          {/* Info/Deskripsi Tambahan */}
+          {currentItem.deskripsi && (
+            <div className="text-gray-700 text-sm sm:text-base leading-relaxed mt-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
+              {currentItem.deskripsi}
+            </div>
+          )}
+
+          {/* Indikator Pindah Album (Opsional, bawaan kodemu) */}
           {items.length > 1 && (
-            <p className="text-[10px] sm:text-xs text-gray-400 font-medium">
-              Item {idx + 1} dari {items.length}
-            </p>
+            <div className="mt-4 pt-4 border-t border-gray-100 text-right">
+              <p className="text-[10px] sm:text-xs text-gray-400 font-medium">
+                Album {idx + 1} dari {items.length}
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 sm:py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between shrink-0">
+        {/* Footer Modal */}
+        <div className="px-4 py-3 sm:px-5 sm:py-4 border-t border-gray-100 bg-gray-50 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="ml-auto bg-[#003366] hover:bg-[#b30000] active:scale-95 text-white px-5 sm:px-7 rounded-full font-bold transition-colors text-xs sm:text-sm shadow-md"
-            style={{ minHeight: 40 }}
-            aria-label="Tutup">
+            className="bg-[#003366] hover:bg-[#b30000] active:scale-95 text-white px-5 sm:px-7 rounded-full font-bold transition-colors text-xs sm:text-sm shadow-md focus:outline-none"
+            style={{ minHeight: 40 }}>
             Tutup
           </button>
         </div>
       </div>
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @keyframes lightboxUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .animate-lightbox-up { animation: lightboxUp 0.25s ease-out forwards; }
-      `,
-        }}
-      />
-    </div>
+      {/* ── LIGHTBOX (FULLSCREEN IMAGE ZOOM) ── */}
+      {isZoomOpen && (
+        <div
+          className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center p-2 sm:p-8 animate__animated animate__fadeIn animate__faster"
+          onClick={() => setIsZoomOpen(false)}>
+          <button
+            onClick={() => setIsZoomOpen(false)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/10 hover:bg-red-600 text-white rounded-full p-3 transition-colors z-50 focus:outline-none">
+            <FaTimes size={24} />
+          </button>
+
+          <img
+            src={images[imgIdx]}
+            alt="Zoom Galeri"
+            className="max-w-full max-h-full object-contain select-none"
+            onClick={(e) => e.stopPropagation()} // Supaya klik gambar tidak nutup zoom
+          />
+
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-4 transition-all z-50 focus:outline-none">
+                <FaChevronLeft size={24} />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-4 transition-all z-50 focus:outline-none">
+                <FaChevronRight size={24} />
+              </button>
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-bold z-50">
+                {imgIdx + 1} / {images.length}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>,
+    document.body // ✅ RENDER KE LUAR DOM UTAMA
   );
 };
 
@@ -233,10 +267,12 @@ const GaleriPages = () => {
     };
   }, []);
 
+  // Fixed: filter untuk ekstrakurikuler harus membandingkan ".toLowerCase()" terhadap "ekskul"
+  // dan nilai kategori juga harus di-lowercase
   const filteredGaleri =
     activeTab === 'semua'
       ? dataGaleri
-      : dataGaleri.filter((item) => item.kategori?.toLowerCase() === activeTab);
+      : dataGaleri.filter((item) => (item.kategori || '').toLowerCase().trim() === activeTab);
 
   const openLightbox = (idx) => {
     setLightbox(idx);
@@ -248,8 +284,8 @@ const GaleriPages = () => {
     document.body.style.overflow = 'auto';
   };
 
-  // Gunakan gambar hero dari public jika dataGaleri kosong
-  const heroImg = dataGaleri.length > 0 ? parseImages(dataGaleri[0].file_url)[0] : heroImage;
+  // Gunakan gambar hero dari public S A J A, tidak ambil dari dataGaleri
+  const heroImg = heroImage;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20 sm:pb-24 animate__animated animate__fadeInUp animate__faster overflow-x-hidden">
@@ -266,7 +302,7 @@ const GaleriPages = () => {
             Dokumentasi kegiatan sekolah
           </p>
         </div>
-        <div className="absolute bottom-4 sm:bottom-10 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-1 sm:gap-2">
+        <div className="absolute bottom-4 sm:bottom-10 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-y-1 sm:gap-y-2">
           <span className="text-white/50 text-[10px] sm:text-xs font-bold tracking-widest uppercase">
             Scroll Down
           </span>
@@ -274,9 +310,20 @@ const GaleriPages = () => {
         </div>
       </section>
 
+      {/* --- JUDUL SINGKAT & DESKRIPSI SEBELUM KARTU GALERI --- */}
+      <section className="max-w-3xl mx-auto px-3 sm:px-6 text-center mb-4 sm:mb-8 pt-10">
+        <h2 className="text-xl sm:text-3xl font-bold text-[#003366] mb-2">
+          Kumpulan Momen & Kegiatan
+        </h2>
+        <p className="text-gray-600 text-sm sm:text-base">
+          Temukan berbagai dokumentasi foto momen, kegiatan, fasilitas, dan ekstrakurikuler di
+          sekolah kami. Klik gambar untuk melihat lebih jelas.
+        </p>
+      </section>
+
       {/* ── FILTER TABS ── */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-4 sm:pb-8">
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-4 sm:pb-8">
+        <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 sm:gap-x-3 sm:gap-y-3 md:gap-x-4 md:gap-y-4">
           {[
             { id: 'semua', label: 'Semua Foto' },
             { id: 'umum', label: 'Kegiatan Umum' },
@@ -310,11 +357,11 @@ const GaleriPages = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-3 sm:gap-x-4 sm:gap-y-4 md:gap-x-6 md:gap-y-6">
             {filteredGaleri.map((item, i) => {
               const images = parseImages(item.file_url);
-              const isFasilitas = item.kategori === 'fasilitas';
-              const isEkskul = item.kategori === 'ekskul';
+              const isFasilitas = (item.kategori || '').toLowerCase().trim() === 'fasilitas';
+              const isEkskul = (item.kategori || '').toLowerCase().trim() === 'ekskul';
 
               return (
                 <div
@@ -332,7 +379,7 @@ const GaleriPages = () => {
                   />
 
                   {images.length > 1 && (
-                    <div className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 bg-black/60 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 z-10">
+                    <div className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 bg-black/60 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-x-1 z-10">
                       <FaImages size={9} />
                       <span>{images.length}</span>
                     </div>
@@ -355,7 +402,7 @@ const GaleriPages = () => {
                     <h3 className="text-white font-bold text-xs sm:text-base md:text-lg leading-tight mb-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 line-clamp-2">
                       {item.judul_foto}
                     </h3>
-                    <div className="flex items-center gap-1 text-yellow-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
+                    <div className="flex items-center gap-x-1 text-yellow-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
                       <FaSearchPlus size={10} /> Perbesar
                     </div>
                   </div>
@@ -374,6 +421,17 @@ const GaleriPages = () => {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+        @keyframes lightboxUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-lightbox-up { animation: lightboxUp 0.25s ease-out forwards; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         html, body { overflow-x: hidden !important; }
       `,
         }}

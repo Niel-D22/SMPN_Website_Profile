@@ -74,10 +74,13 @@ const Faq = () => {
               return (
                 <div
                   key={faq.id_faq || index}
+                  data-aos={index % 2 === 0 ? 'fade-up-right' : 'fade-up-left'}
+                  data-aos-delay={index * 100}
+                  data-aos-duration="800"
                   className={`bg-white rounded-2xl transition-all duration-300 overflow-hidden ${
                     isOpen
-                      ? 'border-2 border-[#003366] shadow-md' // Aktif: Border Biru Navy
-                      : 'border-2 border-gray-100 hover:border-gray-300' // Tidak aktif: Border Abu-abu
+                      ? 'border-2 border-[#003366] shadow-md'
+                      : 'border-2 border-gray-100 hover:border-gray-300'
                   }`}>
                   <button
                     onClick={() => toggleAccordion(index)}

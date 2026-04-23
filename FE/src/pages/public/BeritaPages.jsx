@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom'; // ✅ IMPORT PORTAL DITAMBAHKAN
 import {
   FaCalendarAlt,
   FaTimes,
@@ -8,11 +9,12 @@ import {
   FaChevronRight,
   FaImages,
   FaChevronDown,
+  FaSearchPlus,
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { beritaApi } from '../../Api/beritaApi';
 import 'animate.css';
-import heroBerita from '../../../public/Images/heroBerita.jpg'; // import dari folder public
+import heroBerita from '../../../public/Images/heroBerita.jpg';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
@@ -47,20 +49,16 @@ const normalizeUrl = (u) => {
   return `${BACKEND_URL}/uploads/${u}`;
 };
 
-// Fungsi untuk meng-extract hanya beberapa baris (misal 3 baris) dari teks plain
 const getPreviewText = (htmlContent, maxLines = 3) => {
   if (!htmlContent) return '';
-  // Hilangkan tag HTML
   const plain = htmlContent.replace(/<[^>]*>?/gm, '');
-  // Pecah jadi baris per baris (gunakan titik atau baris baru sebagai pemisah)
   let lines = plain
-    .replace(/(\r\n|\n|\r)/gm, ' ') // Ubah \n jadi spasi
+    .replace(/(\r\n|\n|\r)/gm, ' ')
     .split('. ')
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
 
   if (lines.length === 0) return '';
-
   const preview = lines.slice(0, maxLines).join('. ');
   return preview.length > 0 ? preview + (lines.length > maxLines ? '...' : '') : '';
 };
@@ -70,6 +68,8 @@ const BeritaPages = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBerita, setSelectedBerita] = useState(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -107,10 +107,15 @@ const BeritaPages = () => {
   const openModal = (item) => {
     setSelectedBerita(item);
     setCurrentPhotoIndex(0);
+    // Mencegah body di-scroll saat modal terbuka
+    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setSelectedBerita(null);
+    setIsLightboxOpen(false);
+    // Mengembalikan scroll body
+    document.body.style.overflow = 'auto';
   };
 
   const nextPhoto = (e) => {
@@ -135,9 +140,7 @@ const BeritaPages = () => {
       <section className="relative w-full min-h-[55vh] sm:min-h-[70vh] md:min-h-screen flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${heroBerita}')`,
-          }}
+          style={{ backgroundImage: `url('${heroBerita}')` }}
         />
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-4 sm:px-6 w-full max-w-xs sm:max-w-xl md:max-w-3xl mx-auto">
@@ -145,7 +148,7 @@ const BeritaPages = () => {
             Berita Terkini
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-gray-300 font-medium leading-relaxed drop-shadow-md">
-            Temukan berita, pengumuman, dan informasi terbaru tentang aktivita, serta kegiatan SMPN
+            Temukan berita, pengumuman, dan informasi terbaru tentang aktivitas, serta kegiatan SMPN
             3 Manado. Tetap terupdate dengan berbagai kabar penting sekolah!
           </p>
         </div>
@@ -215,28 +218,18 @@ const BeritaPages = () => {
                   type="button"
                   key={item.id_berita}
                   onClick={() => openModal(item)}
-                  className="group bg-white rounded-xl shadow-sm hover:shadow-xl active:scale-[0.98] transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#003366]"
-                  aria-label={`Baca detail berita: ${item.judul}`}>
-                  {/* ── Gambar ── */}
+                  className="group bg-white rounded-xl shadow-sm hover:shadow-xl active:scale-[0.98] transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#003366]">
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-200 shrink-0">
                     <img
                       src={photos[0]}
                       alt={item.judul}
                       className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://placehold.co/600x450/e2e8f0/64748b?text=No+Image';
-                      }}
                     />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-                    {/* Badge tanggal — hanya desktop */}
                     <div className="hidden md:flex absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-[#003366] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm items-center gap-1.5 z-10">
                       <FaCalendarAlt className="text-[#b30000]" size={10} />
                       {formatTanggal(item.tanggal)}
                     </div>
-
-                    {/* Badge jumlah foto */}
                     {photos.length > 1 && (
                       <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 z-10">
                         <FaImages size={9} />
@@ -244,36 +237,23 @@ const BeritaPages = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* ── Teks ── */}
                   <div className="p-2.5 sm:p-3 md:p-5 flex flex-col flex-grow min-h-0">
                     {item.kategori && (
                       <span className="text-[#b30000] text-[9px] md:text-xs font-bold uppercase tracking-widest mb-1 truncate">
                         {item.kategori}
                       </span>
                     )}
-
-                    {/* Judul: 2 baris di semua ukuran */}
                     <h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-900 leading-snug mb-1.5 group-hover:text-[#003366] transition-colors line-clamp-2">
                       {item.judul}
                     </h3>
-
-                    {/* 
-                      Deskripsi:
-                      - mobile (< md): TIDAK muncul sama sekali agar card tetap ringkas
-                      - md ke atas (desktop): muncul hanya beberapa baris (preview saja)
-                    */}
                     <p className="hidden md:block text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-2">
                       {item.isi_konten
-                        ? getPreviewText(item.isi_konten, 2) || 'Tidak ada deskripsi singkat.'
+                        ? getPreviewText(item.isi_konten, 2)
                         : 'Tidak ada deskripsi singkat.'}
                     </p>
-
-                    {/* Tanggal — muncul di mobile & tablet sebagai pengganti badge */}
                     <p className="md:hidden text-gray-400 text-[9px] sm:text-[10px] mb-1.5 truncate">
                       {formatTanggal(item.tanggal)}
                     </p>
-
                     <div className="flex items-center text-[#b30000] font-bold text-[10px] sm:text-xs md:text-sm group-hover:text-red-800 transition-colors mt-auto">
                       <span>Selengkapnya</span>
                       <FaArrowRight
@@ -289,106 +269,146 @@ const BeritaPages = () => {
         )}
       </section>
 
-      {/* ── MODAL ── */}
+      {/* ── MODAL BERITA MENDETAIL MENGGUNAKAN PORTAL ── */}
       {selectedBerita &&
-        (() => {
-          const photos = parseGambarUrl(selectedBerita.gambar_url);
-          return (
-            <div
-              className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6"
-              style={{ pointerEvents: 'auto' }}>
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeModal} />
-              <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[88vh] flex flex-col z-10 overflow-hidden animate-fade-in-up">
-                {/* Tombol tutup */}
-                <button
+        createPortal(
+          (() => {
+            const photos = parseGambarUrl(selectedBerita.gambar_url);
+            return (
+              // ✅ z-index dinaikkan ke tingkat ekstrim (z-[99999])
+              <div
+                className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6"
+                style={{ pointerEvents: 'auto' }}>
+                <div
+                  className="absolute inset-0 bg-black/70 backdrop-blur-sm"
                   onClick={closeModal}
-                  className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-red-600 text-white rounded-full z-20 transition-colors focus:outline-none flex items-center justify-center"
-                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40 }}
-                  aria-label="Tutup berita">
-                  <FaTimes size={18} />
-                </button>
+                />
 
-                {/* Gambar header modal */}
-                <div className="w-full h-36 sm:h-56 md:h-72 bg-gray-200 shrink-0 relative overflow-hidden">
-                  <img
-                    src={photos[currentPhotoIndex]}
-                    alt={selectedBerita.judul}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';
-                    }}
-                  />
-
-                  {photos.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevPhoto}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all focus:outline-none flex items-center justify-center"
-                        style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
-                        aria-label="Sebelumnya">
-                        <FaChevronLeft size={15} />
-                      </button>
-                      <button
-                        onClick={nextPhoto}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all focus:outline-none flex items-center justify-center"
-                        style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
-                        aria-label="Selanjutnya">
-                        <FaChevronRight size={15} />
-                      </button>
-                      <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold z-10">
-                        {currentPhotoIndex + 1} / {photos.length}
+                <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-3xl lg:max-w-4xl max-h-[90vh] flex flex-col z-10 overflow-hidden animate-fade-in-up">
+                  {/* Header Modal - Judul & Tombol Tutup */}
+                  <div className="flex justify-between items-center px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100 bg-white z-20 shrink-0">
+                    <div className="pr-4">
+                      <h2 className="text-base sm:text-xl font-extrabold text-[#003366] line-clamp-2">
+                        {selectedBerita.judul}
+                      </h2>
+                      <div className="flex items-center gap-1.5 text-gray-500 text-[10px] sm:text-xs font-bold mt-1">
+                        <FaCalendarAlt size={10} />
+                        {formatTanggal(selectedBerita.tanggal)}
                       </div>
-                    </>
-                  )}
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-full px-3 sm:px-5 py-3 sm:py-4">
-                    <div className="flex items-center gap-1.5 text-yellow-400 text-[10px] sm:text-xs font-bold mb-1">
-                      <FaCalendarAlt size={10} />
-                      {formatTanggal(selectedBerita.tanggal)}
                     </div>
-                    <h2 className="text-sm sm:text-xl md:text-2xl font-extrabold text-white leading-tight line-clamp-2">
-                      {selectedBerita.judul}
-                    </h2>
+                    <button
+                      onClick={closeModal}
+                      className="bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 rounded-full transition-colors focus:outline-none flex items-center justify-center shrink-0"
+                      style={{ width: 36, height: 36, minWidth: 36, minHeight: 36 }}
+                      aria-label="Tutup berita">
+                      <FaTimes size={16} />
+                    </button>
+                  </div>
+
+                  {/* Konten Scrollable */}
+                  <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 bg-white">
+                    {/* Container Gambar */}
+                    <div
+                      className="relative w-full mb-6 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 group cursor-pointer"
+                      onClick={() => setIsLightboxOpen(true)}>
+                      <img
+                        src={photos[currentPhotoIndex]}
+                        alt={selectedBerita.judul}
+                        className="w-full h-auto max-h-[50vh] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';
+                        }}
+                      />
+
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                        <div className="bg-black/60 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform scale-75 group-hover:scale-100">
+                          <FaSearchPlus size={24} />
+                        </div>
+                      </div>
+
+                      {photos.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevPhoto}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all flex items-center justify-center z-10"
+                            style={{ width: 32, height: 32 }}>
+                            <FaChevronLeft size={14} />
+                          </button>
+                          <button
+                            onClick={nextPhoto}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-all flex items-center justify-center z-10"
+                            style={{ width: 32, height: 32 }}>
+                            <FaChevronRight size={14} />
+                          </button>
+                          <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-bold z-10">
+                            {currentPhotoIndex + 1} / {photos.length}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Teks Konten */}
+                    <div
+                      className="prose prose-sm sm:prose-base max-w-none text-gray-700 leading-relaxed"
+                      style={{ wordBreak: 'break-word' }}
+                      dangerouslySetInnerHTML={{
+                        __html: selectedBerita.isi_konten || 'Detail berita belum tersedia.',
+                      }}
+                    />
                   </div>
                 </div>
 
-                {/* Isi konten scrollable */}
-                <div className="p-3 sm:p-5 overflow-y-auto custom-scrollbar flex-1 min-h-0">
-                  <div
-                    className="prose prose-sm sm:prose-base max-w-none text-gray-700 leading-relaxed"
-                    style={{ wordBreak: 'break-word' }}
-                    dangerouslySetInnerHTML={{
-                      __html: selectedBerita.isi_konten || 'Detail berita belum tersedia.',
-                    }}
-                  />
-                </div>
+                {/* ── LIGHTBOX ── */}
+                {isLightboxOpen && (
+                  <div className="fixed inset-0 z-[999999] bg-black/95 flex items-center justify-center p-2 sm:p-8 animate__animated animate__fadeIn animate__faster">
+                    <button
+                      onClick={() => setIsLightboxOpen(false)}
+                      className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/10 hover:bg-red-600 text-white rounded-full p-3 transition-colors z-50">
+                      <FaTimes size={24} />
+                    </button>
 
-                <div className="px-3 py-3 sm:px-5 sm:py-4 border-t border-gray-100 bg-gray-50 flex justify-end shrink-0">
-                  <button
-                    onClick={closeModal}
-                    className="bg-[#003366] hover:bg-[#b30000] active:scale-95 text-white px-5 sm:px-7 rounded-full font-bold transition-colors text-xs sm:text-sm shadow-md"
-                    style={{ minHeight: 40 }}
-                    aria-label="Tutup Berita">
-                    Tutup Berita
-                  </button>
-                </div>
+                    <img
+                      src={photos[currentPhotoIndex]}
+                      alt="Zoom"
+                      className="max-w-full max-h-full object-contain select-none"
+                    />
+
+                    {photos.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevPhoto}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-4 transition-all z-50">
+                          <FaChevronLeft size={24} />
+                        </button>
+                        <button
+                          onClick={nextPhoto}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-4 transition-all z-50">
+                          <FaChevronRight size={24} />
+                        </button>
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-sm font-bold z-50">
+                          {currentPhotoIndex + 1} / {photos.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })()}
+            );
+          })(),
+          document.body // ✅ MERENDER MODAL DI LUAR HALAMAN BERITA
+        )}
 
       <style
         dangerouslySetInnerHTML={{
           __html: `
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.96); }
+          from { opacity: 0; transform: translateY(20px) scale(0.98); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .animate-fade-in-up { animation: fadeInUp 0.25s ease-out forwards; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         html, body { overflow-x: hidden !important; }

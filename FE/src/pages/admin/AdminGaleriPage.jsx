@@ -7,16 +7,23 @@ import ModalFormGaleri from '../../components/admin/Galeri/ModalFormGaleri';
 import ModalKonfirmasi from '../../components/admin/ModalKonfirmasi';
 import 'animate.css';
 
+// Daftar kategori yang diizinkan: Umum, Ekskul, Fasilitas
+const KATEGORI_TABS = [
+  { label: 'Semua', value: 'Semua' },
+  { label: 'Umum', value: 'umum' },
+  // Di tab, tulis "Ekskul" agar sesuai dengan data pada field kategori
+  { label: 'Ekskul', value: 'ekskul' },
+  { label: 'Fasilitas', value: 'fasilitas' },
+];
+
 const AdminGaleriPage = () => {
   const [galeri, setGaleri] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('Semua');
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
@@ -79,14 +86,24 @@ const AdminGaleriPage = () => {
     }
   };
 
-  const filteredGaleri = galeri.filter(
-    (g) =>
-      g.judul_foto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (g.deskripsi && g.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Filtering berdasarkan kategori & search
+  const filteredGaleri = galeri.filter((g) => {
+    // Untuk filter Ekskul: sesuaikan dengan data kategori (harus 'ekskul', bukan 'ekstrakulikuler/ekstrakurikuler')
+    let matchKategori = true;
+    if (activeTab !== 'Semua') {
+      const katGaleri = g.kategori ? String(g.kategori).toLowerCase() : '';
+      let tabValue = activeTab.toLowerCase();
+      matchKategori = katGaleri === tabValue;
+    }
+
+    const keyword = searchTerm.toLowerCase();
+    const matchSearch =
+      (g.judul_foto && g.judul_foto.toLowerCase().includes(keyword)) ||
+      (g.deskripsi && g.deskripsi.toLowerCase().includes(keyword));
+    return matchKategori && (searchTerm.trim() === '' || matchSearch);
+  });
 
   return (
-    // ✅ Hapus min-h-screen & bg-gray-50 — diatur AdminLayout
     <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate__animated animate__fadeInUp animate__faster">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -112,16 +129,16 @@ const AdminGaleriPage = () => {
       <div className="bg-white p-2 sm:p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 sm:mb-6">
         {/* Tabs scroll horizontal di mobile */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-          {['Semua', 'Kegiatan', 'Prestasi', 'Fasilitas'].map((tab) => (
+          {KATEGORI_TABS.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
               className={`px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all min-h-[36px] ${
-                activeTab === tab
+                activeTab === tab.value
                   ? 'bg-primary text-white shadow-md shadow-primary/20'
                   : 'text-gray-500 hover:bg-gray-50'
               }`}>
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -141,7 +158,6 @@ const AdminGaleriPage = () => {
 
       {/* Grid Galeri */}
       {isLoading ? (
-        // ✅ 2 kolom di mobile, makin banyak di desktop
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
