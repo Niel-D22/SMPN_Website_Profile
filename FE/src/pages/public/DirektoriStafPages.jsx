@@ -3,6 +3,9 @@ import { FaUserTie, FaSearch, FaIdBadge, FaBookReader, FaChevronDown } from 'rea
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
+// Import hero image dari folder public/Images/
+import heroGuru from '../../../public/Images/heroGuru.jpeg';
+
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 // Helper untuk membaca URL gambar dari database
 const getImageUrl = (fotoString) => {
@@ -68,8 +71,7 @@ const DirektoriStafPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1920&auto=format&fit=crop')",
+            backgroundImage: `url(${heroGuru})`,
           }}></div>
         <div className="absolute inset-0 bg-black/60"></div>
         <div className="relative z-10 text-center px-3 xs:px-5 sm:px-6 max-w-[98vw] md:max-w-4xl mx-auto">

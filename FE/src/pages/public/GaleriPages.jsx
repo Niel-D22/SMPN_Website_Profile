@@ -10,6 +10,8 @@ import {
 } from 'react-icons/fa';
 import { galeriApi } from '../../Api/galeriApi';
 import 'animate.css';
+// Import hero image dari folder public
+import heroImage from '../../../public/Images/heroGaleri.jpg';
 
 const BACKEND_URL = 'http://localhost:3000';
 
@@ -246,10 +248,8 @@ const GaleriPages = () => {
     document.body.style.overflow = 'auto';
   };
 
-  const heroImg =
-    dataGaleri.length > 0
-      ? parseImages(dataGaleri[0].file_url)[0]
-      : 'https://images.unsplash.com/photo-1580582932707-520aed937b7b';
+  // Gunakan gambar hero dari public jika dataGaleri kosong
+  const heroImg = dataGaleri.length > 0 ? parseImages(dataGaleri[0].file_url)[0] : heroImage;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20 sm:pb-24 animate__animated animate__fadeInUp animate__faster overflow-x-hidden">

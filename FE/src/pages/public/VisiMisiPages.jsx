@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaLightbulb, FaBullseye, FaCheckCircle, FaChevronDown } from 'react-icons/fa';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import 'animate.css';
+// Import hero image dari folder public/images
+import visiMisiHero from '../../../public/Images/visiMisiHero.jpg';
 
 const SkeletonBox = ({ className }) => (
   <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />
@@ -36,8 +38,7 @@ const VisiMisiPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1920&auto=format&fit=crop')",
+            backgroundImage: `url('${visiMisiHero}')`,
           }}
         />
         <div className="absolute inset-0 bg-black/65" />
