@@ -119,7 +119,10 @@ const PrestasiMarqueeSection = () => {
       `}</style>
 
       {/* HEADER */}
-      <div className="max-w-4xl mx-auto text-center px-6 mb-12 relative z-10">
+      <div
+        className="max-w-4xl mx-auto text-center px-6 mb-12 relative z-10"
+        data-aos="zoom-in"
+        data-aos-delay="300">
         <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
           Prestasi Siswa SMPN 3 Manado
         </h2>

@@ -3,7 +3,8 @@ import './App.css';
 import { pengunjungApi } from './Api/pengunjungApi';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 // Pages Public
 import BerandaPage from './pages/public/BerandaPage';
 import ProfilPages from './pages/public/ProfilPages';
@@ -38,6 +39,14 @@ import AdminGaleriPage from './pages/admin/AdminGaleriPage.jsx';
 import AdminFAQPage from './pages/admin/AdminFAQPage';
 
 function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 800, // Durasi animasi (dalam milidetik)
+      once: true, // true: Animasi hanya jalan sekali. false: Animasi jalan tiap kali di-scroll
+      offset: 100, // Jarak scroll (dalam px) sebelum animasi mulai
+    });
+  }, []);
+
   useEffect(() => {
     // Catat 1 kunjungan saat website dibuka
     if (!sessionStorage.getItem('visited')) {

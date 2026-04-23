@@ -74,7 +74,7 @@ const KotakSaran = () => {
     <div className="min-h-screen  px-3 sm:px-6 lg:px-8 py-10 sm:py-16">
       <div className="max-w-7xl mx-auto flex flex-col gap-6 sm:gap-8">
         {/* ── JUDUL SECTION ── */}
-        <div className="text-center">
+        <div data-aos="fade-up" className="text-center">
           <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#b30000] bg-red-50 border border-red-100 px-3 py-1 rounded-full mb-3">
             Hubungi Kami
           </span>
@@ -89,7 +89,10 @@ const KotakSaran = () => {
         {/* ── BARIS UTAMA: FORM + PETA ── */}
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* ══ CARD FORM KOTAK SARAN ══ */}
-          <div className="w-full lg:w-1/2 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col sm:flex-row">
+          <div
+            data-aos="fade-right"
+            data-aos-delay="100"
+            className="w-full lg:w-1/2 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col sm:flex-row">
             {/* Panel kiri merah — info kontak */}
             <div className="w-full sm:w-5/12 bg-[#b30000] text-white p-5 sm:p-7 flex flex-col justify-between relative overflow-hidden">
               {/* Dekorasi lingkaran */}
@@ -220,7 +223,10 @@ const KotakSaran = () => {
           </div>
 
           {/* ══ CARD PETA LOKASI ══ */}
-          <div className="w-full lg:w-1/2 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+          <div
+            data-aos="fade-left"
+            data-aos-delay="300"
+            className="w-full lg:w-1/2 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
             {/* Header peta */}
             <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2.5">

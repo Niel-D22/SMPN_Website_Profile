@@ -6,7 +6,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import api from '../../Api/axios'; // Pastikan path axios sudah benar
 import toast from 'react-hot-toast';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
-
+import 'animate.css';
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -60,7 +60,7 @@ const LoginPage = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center sm:p-4 p-2 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center sm:p-4 p-2 relative overflow-hidden "
       style={{
         backgroundImage: `url('/Images/BG.png')`,
         backgroundSize: 'cover',
@@ -70,7 +70,7 @@ const LoginPage = () => {
       }}>
       <div className="absolute inset-0 backdrop-blur-[1px] z-0"></div>
       {/* container */}
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 min-h-[500px] md:min-h-[500px] min-h-[100dvh] md:min-h-0">
+      <div className=" animate__animated animate__fadeInUp animate__faster bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 min-h-[500px] md:min-h-[500px] min-h-[100dvh] md:min-h-0">
         {/* Sisi Kiri - Logo & Nama Sekolah */}
         <div className="w-full md:w-2/5 bg-red-700 p-6 sm:p-10 flex flex-col items-center justify-center text-white relative">
           <div className="w-30 h-30 sm:w-40 sm:h-40 rounded-full flex items-center justify-center mb-4 sm:mb-6">

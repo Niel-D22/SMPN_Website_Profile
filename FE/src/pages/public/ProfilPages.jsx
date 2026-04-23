@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import { Link } from 'react-router-dom';
 import {
   FaMapMarkerAlt,
@@ -13,6 +14,7 @@ import {
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
+import HeroSmp3 from '../../../public/images/HeroSmp3.png';
 
 // Komponen Skeleton
 const SkeletonBox = ({ className }) => (
@@ -63,8 +65,7 @@ const ProfilPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=1920&auto=format&fit=crop')",
+            backgroundImage: `url('${HeroSmp3}')`,
           }}
         />
         <div

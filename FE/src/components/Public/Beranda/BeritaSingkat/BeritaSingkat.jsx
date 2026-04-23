@@ -259,7 +259,9 @@ const BeritaSingkat = () => {
     <section className="w-full py-7 md:py-16 lg:py-20 bg-white">
       <div className="max-w-[98vw] md:max-w-7xl mx-auto px-2 xs:px-3 sm:px-6 lg:px-10">
         {/* ── HEADER ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-3 md:mb-10">
+        <div
+          data-aos="fade-up"
+          className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-3 md:mb-10">
           <div>
             <h2
               className="font-extrabold text-gray-900 leading-tight"
@@ -313,11 +315,14 @@ const BeritaSingkat = () => {
           ) : (
             <>
               {/* KIRI — Featured */}
-              <div className="flex flex-col min-h-0">
+              <div data-aos="fade-right" data-aos-delay="100" className="flex flex-col min-h-0">
                 {featured && <FeaturedCard berita={featured} />}
               </div>
               {/* KANAN — Box Terbaru */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-3 xs:px-4 md:px-5 py-4 xs:py-5 flex flex-col h-full min-h-[210px]">
+              <div
+                data-aos="fade-left"
+                data-aos-delay="200"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm px-3 xs:px-4 md:px-5 py-4 xs:py-5 flex flex-col h-full min-h-[210px]">
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-1 shrink-0">
                   <FaFire size={18} style={{ color: 'var(--color-primary, #cc0000)' }} />
@@ -351,7 +356,10 @@ const BeritaSingkat = () => {
 
                 {/* Footer lihat semua */}
                 {dataBerita.length > 4 && (
-                  <div className="pt-3 mt-1 border-t border-gray-100 shrink-0">
+                  <div
+                    data-aos="fade-in"
+                    data-aos-delay="500"
+                    className="pt-3 mt-1 border-t border-gray-100 shrink-0">
                     <Link
                       to="/berita"
                       className="inline-flex items-center gap-1.5 text-xs font-bold no-underline group"

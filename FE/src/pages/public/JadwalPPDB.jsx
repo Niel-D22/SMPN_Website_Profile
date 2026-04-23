@@ -5,7 +5,7 @@ import 'animate.css';
 // Import gambar hero dari folder public/images
 import heroPPDB from '../../../public/Images/heroPPDB.jpg';
 
-// ✅ Pakai status dari DB, bukan hitung otomatis dari tanggal
+// ✅ Pakai status dari DB, bukan hitung otomatis dari tangga
 const getStatusInfo = (status) => {
   const map = {
     berlangsung: {
@@ -57,7 +57,8 @@ const JadwalPPDB = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white animate__animated animate__fadeInUp animate__faster">
+    // ✅ Tambahkan overflow-hidden di sini agar animasi tidak merusak layout horizontal
+    <div className="min-h-screen bg-white animate__animated animate__fadeInUp animate__faster overflow-hidden">
       {/* HERO */}
       <section className="relative w-full min-h-screen flex items-center justify-center">
         <div
@@ -86,7 +87,8 @@ const JadwalPPDB = () => {
 
       {/* TIMELINE */}
       <section className="max-w-5xl mx-auto py-14 sm:py-20 px-4 sm:px-6 md:px-8">
-        <div className="mb-8 sm:mb-12 text-center">
+        {/* ✅ Judul section menggunakan fade-up */}
+        <div data-aos="fade-up" className="mb-8 sm:mb-12 text-center">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#003366] mb-2">
             Jadwal Penting PPDB SMPN 3 Manado
           </h2>
@@ -124,13 +126,18 @@ const JadwalPPDB = () => {
                   <div
                     key={item.id_timeline}
                     className="relative flex flex-col md:flex-row items-center w-full">
-                    {/* Ikon bulat */}
-                    <div className="absolute left-4 sm:left-6 md:left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-white border-4 border-gray-100 shadow-md flex items-center justify-center z-10">
+                    {/* ✅ Ikon bulat di tengah memakai zoom-in agar muncul seperti pop-up */}
+                    <div
+                      data-aos="zoom-in"
+                      data-aos-delay="100"
+                      className="absolute left-4 sm:left-6 md:left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-white border-4 border-gray-100 shadow-md flex items-center justify-center z-10">
                       {status.icon}
                     </div>
 
-                    {/* Card */}
+                    {/* ✅ Card menyesuaikan posisi: Genap dari Kiri (fade-right), Ganjil dari Kanan (fade-left) */}
                     <div
+                      data-aos={isEven ? 'fade-right' : 'fade-left'}
+                      data-aos-delay="200"
                       className={`w-full md:w-1/2 pl-14 sm:pl-20 md:pl-0 ${
                         isEven
                           ? 'md:pr-8 lg:pr-14 md:text-right'

@@ -153,17 +153,26 @@ const TentangKamiSection = () => {
   return (
     <section className="animate__animated animate__fadeInUp animate__faster w-full bg-gradient-to-b from-[var(--color-bg-section,white)] to-white px-2 xs:px-3 sm:px-6 md:px-10 lg:px-14 xl:px-0 py-6 xs:py-8 sm:py-11 md:py-16 lg:py-24">
       <div className="max-w-[1240px] mx-auto">
-        <div className="inline-flex items-center gap-2 bg-[var(--color-accent-light,#e0e7ff)] text-black px-3 md:px-4 py-1 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4">
+        <div
+          data-aos="fade-right"
+          data-aos-delay="400"
+          className=" inline-flex items-center gap-2 bg-[var(--color-accent-light,#e0e7ff)] text-black px-3 md:px-4 py-1 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4">
           <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-black" />
           Tentang Kami
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 xs:gap-8 mb-8 md:mb-16">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-0 md:gap-10">
-            <h2 className="text-xl xs:text-2xl sm:text-2xl md:text-5xl font-extrabold text-black leading-tight text-left whitespace-pre-line mb-6 md:mb-0 md:mr-8">
+            <h2
+              data-aos="fade-right"
+              data-aos-delay="400"
+              className="text-xl xs:text-2xl sm:text-2xl md:text-5xl font-extrabold text-black leading-tight text-left whitespace-pre-line mb-6 md:mb-0 md:mr-8">
               Bergabunglah dengan{'\n'}SMPN 3 Hari Ini
             </h2>
-            <div className="max-w-full md:max-w-[380px] w-full md:items-end mt-0">
+            <div
+              data-aos="fade-left"
+              data-aos-delay="400"
+              className="max-w-full md:max-w-[380px] w-full md:items-end mt-0">
               <p className="text-[var(--color-desc,#374151)] text-xs xs:text-sm sm:text-base leading-relaxed mb-4 md:mb-4">
                 Dapatkan semua informasi yang kamu butuhkan tentang cara pendaftaran, syarat
                 dokumen, dan jadwal PPDB penting untuk tahun ajaran terbaru. Kami siap menyambut
@@ -179,7 +188,10 @@ const TentangKamiSection = () => {
         </div>
 
         {/* Grid Kartu — 2 kolom di mobile, 4 di desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div
+          data-aos="flip-up"
+          data-aos-delay="500"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {cardData.map((card) => (
             <InfoCard key={card.id} card={card} />
           ))}
