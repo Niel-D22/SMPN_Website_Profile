@@ -8,7 +8,7 @@ import 'animate.css';
 
 const BerandaPage = () => {
   return (
-    <div className="flex flex-col gap-8 justify-center items-center  min-h-[70vh] animate__animated animate__fadeInUp animate__faster">
+    <div className="flex flex-col gap-8 justify-center items-center  min-h-[70vh] overflow-x-hidden animate__animated animate__fadeInUp animate__faster">
       <Hero />
 
       <TentangKamiSection />

@@ -13,16 +13,15 @@ const badgeForTingkat = (tingkat) => {
 };
 
 const PrestasiItem = ({ item, onEdit, onDelete }) => {
-  // Parsing foto agar bisa menerima format Array atau String yang dipisah koma (jika dari DB)
   let photos = [];
   if (item.foto_url) {
     if (Array.isArray(item.foto_url)) {
       photos = item.foto_url;
     } else if (typeof item.foto_url === 'string') {
       try {
-        photos = JSON.parse(item.foto_url); // Jika disave sebagai JSON string
+        photos = JSON.parse(item.foto_url);
       } catch (e) {
-        photos = item.foto_url.split(',').map((s) => s.trim()); // Jika disave pakai koma
+        photos = item.foto_url.split(',').map((s) => s.trim());
       }
     }
   }
@@ -38,8 +37,9 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
   const showPhoto = firstPhoto && !imgBroken;
 
   return (
-    <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-red-100 transition-all duration-300 group">
-      <div className="relative h-36 bg-gradient-to-br from-gray-100 to-red-50/40 overflow-hidden">
+    <article className="w-full max-w-full overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md hover:border-red-100 transition-all duration-300 group">
+      {/* IMAGE */}
+      <div className="relative w-full h-36 overflow-hidden bg-gradient-to-br from-gray-100 to-red-50/40">
         {showPhoto ? (
           <>
             <img
@@ -48,7 +48,7 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
               className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
               onError={() => setImgBroken(true)}
             />
-            {/* --- INDIKATOR MULTI FOTO --- */}
+
             {photos.length > 1 && (
               <div className="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg backdrop-blur-md flex items-center gap-1.5 shadow-sm">
                 <FaImages size={12} />+{photos.length - 1} Foto
@@ -56,24 +56,25 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
             )}
           </>
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-primary/35">
+          <div className="absolute inset-0 flex items-center justify-center text-primary/35">
             <FaTrophy className="drop-shadow-sm" size={44} />
           </div>
         )}
 
-        {/* Badge Tingkat & Tahun */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+        {/* BADGE */}
+        <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-2 pointer-events-none">
           <span
-            className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-sm ${badgeForTingkat(item.tingkat)}`}>
+            className={`text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-sm truncate max-w-full ${badgeForTingkat(item.tingkat)}`}>
             {item.tingkat || '—'}
           </span>
-          <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/90 text-gray-700 border border-gray-200/80 flex items-center gap-1 shadow-sm">
+
+          <span className="text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/90 text-gray-700 border border-gray-200/80 flex items-center gap-1 shadow-sm whitespace-nowrap">
             <FaCalendarAlt size={10} className="text-primary" />
             {tahun}
           </span>
         </div>
 
-        {/* Tombol Aksi */}
+        {/* ACTION BUTTON */}
         <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(item)}
@@ -81,6 +82,7 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
             title="Edit">
             <FaEdit size={15} />
           </button>
+
           <button
             onClick={() => onDelete(item.id_prestasi)}
             className="p-2 rounded-xl bg-white/95 text-gray-500 hover:text-red-600 hover:bg-red-50 shadow-md border border-gray-100 transition"
@@ -90,15 +92,17 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 gap-2">
+      {/* CONTENT */}
+      <div className="p-4 flex flex-col flex-1 gap-2 min-w-0">
         <h3
-          className="text-base font-bold text-gray-900 leading-snug line-clamp-2"
+          className="text-base font-bold text-gray-900 leading-snug line-clamp-2 break-words"
           title={item.nama_lomba}>
           {item.nama_lomba}
         </h3>
+
         <p className="text-sm text-gray-600 flex items-start gap-2">
           <FaUser className="text-primary shrink-0 mt-0.5" size={14} />
-          <span className="line-clamp-2 font-medium">{item.nama_pemenang}</span>
+          <span className="line-clamp-2 font-medium break-words">{item.nama_pemenang}</span>
         </p>
       </div>
     </article>

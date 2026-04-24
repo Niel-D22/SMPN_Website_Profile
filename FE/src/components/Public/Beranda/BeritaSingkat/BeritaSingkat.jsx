@@ -101,20 +101,17 @@ const FeaturedCard = ({ berita }) => {
           <span className="text-sm text-gray-500 font-medium">Admin Sekolah</span>
         </div>
 
-        {/* Judul */}
-        <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
-          <h2
-            className="font-extrabold text-gray-900 leading-snug group-hover:text-red-700 transition-colors duration-200 line-clamp-2"
-            style={{
-              fontSize: 'clamp(1.1rem, 4vw, 1.45rem)', // responsive font-size
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              display: '-webkit-box',
-              overflow: 'hidden',
-            }}>
-            {berita.judul}
-          </h2>
-        </Link>
+        <h2
+          className="font-extrabold text-gray-900 leading-snug group-hover:text-red-700 transition-colors duration-200 line-clamp-2"
+          style={{
+            fontSize: 'clamp(1.1rem, 4vw, 1.45rem)', // responsive font-size
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            display: '-webkit-box',
+            overflow: 'hidden',
+          }}>
+          {berita.judul}
+        </h2>
 
         {/* Excerpt — max 3 baris */}
         <p
@@ -159,7 +156,6 @@ const SmallCard = ({ berita, isLast }) => {
       }}>
       {/* Thumbnail */}
       <Link
-        to={`/berita/${berita.id_berita}`}
         className="shrink-0 block rounded-xl overflow-hidden bg-gray-100 no-underline"
         style={{
           width: 'clamp(66px, 22vw, 110px)',
@@ -183,19 +179,18 @@ const SmallCard = ({ berita, isLast }) => {
       {/* Teks */}
       <div className="flex-1 min-w-0 flex flex-col justify-between gap-1">
         {/* Judul */}
-        <Link to={`/berita/${berita.id_berita}`} className="no-underline group">
-          <h4
-            className="font-bold text-gray-800 leading-snug line-clamp-2 group-hover:text-red-700 transition-colors duration-200"
-            style={{
-              fontSize: 'clamp(0.85rem, 2.7vw, 0.95rem)',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              display: '-webkit-box',
-              overflow: 'hidden',
-            }}>
-            {berita.judul}
-          </h4>
-        </Link>
+
+        <h4
+          className="font-bold text-gray-800 leading-snug line-clamp-2 group-hover:text-red-700 transition-colors duration-200"
+          style={{
+            fontSize: 'clamp(0.85rem, 2.7vw, 0.95rem)',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            display: '-webkit-box',
+            overflow: 'hidden',
+          }}>
+          {berita.judul}
+        </h4>
 
         {/* Excerpt — max 2 baris */}
         {excerpt && (
@@ -257,7 +252,7 @@ const BeritaSingkat = () => {
 
   return (
     <section className="w-full py-7 md:py-16 lg:py-20 bg-white">
-      <div className="max-w-[0vw] md:max-w-[190vh] mx-auto px-2 xs:px-3 sm:px-6 lg:px-10">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-10">
         {/* ── HEADER ── */}
         <div
           data-aos="fade-up"

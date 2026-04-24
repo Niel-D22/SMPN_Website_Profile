@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { faqApi } from '../../Api/faqApi'; // Sesuaikan path ini dengan lokasimu
 import 'animate.css';
+import AOS from 'aos';
 
 const Faq = () => {
   const [faqs, setFaqs] = useState([]);
@@ -25,8 +26,14 @@ const Faq = () => {
     fetchFaqs();
   }, []);
 
+  useEffect(() => {
+    if (!isLoading) {
+      AOS.refresh();
+    }
+  }, [isLoading]);
   // Fungsi untuk membuka/menutup accordion
   const toggleAccordion = (index) => {
+    AOS.refreshHard(); // reset posisi AOS
     setOpenIndex(openIndex === index ? null : index);
   };
 

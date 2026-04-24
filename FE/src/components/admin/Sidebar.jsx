@@ -75,11 +75,13 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
     navigate('/login');
   };
 
-  // ✅ Tutup sidebar DAN hapus blur saat nav diklik
+  // ✅ Ganti handleNavClick di Sidebar.jsx
   const handleNavClick = () => {
-    if (setMobileOpen) setMobileOpen(false);
+    // Delay sedikit agar animasi drawer keluar dulu sebelum state reset
+    setTimeout(() => {
+      if (setMobileOpen) setMobileOpen(false);
+    }, 10);
   };
-
   // ✅ Tutup sidebar DAN hapus blur saat backdrop diklik
   const handleBackdropClick = () => {
     if (setMobileOpen) setMobileOpen(false);
@@ -94,7 +96,6 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
         <NavLink
           key={item.path}
           to={item.path}
-          onClick={onClick}
           title={minimized ? item.name : undefined}
           className={({ isActive }) =>
             `flex items-center ${minimized ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-xl text-sm font-bold transition-colors ${
@@ -193,16 +194,25 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
 
       {/* ── MOBILE SIDEBAR ── */}
 
-      {/* ✅ Backdrop — pointer-events dikontrol via class, bukan render kondisional */}
-      {/* Ini yang fix blur tidak hilang — dulu pakai isMobile check tapi isMobile tidak update */}
+      {/* ── MOBILE BACKDROP ── */}
       <div
-        className={`lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+        className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        onClick={handleBackdropClick} // ✅ klik backdrop = tutup
+        onClick={handleBackdropClick}
         aria-hidden="true"
+        style={{
+          // ✅ Pakai style langsung — lebih reliable dari Tailwind untuk visibility
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          backdropFilter: mobileOpen ? 'blur(4px)' : 'none',
+          WebkitBackdropFilter: mobileOpen ? 'blur(4px)' : 'none',
+          // ✅ visibility berubah setelah opacity transition selesai
+          visibility: mobileOpen ? 'visible' : 'hidden',
+          transitionProperty: 'opacity, visibility',
+          transitionDuration: '300ms',
+          transitionTimingFunction: 'ease',
+        }}
       />
-
       {/* Drawer */}
       <aside
         className={`lg:hidden fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 flex flex-col z-50 transition-transform duration-300 ${
