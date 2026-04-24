@@ -13,7 +13,6 @@ import {
 } from 'react-icons/fa';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
-import HeroSmp3 from '../../../public/Images/heroSmp3.png';
 import 'animate.css';
 
 // Komponen Skeleton
@@ -62,11 +61,12 @@ const ProfilPages = () => {
     <div className="min-h-screen bg-white pb-24 animate__animated animate__fadeInUp animate__faster">
       {/* HERO */}
       <section className="relative w-full min-h-[70vh] flex items-end justify-start overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${HeroSmp3})`,
-          }}
+        <div className="absolute inset-0 bg-cover bg-center" />
+        {/* Menggunakan tag img secara langsung */}
+        <img
+          src="/Images/heroSmp3.png"
+          alt="Hero SMP 3"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div
           className="absolute inset-0"
