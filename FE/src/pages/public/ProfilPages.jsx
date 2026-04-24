@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
+import heroSmp3 from '../../../public/Images/heroSmp3.png';
 import 'animate.css';
 
 // Komponen Skeleton
@@ -64,7 +65,7 @@ const ProfilPages = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('../../../public/Images/HeroSmp3.png')`,
+            backgroundImage: `url(${heroSmp3})`,
           }}
         />
         <div
