@@ -159,10 +159,16 @@ const PesanItem = ({ pesan, onBalas, onHapus }) => {
                       const parsed = JSON.parse(pesan.balasan_admin);
                       riwayat = Array.isArray(parsed)
                         ? parsed
-                        : [{ isi: pesan.balasan_admin, tanggal: pesan.tanggal_balas }];
+                        : [{ isi: String(parsed), tanggal: pesan.tanggal_balas }];
                     } catch {
+                      // balasan_admin adalah string biasa (bukan JSON)
                       riwayat = [{ isi: pesan.balasan_admin, tanggal: pesan.tanggal_balas }];
                     }
+
+                    // Filter item yang isinya kosong/null
+                    riwayat = riwayat.filter((item) => item.isi && item.isi.trim() !== '');
+
+                    if (riwayat.length === 0) return null;
 
                     return riwayat.map((item, index) => (
                       <div
