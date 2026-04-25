@@ -45,7 +45,8 @@ app.use((err, req, res, next) => {
   console.error('🔴 GLOBAL ERROR:', err.message, err.stack);
   res.status(500).json({ message: err.message });
 });
-
+console.log('EMAIL:', process.env.EMAIL_USER);
+console.log('PASS:', process.env.EMAIL_PASS ? 'ADA' : 'KOSONG');
 // Jalankan Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
