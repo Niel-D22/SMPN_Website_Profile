@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useRef } from 'react';
 import { FaBars, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -9,7 +8,7 @@ import { profilApi } from '../../Api/adminProfilApi';
 
 const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const dropdownRef = useRef(null); // Tambahan untuk menutup dropdown saat klik di luar
   const [adminProfile, setAdminProfile] = useState({
     id_admin: 1,
     username: 'adminSmp3',
@@ -36,6 +35,17 @@ const Header = ({ onMobileMenuClick }) => {
     fetchProfile();
   }, []);
 
+  // Tutup dropdown saat klik di luar area
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     toast.success('Anda berhasil keluar.');
@@ -49,13 +59,7 @@ const Header = ({ onMobileMenuClick }) => {
   });
 
   const handleBurgerClick = () => {
-    setMobileSidebarOpen(true);
-    if (onMobileMenuClick) onMobileMenuClick(true);
-  };
-
-  const handleSidebarClose = () => {
-    setMobileSidebarOpen(false);
-    if (onMobileMenuClick) onMobileMenuClick(false);
+    if (onMobileMenuClick) onMobileMenuClick(true); // CUKUP INI SAJA!
   };
 
   return (
@@ -98,7 +102,7 @@ const Header = ({ onMobileMenuClick }) => {
         <div className="w-px h-6 xs:h-7 sm:h-8 bg-gray-200 mx-1 sm:mx-2"></div>
 
         {/* Profil & Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen((v) => !v)}
             className="
@@ -152,18 +156,6 @@ const Header = ({ onMobileMenuClick }) => {
           )}
         </div>
       </div>
-
-      {/* Sidebar overlay & drawer untuk mobile (opsional, bisa dihapus jika parent handle sendiri) */}
-      {/* 
-        Jika sidebar-nya dihandle di parent, gunakan prop onMobileMenuClick untuk trigger.
-        Jika ingin controllernya di header (self-contained/mobile), gunakan state mobileSidebarOpen dan render di sini.
-      */}
-      {mobileSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity lg:hidden"
-          onClick={handleSidebarClose}
-          aria-label="Tutup Sidebar"></div>
-      )}
     </header>
   );
 };

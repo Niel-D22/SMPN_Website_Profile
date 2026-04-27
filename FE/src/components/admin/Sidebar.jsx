@@ -194,24 +194,17 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
 
       {/* ── MOBILE SIDEBAR ── */}
 
-      {/* ── MOBILE BACKDROP ── */}
       <div
-        className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
-          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ease-in-out ${
+          mobileOpen
+            ? 'visible opacity-100  bg-black/20 backdrop-blur-sm pointer-events-auto'
+            : 'invisible opacity-0 bg-transparent backdrop-blur-none pointer-events-none'
         }`}
-        onClick={handleBackdropClick}
-        aria-hidden="true"
-        style={{
-          // ✅ Pakai style langsung — lebih reliable dari Tailwind untuk visibility
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: mobileOpen ? 'blur(4px)' : 'none',
-          WebkitBackdropFilter: mobileOpen ? 'blur(4px)' : 'none',
-          // ✅ visibility berubah setelah opacity transition selesai
-          visibility: mobileOpen ? 'visible' : 'hidden',
-          transitionProperty: 'opacity, visibility',
-          transitionDuration: '300ms',
-          transitionTimingFunction: 'ease',
+        onClick={(e) => {
+          e.stopPropagation(); // Cegah klik nembus
+          setMobileOpen(false);
         }}
+        aria-hidden="true"
       />
       {/* Drawer */}
       <aside
@@ -225,8 +218,12 @@ const Sidebar = ({ minimized, onToggleMinimize, mobileOpen, setMobileOpen }) => 
             <h1 className="font-bold text-gray-800">SMPN 3 Manado</h1>
           </div>
           {/* ✅ Tombol X tutup sidebar */}
+          {/* ✅ Tombol X tutup sidebar */}
           <button
-            onClick={() => setMobileOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation(); // Cegah klik nembus
+              setMobileOpen(false);
+            }}
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-700 transition">
             <FaTimes size={18} />
           </button>
