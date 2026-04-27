@@ -91,14 +91,7 @@ function App() {
               </GuestRoute>
             }
           />
-          <Route
-            path="/reset-password/:token"
-            element={
-              <GuestRoute>
-                <ResetPasswordPage />
-              </GuestRoute>
-            }
-          />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           {/* Admin routes (Protected) */}
           <Route
             path="/admin"

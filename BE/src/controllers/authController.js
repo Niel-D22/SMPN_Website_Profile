@@ -1,8 +1,8 @@
-const nodemailer = require('nodemailer');
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { Resend } = require('resend');
 
 // Helper function to wrap errors with toaster-style response
 const toasterError = (res, message, code = 500) => {
@@ -51,13 +51,13 @@ const login = async (req, res) => {
 };
 
 // --- FUNGSI 1: KIRIM EMAIL RESET ---
+
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const admin = await pool.query('SELECT * FROM admin WHERE email = $1', [email]);
     if (admin.rowCount === 0) return toasterError(res, 'Email tidak ditemukan', 404);
 
-    // Buat token unik & masa berlaku 1 jam
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 3600000);
 
@@ -66,29 +66,33 @@ const forgotPassword = async (req, res) => {
       [token, expires, email]
     );
 
-    // Konfigurasi Email (Gunakan App Password dari Google)
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+    // Ganti URL sesuai domain deploy kamu
+    // Ganti baris resetLink
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${baseUrl}/reset-password/${token}`;
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+    console.log('Reset link:', resetLink);
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
-
-    await transporter.sendMail({
-      from: '"Admin SMPN 3 Manado" <noreply@smpn3.com>',
+    await resend.emails.send({
+      from: 'Admin SMPN 3 Manado <onboarding@resend.dev>',
       to: email,
       subject: 'Reset Kata Sandi Admin',
-      html: `<p>Anda meminta reset password. Klik link di bawah ini:</p>
-               <a href="${resetLink}">${resetLink}</a>
-               <p>Link ini berlaku selama 1 jam.</p>`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
+          <h2 style="color:#b91c1c;margin-bottom:8px;">Reset Kata Sandi</h2>
+          <p style="color:#374151;">Anda meminta reset password untuk akun Admin SMPN 3 Manado.</p>
+          <p style="color:#374151;">Klik tombol di bawah ini untuk melanjutkan:</p>
+          <a href="${resetLink}" 
+             style="display:inline-block;margin:16px 0;padding:12px 24px;background:#b91c1c;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">
+            Reset Password
+          </a>
+          <p style="color:#6b7280;font-size:13px;">Link ini berlaku selama <strong>1 jam</strong>.</p>
+          <p style="color:#9ca3af;font-size:12px;margin-top:24px;">
+            Jika Anda tidak meminta reset password, abaikan email ini.
+          </p>
+        </div>
+      `,
     });
 
     res.json({
