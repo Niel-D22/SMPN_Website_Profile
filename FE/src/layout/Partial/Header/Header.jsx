@@ -13,6 +13,8 @@ import {
   FaQuestionCircle,
 } from 'react-icons/fa';
 
+import { profilSekolahApi } from '../../../Api/profilSekolahApi';
+
 const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +23,10 @@ const Header = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [sidebarDropdown, setSidebarDropdown] = useState(null);
 
+  // State untuk menyimpan URL Logo dari database
+  const [logoUrl, setLogoUrl] = useState('');
+
+  // Efek Scroll
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -34,6 +40,7 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Efek Kunci Scroll Body saat Sidebar Terbuka
   useEffect(() => {
     if (sidebarOpen) {
       document.body.style.overflow = 'hidden';
@@ -44,6 +51,23 @@ const Header = () => {
       document.body.style.overflow = '';
     };
   }, [sidebarOpen]);
+
+  // Efek Fetch Logo dari API
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const res = await profilSekolahApi.getProfilSekolah();
+        const dataSekolah = res?.data?.data || res?.data || res;
+
+        if (dataSekolah && dataSekolah.logo_url) {
+          setLogoUrl(dataSekolah.logo_url);
+        }
+      } catch (error) {
+        console.error('Gagal memuat logo sekolah:', error);
+      }
+    };
+    fetchProfil();
+  }, []);
 
   const navItems = [
     { name: 'Beranda', path: '/' },
@@ -104,6 +128,10 @@ const Header = () => {
     else setSidebarDropdown(name);
   };
 
+  // URL Logo Default jika API gagal atau logo belum diset
+  const defaultLogo =
+    'https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg';
+
   return (
     <>
       <header
@@ -127,8 +155,9 @@ const Header = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* === KIRI: LOGO === */}
           <Link to="/" className="flex items-center gap-3 group">
+            {/* LOGO FETCH DARI API */}
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"
+              src={logoUrl || defaultLogo}
               alt="Logo SMPN 3"
               className="w-11 h-11 object-contain transition-transform duration-300 group-hover:scale-110"
             />
@@ -224,7 +253,6 @@ const Header = () => {
               <FaSignInAlt />
               LOGIN
             </Link>
-            {/* === BURGER (Mobile) - Pindah ke paling kanan === */}
             <button
               className={`flex lg:hidden items-center justify-center p-2 rounded-md transition-all duration-200 focus:outline-none ${
                 isScrolled ? 'text-gray-700 hover:text-[#003366]' : 'text-white hover:text-white/70'
@@ -238,25 +266,20 @@ const Header = () => {
       </header>
 
       {/* =========================================
-          SIDEBAR (Mobile) — dipindah ke luar <header>
+          SIDEBAR (Mobile) 
       ========================================== */}
 
-      {/* Overlay Gelap */}
-      {/* Overlay Gelap - FIX TOTAL */}
-      <div
-        className={`fixed inset-0 z-[9999] transition-all duration-300 ease-in-out ${
-          sidebarOpen
-            ? 'visible opacity-100 bg-black/20 backdrop-blur-sm pointer-events-auto'
-            : 'invisible opacity-0 bg-transparent backdrop-blur-none pointer-events-none'
-        }`}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSidebarOpen(false);
-        }}
-        aria-hidden="true"
-      />
+      {/* Overlay Gelap - CARA PALING AMPUH (UNMOUNT REACT) */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <aside
-        className={`fixed top-0 left-0 z-[10000] h-full w-[85%] max-w-[340px] bg-white shadow-[10px_0_30px_rgba(0,0,0,0.2)] transition-transform duration-300 transform flex flex-col overflow-hidden ${
+        className={`fixed top-0 left-0 z-[10000] h-full w-[85%] max-w-[340px] bg-white shadow-[10px_0_30px_rgba(0,0,0,0.2)] transition-transform duration-300 transform flex flex-col overflow-hidden lg:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Sidebar">
@@ -267,8 +290,9 @@ const Header = () => {
             to="/"
             className="flex items-center gap-3 relative z-10 no-underline"
             onClick={() => setSidebarOpen(false)}>
+            {/* LOGO FETCH DARI API (MOBILE) */}
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"
+              src={logoUrl || defaultLogo}
               alt="Logo SMPN 3"
               className="w-10 h-10 object-contain bg-white rounded-full p-1 shadow-sm"
             />
@@ -284,10 +308,7 @@ const Header = () => {
           <button
             className="relative z-10 p-2 -mr-2 bg-gray-100 rounded-full text-gray-600 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
             aria-label="Close menu"
-            onClick={(e) => {
-              e.stopPropagation(); // Mencegah klik nembus
-              setSidebarOpen(false);
-            }}>
+            onClick={() => setSidebarOpen(false)}>
             <FaTimes size={18} />
           </button>
         </div>
