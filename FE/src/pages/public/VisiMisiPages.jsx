@@ -12,7 +12,8 @@ const SkeletonBox = ({ className }) => (
 const VisiMisiPages = () => {
   const [profilData, setProfilData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  // Tambahkan state ini
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,12 +36,23 @@ const VisiMisiPages = () => {
     <div className="min-h-screen bg-white overflow-hidden animate__animated animate__fadeInUp animate__faster">
       {/* HERO */}
       <section className="relative w-full min-h-screen flex items-center justify-center">
-        <img
-          src={visiMisiHero}
-          alt="Background Sekolah"
-          className="absolute inset-0 w-full h-full object-cover bg-[#003366]"
-          fetchpriority="high"
-        />
+        {/* Pembungkus utama, kita kasih warna biru gelap agar tidak putih kosong saat awal */}
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src={visiMisiHero}
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
+
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-6 drop-shadow-lg tracking-tight">

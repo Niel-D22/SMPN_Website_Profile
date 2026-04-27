@@ -51,6 +51,7 @@ const DirektoriStafPages = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImg, setPreviewImg] = useState('');
   const [zoom, setZoom] = useState(1);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchGuru = async () => {
@@ -153,11 +154,21 @@ const DirektoriStafPages = () => {
           HERO SECTION (Responsif)
       ========================================== */}
       <section className="relative w-full min-h-screen animate__animated animate__fadeInUp animate__faster sm:min-h-[70vh] md:min-h-screen flex items-center justify-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${heroGuru})`,
-          }}></div>
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src={heroGuru}
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
         <div className="absolute inset-0 bg-black/60"></div>
         <div className="relative z-10 text-center px-3 xs:px-5 sm:px-6 max-w-[98vw] md:max-w-4xl mx-auto">
           <h1 className="text-2xl xs:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-5 xs:mb-6 drop-shadow-lg tracking-tight leading-snug">

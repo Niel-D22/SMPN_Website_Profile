@@ -68,7 +68,8 @@ const BeritaPages = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBerita, setSelectedBerita] = useState(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-
+  // Tambahkan state ini
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const contentRef = useRef(null);
 
@@ -138,10 +139,21 @@ const BeritaPages = () => {
     <div className="min-h-screen bg-[#f8fafc] pb-16 sm:pb-20 md:pb-24 relative animate__animated animate__fadeInUp animate__faster overflow-x-hidden">
       {/* ── HERO ── */}
       <section className="relative w-full min-h-[55vh] sm:min-h-[70vh] md:min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url('${heroBerita}')` }}
-        />
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src={heroBerita}
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-4 sm:px-6 w-full max-w-xs sm:max-w-xl md:max-w-3xl mx-auto">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 sm:mb-5 drop-shadow-lg tracking-tight leading-tight">

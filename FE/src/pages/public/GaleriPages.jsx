@@ -245,6 +245,7 @@ const GaleriPages = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightbox, setLightbox] = useState(null);
   const [activeTab, setActiveTab] = useState('semua');
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -291,10 +292,22 @@ const GaleriPages = () => {
     <div className="min-h-screen bg-[#f8fafc] pb-20 sm:pb-24 animate__animated animate__fadeInUp animate__faster overflow-x-hidden">
       {/* ── HERO ── */}
       <section className="relative w-full min-h-[55vh] sm:min-h-[70vh] md:min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('${heroImg}')` }}
-        />
+        {/* Pembungkus utama, kita kasih warna biru gelap agar tidak putih kosong saat awal */}
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src={heroImage}
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-2xl sm:text-4xl font-bold">Galeri Sekolah</h1>

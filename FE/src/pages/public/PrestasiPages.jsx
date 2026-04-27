@@ -22,6 +22,7 @@ const PrestasiPages = () => {
   const [selectedPrestasi, setSelectedPrestasi] = useState(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchPrestasi = async () => {
@@ -80,12 +81,21 @@ const PrestasiPages = () => {
   return (
     <div className="min-h-screen pb-24 relative animate__animated animate__fadeInUp animate__faster overflow-x-hidden">
       <section className="relative w-full min-h-[55vh] sm:min-h-[70vh] md:min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${PrestasiHero})`,
-          }}
-        />
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src={PrestasiHero}
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-4 sm:px-6 md:px-8 max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-4xl mx-auto flex flex-col items-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-6 drop-shadow-lg tracking-tight leading-tight">

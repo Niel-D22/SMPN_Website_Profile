@@ -24,7 +24,7 @@ const ProfilPages = () => {
   const [profilData, setProfilData] = useState(null);
   const [totalGuru, setTotalGuru] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   useEffect(() => {
     const fetchSemuaData = async () => {
       try {
@@ -61,20 +61,21 @@ const ProfilPages = () => {
     <div className="min-h-screen bg-white pb-24 animate__animated animate__fadeInUp animate__faster">
       {/* HERO */}
       <section className="relative w-full min-h-[70vh] flex items-end justify-start overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" />
-        {/* Menggunakan tag img secara langsung */}
-        <img
-          src="/Images/heroSmp3.webp"
-          alt="Hero SMP 3"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.15) 100%)',
-          }}
-        />
+        <div className="absolute inset-0 bg-[#003366] overflow-hidden">
+          <img
+            src="Images/heroSmp3.webp"
+            alt="Hero Background"
+            fetchpriority="high"
+            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
+            onLoad={() => setIsImageLoaded(true)}
+            // Logika class Tailwind-nya ada di sini
+            className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+              isImageLoaded
+                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
+                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+            }`}
+          />
+        </div>
         <div className="relative z-10 w-full max-w-[1240px] mx-auto px-6 lg:px-10 pb-14 pt-32">
           {isLoading ? (
             <>
