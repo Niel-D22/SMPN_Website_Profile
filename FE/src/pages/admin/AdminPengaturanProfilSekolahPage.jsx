@@ -203,7 +203,7 @@ const AdminPengaturanProfilSekolahPage = () => {
 
   // --- TAMPILAN UTAMA ---
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-15">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-8 md:px-10 lg:px-16 xl:px-24">
       {/* OVERLAY LOADING — muncul di tengah layar saat isSaving */}
       {isSaving && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center">

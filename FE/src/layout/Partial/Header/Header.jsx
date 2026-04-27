@@ -242,15 +242,19 @@ const Header = () => {
       ========================================== */}
 
       {/* Overlay Gelap */}
+      {/* Overlay Gelap - FIX TOTAL */}
       <div
-        className={`fixed inset-0 z-[9999] bg-black/60 transition-opacity duration-300 ${
-          sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        className={`fixed inset-0 z-[9999] transition-all duration-300 ease-in-out ${
+          sidebarOpen
+            ? 'visible opacity-100 bg-black/20 backdrop-blur-sm pointer-events-auto'
+            : 'invisible opacity-0 bg-transparent backdrop-blur-none pointer-events-none'
         }`}
-        style={{ backdropFilter: sidebarOpen ? 'blur(4px)' : 'none' }}
-        onClick={() => setSidebarOpen(false)}
-        aria-hidden={!sidebarOpen}
+        onClick={(e) => {
+          e.stopPropagation();
+          setSidebarOpen(false);
+        }}
+        aria-hidden="true"
       />
-
       <aside
         className={`fixed top-0 left-0 z-[10000] h-full w-[85%] max-w-[340px] bg-white shadow-[10px_0_30px_rgba(0,0,0,0.2)] transition-transform duration-300 transform flex flex-col overflow-hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -280,7 +284,10 @@ const Header = () => {
           <button
             className="relative z-10 p-2 -mr-2 bg-gray-100 rounded-full text-gray-600 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
             aria-label="Close menu"
-            onClick={() => setSidebarOpen(false)}>
+            onClick={(e) => {
+              e.stopPropagation(); // Mencegah klik nembus
+              setSidebarOpen(false);
+            }}>
             <FaTimes size={18} />
           </button>
         </div>
