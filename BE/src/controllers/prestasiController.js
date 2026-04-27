@@ -72,7 +72,7 @@ const updatePrestasi = async (req, res) => {
 
   const result = await pool.query(
     `UPDATE prestasi 
-     SET nama_lomba=$1, nama_pemenang=$2, tingkat=$3, tahun_meraih=$4, foto_url=$5
+     SET nama_lomba=$1, nama_pemenang=$2, tingkat=$3, tahun_meraih=$4, foto_url=$5, updated_at=CURRENT_TIMESTAMP
      WHERE id_prestasi=$6 RETURNING *`,
     [nama_lomba, nama_pemenang, tingkat, tahun_meraih, JSON.stringify(finalFotos), id]
   );

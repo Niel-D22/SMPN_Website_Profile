@@ -72,7 +72,8 @@ const updateTimeline = async (req, res) => {
          tanggal_selesai = $3, 
          deskripsi       = $4, 
          status          = $5, 
-         id_admin        = $6 
+         id_admin        = $6,
+         updated_at      = CURRENT_TIMESTAMP
        WHERE id_timeline = $7 
        RETURNING *`,
       [

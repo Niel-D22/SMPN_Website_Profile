@@ -8,8 +8,10 @@ import {
   FaEye,
   FaTimes,
   FaExpand,
+  FaClock,
 } from 'react-icons/fa';
 import { createPortal } from 'react-dom';
+import { formatWaktuWITA } from '../../../../utils/formatWaktu';
 
 // Modal Preview
 const ModalPreviewDirektori = ({ item, onClose }) => {
@@ -54,7 +56,6 @@ const ModalPreviewDirektori = ({ item, onClose }) => {
                   <FaUserTie className="text-gray-300" size={40} />
                 )}
               </div>
-              {/* Tombol zoom foto */}
               {item.foto_url && (
                 <button
                   onClick={() => setZoomGambar(true)}
@@ -98,6 +99,21 @@ const ModalPreviewDirektori = ({ item, onClose }) => {
                   </div>
                 </div>
               )}
+
+              {/* Terakhir Diperbarui */}
+              {item.updated_at && (
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <FaClock className="text-gray-400 shrink-0" size={12} />
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+                      Terakhir Diperbarui
+                    </p>
+                    <p className="text-sm text-gray-700 font-medium">
+                      {formatWaktuWITA(item.updated_at)}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -134,7 +150,6 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
       <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-red-100 transition-all duration-300 group">
         {/* Header & Foto Profil */}
         <div className="relative bg-gradient-to-br from-gray-50 to-gray-200 h-24 flex justify-center mb-10">
-          {/* Tombol Aksi — tambah Preview */}
           <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <button
               onClick={() => setPreviewOpen(true)}
@@ -156,7 +171,6 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
             </button>
           </div>
 
-          {/* Lingkaran Foto — tidak berubah */}
           <div className="absolute -bottom-10 w-24 h-24 rounded-full border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
             {item.foto_url ? (
               <img
@@ -170,7 +184,7 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* Info Utama — tidak berubah */}
+        {/* Info Utama */}
         <div className="px-5 pb-5 text-center flex flex-col flex-1">
           <h3
             className="text-base font-bold text-gray-900 leading-snug mb-1 line-clamp-1"
@@ -195,6 +209,14 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
                 {item.mata_pelajaran || '-'}
               </span>
             </div>
+
+            {/* updated_at di card */}
+            {item.updated_at && (
+              <div className="flex items-center gap-2 text-[10px] text-gray-300 pt-1 border-t border-gray-100">
+                <FaClock className="shrink-0" size={9} />
+                <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+              </div>
+            )}
           </div>
         </div>
       </article>

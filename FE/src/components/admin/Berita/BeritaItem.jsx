@@ -9,18 +9,11 @@ import {
   FaExpand,
   FaTimes,
   FaNewspaper,
+  FaClock,
 } from 'react-icons/fa';
 import { mediaUrl } from '../../../config/apiBase';
 import { createPortal } from 'react-dom';
-
-const formatTanggal = (dateString) => {
-  if (!dateString) return 'Belum dipublikasi';
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-};
+import { formatTanggal, formatWaktuWITA } from '../../../../utils/formatWaktu'; // ← import dari utils
 
 // Modal Preview
 const ModalPreviewBerita = ({ item, onClose }) => {
@@ -68,34 +61,41 @@ const ModalPreviewBerita = ({ item, onClose }) => {
           )}
 
           {/* Info */}
-          <div className="px-6 py-5 space-y-4">
+          <div className="px-8 py-6 space-y-5">
             {/* Badge */}
             <div className="flex items-center gap-2 flex-wrap">
               <span
-                className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ${item.kategori?.toLowerCase() === 'pengumuman' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full ${item.kategori?.toLowerCase() === 'pengumuman' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
                 {item.kategori}
               </span>
               <span
-                className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                 {item.status === 'active' ? 'Published' : 'Draft'}
               </span>
             </div>
 
             {/* Judul */}
-            <h2 className="text-lg font-extrabold text-gray-900 leading-snug">{item.judul}</h2>
+            <h2 className="text-xl font-extrabold text-gray-900 leading-snug">{item.judul}</h2>
 
             {/* Tanggal */}
-            <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-              <FaCalendarAlt size={11} />
+            <div className="flex items-center gap-2 text-sm text-gray-400 font-medium">
+              <FaCalendarAlt size={13} />
               <span>{formatTanggal(item.tgl_publikasi)}</span>
             </div>
 
             {/* Isi Konten */}
             <div
-              className="text-sm text-gray-600 leading-relaxed prose prose-sm max-w-none"
+              className="text-base text-gray-600 leading-relaxed prose prose-base max-w-none"
               dangerouslySetInnerHTML={{ __html: item.isi_konten }}
             />
           </div>
+          {/* Terakhir Diperbarui */}
+          {item.updated_at && (
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-600 px-8 pb-2">
+              <FaClock size={10} />
+              <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -186,6 +186,7 @@ const BeritaItem = ({ item, onEdit, onDelete }) => {
         </div>
 
         {/* Teks Konten — tidak berubah */}
+        {/* Teks Konten — tidak berubah */}
         <div className="flex flex-1 flex-col px-6 py-5">
           <h3 className="font-extrabold text-gray-800 leading-snug mb-2 text-[18px] line-clamp-2">
             {item.judul}
@@ -193,9 +194,20 @@ const BeritaItem = ({ item, onEdit, onDelete }) => {
           <p className="text-sm text-gray-500 mt-2 mb-5 line-clamp-3 leading-relaxed">
             {item.isi_konten?.replace(/<[^>]*>/g, '')}
           </p>
-          <div className="mt-auto flex items-center gap-2 pt-4 border-t border-gray-100 text-xs font-medium text-gray-400">
-            <FaCalendarAlt />
-            <span>{formatTanggal(item.tgl_publikasi)}</span>
+          <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-1">
+            {/* Tanggal Publikasi */}
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
+              <FaCalendarAlt />
+              <span>{formatTanggal(item.tgl_publikasi)}</span>
+            </div>
+
+            {/* Terakhir Diperbarui */}
+            {item.updated_at && (
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-300">
+                <FaClock size={9} />
+                <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

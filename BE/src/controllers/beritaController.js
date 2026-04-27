@@ -31,7 +31,6 @@ const addBerita = async (req, res) => {
   }
 
   try {
-    // ✅ Simpan gambar_url dengan URL lengkap
     const gambar_url = req.file ? req.file.path : null;
 
     const result = await pool.query(
@@ -84,15 +83,14 @@ const updateBerita = async (req, res) => {
     );
     const oldGambarUrl = existing.rows[0]?.gambar_url;
 
-    const gambar_url = req.file ? req.file.path : oldGambarUrl; // ✅ pakai gambar lama kalau tidak ada file baru
+    const gambar_url = req.file ? req.file.path : oldGambarUrl;
 
     const result = await pool.query(
       `UPDATE berita_pengumuman 
-       SET kategori=$1, judul=$2, isi_konten=$3, status=$4, gambar_url=$5 
+       SET kategori=$1, judul=$2, isi_konten=$3, status=$4, gambar_url=$5, updated_at=CURRENT_TIMESTAMP
        WHERE id_berita=$6 RETURNING *`,
       [kategori, judul, isi_konten, status || 'active', gambar_url, id]
     );
-
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Berita tidak ditemukan' });
     }

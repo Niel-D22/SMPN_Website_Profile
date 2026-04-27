@@ -4,7 +4,7 @@ const getGaleri = async (req, res) => {
   try {
     const { kategori } = req.query;
     let query =
-      'SELECT id_galeri, judul_foto, deskripsi, file_url, kategori, tgl_upload FROM galeri';
+      'SELECT id_galeri, judul_foto, deskripsi, file_url, kategori, tgl_upload, updated_at FROM galeri';
     const params = [];
     if (kategori && kategori !== 'semua') {
       query += ' WHERE kategori = $1';
@@ -43,10 +43,10 @@ const updateGaleri = async (req, res) => {
     let query, params;
     if (req.file) {
       const file_url = req.file.path; // ← URL Cloudinary
-      query = `UPDATE galeri SET judul_foto=$1, deskripsi=$2, file_url=$3, kategori=$4 WHERE id_galeri=$5 RETURNING *`;
+      query = `UPDATE galeri SET judul_foto=$1, deskripsi=$2, file_url=$3, kategori=$4, updated_at=CURRENT_TIMESTAMP WHERE id_galeri=$5 RETURNING *`;
       params = [judul_foto, deskripsi, file_url, kategori, id];
     } else {
-      query = `UPDATE galeri SET judul_foto=$1, deskripsi=$2, kategori=$3 WHERE id_galeri=$4 RETURNING *`;
+      query = `UPDATE galeri SET judul_foto=$1, deskripsi=$2, kategori=$3, updated_at=CURRENT_TIMESTAMP WHERE id_galeri=$4 RETURNING *`;
       params = [judul_foto, deskripsi, kategori, id];
     }
     const result = await pool.query(query, params);

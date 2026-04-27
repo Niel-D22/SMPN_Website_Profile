@@ -1,23 +1,15 @@
 import React from 'react';
-import { FaCheck, FaRegClock, FaCalendarAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaRegClock, FaCalendarAlt, FaEdit, FaTrash, FaClock } from 'react-icons/fa';
+import { formatTanggal, formatWaktuWITA } from '../../../../utils/formatWaktu';
 
-// Helper Format Tanggal (Contoh: 1 Mei 2024)
-const formatTanggal = (dateString) => {
-  if (!dateString) return '';
-  const options = { day: 'numeric', month: 'long', year: 'numeric' };
-  return new Date(dateString).toLocaleDateString('id-ID', options);
-};
-
-// Data sudah mengikuti field sesuai instruksi
 const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
-  // Cek status secara dinamis dari field "status"
   let statusConfig = {
     text: '',
     colorBox: 'bg-gray-200 text-gray-500',
     colorText: 'text-yellow-600',
     icon: <span className="font-bold text-xl">{index + 1}</span>,
   };
-  // Opsi status PPDB
+
   if (item.status === 'selesai') {
     statusConfig = {
       text: 'SELESAI',
@@ -33,7 +25,6 @@ const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
       icon: <FaRegClock size={22} />,
     };
   } else {
-    // default ke AKAN DATANG (atau status lain yang bukan selesai/berlangsung)
     statusConfig = {
       text: 'AKAN DATANG',
       colorBox: 'bg-gray-200 text-gray-500',
@@ -44,20 +35,18 @@ const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
 
   return (
     <div className="relative flex gap-6 sm:gap-8 group">
-      {/* Garis Vertikal Pembatas (Hilang di item terakhir) */}
-      {!isLast && (
-        <div className="absolute left-6 top-14 bottom-[-2rem] w-0.5 bg-gray-200 z-0"></div>
-      )}
+      {/* Garis Vertikal */}
+      {!isLast && <div className="absolute left-6 top-14 bottom-[-2rem] w-0.5 bg-gray-200 z-0" />}
 
-      {/* Ikon Kotak Bulat Kiri */}
+      {/* Ikon Kiri */}
       <div
         className={`w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center z-10 transition-all ${statusConfig.colorBox}`}>
         {statusConfig.icon}
       </div>
 
-      {/* Card Konten Kanan */}
+      {/* Card Kanan */}
       <div className="flex-1 bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative mb-8">
-        {/* Tombol Aksi (Muncul saat di hover) */}
+        {/* Tombol Aksi */}
         <div className="absolute top-5 right-5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(item)}
@@ -79,8 +68,6 @@ const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
           {statusConfig.text !== 'SELESAI' && (
             <span
               className={`text-[10px] font-bold tracking-wider uppercase ${statusConfig.colorText}`}>
-              {statusConfig.icon}
-              {/* Hanya tampilkan ikon kecil di "akan datang", kalau perlu */}
               {statusConfig.text}
             </span>
           )}
@@ -89,11 +76,19 @@ const TimelineItem = ({ item, index, isLast, onEdit, onDelete }) => {
         {/* Deskripsi */}
         <p className="text-gray-500 text-sm mb-4 leading-relaxed">{item.deskripsi}</p>
 
-        {/* Tanggal */}
+        {/* Tanggal Mulai - Selesai */}
         <div className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg">
           <FaCalendarAlt className="text-blue-500" />
           {formatTanggal(item.tanggal_mulai)} - {formatTanggal(item.tanggal_selesai)}
         </div>
+
+        {/* Terakhir Diperbarui */}
+        {item.updated_at && (
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-300 mt-3">
+            <FaClock size={9} />
+            <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+          </div>
+        )}
       </div>
     </div>
   );

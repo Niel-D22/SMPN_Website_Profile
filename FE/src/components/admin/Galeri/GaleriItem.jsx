@@ -8,18 +8,11 @@ import {
   FaTimes,
   FaExpand,
   FaCalendarAlt,
+  FaClock,
 } from 'react-icons/fa';
 import { mediaUrl } from '../../../config/apiBase';
 import { createPortal } from 'react-dom';
-
-const formatTanggal = (dateString) => {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-};
+import { formatTanggal, formatWaktuWITA } from '../../../../utils/formatWaktu';
 
 // Modal Preview
 const ModalPreviewGaleri = ({ item, onClose }) => {
@@ -106,11 +99,22 @@ const ModalPreviewGaleri = ({ item, onClose }) => {
               </p>
             </div>
 
-            {/* Tanggal */}
+            {/* Tanggal Upload */}
             <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
               <FaCalendarAlt size={11} />
               <span>{formatTanggal(item.tgl_upload || new Date())}</span>
             </div>
+
+            {/* Terakhir Diperbarui */}
+            {item.updated_at && (
+              <div className="flex items-center gap-2 text-[10px] text-gray-400 bg-gray-50 rounded-xl border border-gray-100 px-4 py-3">
+                <FaClock className="shrink-0" size={11} />
+                <div>
+                  <p className="font-bold uppercase tracking-wide mb-0.5">Terakhir Diperbarui</p>
+                  <p className="text-gray-600 font-medium">{formatWaktuWITA(item.updated_at)}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -144,7 +148,7 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
   return (
     <>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all flex flex-col">
-        {/* Area Gambar — tidak berubah */}
+        {/* Area Gambar */}
         <div className="relative aspect-video bg-gray-100 overflow-hidden">
           {item.file_url ? (
             <img
@@ -161,7 +165,6 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* Badge Kategori — tidak berubah */}
           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[10px] font-bold text-gray-700 shadow-sm">
             <FaTag className="text-blue-400" size={12} />
             {item.kategori
@@ -169,7 +172,6 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
               : 'Umum'}
           </div>
 
-          {/* Overlay — tambah Preview */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity duration-300">
             <button
               onClick={() => setPreviewOpen(true)}
@@ -192,7 +194,7 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* Area Teks — tidak berubah */}
+        {/* Area Teks */}
         <div className="p-5 flex flex-col flex-1">
           <h3 className="text-base font-bold text-gray-900 line-clamp-1" title={item.judul_foto}>
             {item.judul_foto}
@@ -204,10 +206,17 @@ const GaleriItem = ({ item, onEdit, onDelete }) => {
               {item.deskripsi || <span className="italic text-gray-400">Tidak ada deskripsi</span>}
             </p>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+          <div className="mt-4 pt-4 border-t border-gray-50 flex flex-col gap-1">
             <span className="text-xs font-semibold text-gray-400">
               {formatTanggal(item.tgl_upload || new Date())}
             </span>
+            {/* updated_at di card */}
+            {item.updated_at && (
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-300">
+                <FaClock size={9} />
+                <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

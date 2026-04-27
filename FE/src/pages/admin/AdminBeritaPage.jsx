@@ -16,6 +16,7 @@ const FILTER_TABS = [
   { key: 'active', label: 'Publish' },
   { key: 'inactive', label: 'Draft' },
 ];
+
 const AdminBeritaPage = () => {
   const [beritas, setBeritas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

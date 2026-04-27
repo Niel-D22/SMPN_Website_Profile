@@ -10,9 +10,11 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaClock,
 } from 'react-icons/fa';
 import { mediaUrl } from '../../../config/apiBase';
 import { createPortal } from 'react-dom';
+import { formatWaktuWITA } from '../../../../utils/formatWaktu';
 
 const badgeForTingkat = (tingkat) => {
   const t = (tingkat || '').toLowerCase();
@@ -24,7 +26,6 @@ const badgeForTingkat = (tingkat) => {
   return 'bg-emerald-100 text-emerald-800 border-emerald-200/80';
 };
 
-// Modal Preview
 const ModalPreviewPrestasi = ({ item, photos, onClose }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -65,8 +66,6 @@ const ModalPreviewPrestasi = ({ item, photos, onClose }) => {
                 className="w-full h-52 object-cover cursor-zoom-in"
                 onClick={() => setZoomOpen(true)}
               />
-
-              {/* Navigasi foto */}
               {photos.length > 1 && (
                 <>
                   <button
@@ -93,7 +92,6 @@ const ModalPreviewPrestasi = ({ item, photos, onClose }) => {
                   </div>
                 </>
               )}
-
               <p className="absolute bottom-2 right-2 text-[10px] text-white/60 italic">
                 Klik foto untuk zoom
               </p>
@@ -133,6 +131,17 @@ const ModalPreviewPrestasi = ({ item, photos, onClose }) => {
                 <p className="text-sm font-semibold text-gray-800">{item.nama_pemenang}</p>
               </div>
             </div>
+
+            {/* Terakhir Diperbarui */}
+            {item.updated_at && (
+              <div className="flex items-center gap-2 text-[10px] text-gray-400 bg-gray-50 rounded-xl border border-gray-100 px-4 py-3">
+                <FaClock className="shrink-0" size={11} />
+                <div>
+                  <p className="font-bold uppercase tracking-wide mb-0.5">Terakhir Diperbarui</p>
+                  <p className="text-gray-600 font-medium">{formatWaktuWITA(item.updated_at)}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -208,7 +217,6 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
   return (
     <>
       <article className="w-full max-w-full overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md hover:border-red-100 transition-all duration-300 group">
-        {/* IMAGE — tidak berubah */}
         <div className="relative w-full h-36 overflow-hidden bg-gradient-to-br from-gray-100 to-red-50/40">
           {showPhoto ? (
             <>
@@ -230,7 +238,6 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* BADGE — tidak berubah */}
           <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-2 pointer-events-none">
             <span
               className={`text-[9px] sm:text-[10px] font-bold px-2.5 py-1 rounded-lg border backdrop-blur-sm truncate max-w-full ${badgeForTingkat(item.tingkat)}`}>
@@ -242,7 +249,6 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
             </span>
           </div>
 
-          {/* ACTION — tambah Preview */}
           <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => setPreviewOpen(true)}
@@ -265,7 +271,7 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* CONTENT — tidak berubah */}
+        {/* CONTENT */}
         <div className="p-4 flex flex-col flex-1 gap-2 min-w-0">
           <h3
             className="text-base font-bold text-gray-900 leading-snug line-clamp-2 break-words"
@@ -276,6 +282,14 @@ const PrestasiItem = ({ item, onEdit, onDelete }) => {
             <FaUser className="text-primary shrink-0 mt-0.5" size={14} />
             <span className="line-clamp-2 font-medium break-words">{item.nama_pemenang}</span>
           </p>
+
+          {/* updated_at di card */}
+          {item.updated_at && (
+            <div className="flex items-center gap-1.5 text-[10px] text-gray-300 pt-2 border-t border-gray-100 mt-auto">
+              <FaClock size={9} />
+              <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
+            </div>
+          )}
         </div>
       </article>
 

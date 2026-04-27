@@ -38,11 +38,10 @@ const updateFaq = async (req, res) => {
   try {
     const updated = await pool.query(
       `UPDATE faq 
-         SET kategori = $1, pertanyaan = $2, jawaban = $3, id_admin = $4 
-         WHERE id_faq = $5 RETURNING *`,
+       SET kategori=$1, pertanyaan=$2, jawaban=$3, id_admin=$4, updated_at=CURRENT_TIMESTAMP
+       WHERE id_faq=$5 RETURNING *`,
       [kategori, pertanyaan, jawaban, id_admin, id]
     );
-
     if (updated.rowCount === 0) {
       return res.status(404).json({ message: 'FAQ tidak ditemukan' });
     }

@@ -42,10 +42,9 @@ const updateGuru = async (req, res) => {
 
   try {
     const query = `
-      UPDATE guru_staf 
-      SET nama_lengkap=$1, nip=$2, jabatan=$3, mata_pelajaran=$4, foto_url=$5, id_admin=$6 
-      WHERE id_guru=$7 RETURNING *`;
-
+  UPDATE guru_staf 
+  SET nama_lengkap=$1, nip=$2, jabatan=$3, mata_pelajaran=$4, foto_url=$5, id_admin=$6, updated_at=CURRENT_TIMESTAMP
+  WHERE id_guru=$7 RETURNING *`;
     const result = await pool.query(query, [
       nama_lengkap,
       nip,
