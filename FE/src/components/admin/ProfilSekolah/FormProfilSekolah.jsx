@@ -12,6 +12,8 @@ import {
   FaDoorOpen,
   FaMicrophone,
 } from 'react-icons/fa';
+import { FaClock } from 'react-icons/fa';
+import { formatWaktuWITA } from '../../../../utils/formatWaktu';
 
 const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
   const fileInputRef = useRef(null);
@@ -29,13 +31,26 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
   return (
     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
       {/* Header Kotak */}
-      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
-        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shadow-inner">
-          <FaUniversity className="text-red-700 text-xl" />
+      <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100 justify-between">
+        <div className="flex gap-5">
+          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shadow-inner">
+            <FaUniversity className="text-red-700 text-xl" />
+          </div>
+          <h2 className="text-lg font-bold text-gray-800 uppercase tracking-wide flex items-center gap-2">
+            INFORMASI DATA SEKOLAH
+          </h2>
         </div>
-        <h2 className="text-lg font-bold text-gray-800 uppercase tracking-wide flex items-center gap-2">
-          INFORMASI DATA SEKOLAH
-        </h2>
+        <div>
+          {/* Terakhir Diperbarui */}
+          {formData.updated_at && (
+            <div className="flex items-center gap-2 text-[10px] text-gray-400  rounded-xl border border-gray-100 px-4 py-3">
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-700 mt-1">
+                <FaClock size={9} />
+                <span>Diperbarui: {formatWaktuWITA(formData.updated_at)}</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Grid Utama: 3 Kolom untuk Desktop */}

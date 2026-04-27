@@ -1,31 +1,44 @@
-// src/utils/formatWaktu.js
-
-const WITA_OFFSET = 8 * 60 * 60 * 1000; // 8 jam dalam milidetik
-
-// Helper untuk menambah 8 jam pada sebuah tanggal
-function tambah8Jam(date) {
-  if (!date) return null;
-  const d = new Date(date);
-  return new Date(d.getTime() + WITA_OFFSET);
-}
-
-// Format tanggal saja — untuk tgl_publikasi, tgl_upload, dll
+const parseUTC = (dateString) => new Date(dateString);
+// Format tanggal saja
 export const formatTanggal = (dateString) => {
   if (!dateString) return 'Belum dipublikasi';
-  const dateWITA = tambah8Jam(dateString);
-  return dateWITA.toLocaleDateString('id-ID', {
+
+  const date = parseUTC(dateString);
+  if (!date) return '';
+
+  return date.toLocaleDateString('id-ID', {
+    timeZone: 'Asia/Makassar',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
 };
 
-// Format tanggal + jam WITA — untuk updated_at, tanggal_balas, dll
 export const formatWaktuWITA = (dateString) => {
   if (!dateString) return '';
-  const dateWITA = tambah8Jam(dateString);
+
+  // 1. Pastikan dateString diproses sebagai UTC jika dari database tanpa timezone.
+  // Jika formatnya 'YYYY-MM-DD HH:mm:ss' (contoh MySQL), ubah spasinya jadi 'T'
+  // dan tambahkan 'Z' agar dibaca sebagai UTC secara absolut.
+  let validDateString = dateString;
+
+  if (typeof validDateString === 'string') {
+    // Format umum database "2024-05-15 14:30:00" -> "2024-05-15T14:30:00Z"
+    if (validDateString.includes(' ') && !validDateString.includes('T')) {
+      validDateString = validDateString.replace(' ', 'T') + 'Z';
+    }
+    // Jika server kamu mengirim waktu sudah dalam WIB, dan kamu ingin ubah ke WITA
+    // Kamu perlu manual menambahkan offset. Tapi asumsikan data ini UTC ('Z')
+  }
+
+  const date = new Date(validDateString);
+
+  // Cek apakah tanggal valid
+  if (isNaN(date.getTime())) return '';
+
   return (
-    dateWITA.toLocaleString('id-ID', {
+    date.toLocaleString('id-ID', {
+      timeZone: 'Asia/Makassar',
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -35,26 +48,30 @@ export const formatWaktuWITA = (dateString) => {
     }) + ' WITA'
   );
 };
-
-// Format waktu relatif — untuk "2 jam yang lalu", dll
+// Waktu relatif (ini tetap pakai Date normal)
 export const hitungWaktuLalu = (tanggal) => {
   if (!tanggal) return '';
-  const tanggalWITA = tambah8Jam(tanggal);
-  const detikLalu = Math.floor((new Date() - tanggalWITA) / 1000);
-  let interval = detikLalu / 86400;
-  if (interval > 1) return Math.floor(interval) + ' hari yang lalu';
-  interval = detikLalu / 3600;
-  if (interval > 1) return Math.floor(interval) + ' jam yang lalu';
-  interval = detikLalu / 60;
-  if (interval > 1) return Math.floor(interval) + ' menit yang lalu';
-  return 'Baru saja';
+
+  const target = parseDate(tanggal);
+  if (!target) return '';
+
+  const now = new Date();
+  const detikLalu = Math.floor((now - target) / 1000);
+
+  if (detikLalu < 60) return 'Baru saja';
+  if (detikLalu < 3600) return Math.floor(detikLalu / 60) + ' menit yang lalu';
+  if (detikLalu < 86400) return Math.floor(detikLalu / 3600) + ' jam yang lalu';
+  return Math.floor(detikLalu / 86400) + ' hari yang lalu';
 };
 
-// Format tanggal pendek — untuk footer card, badge, dll
+// Format pendek
 export const formatTanggalPendek = (tanggal) => {
   if (!tanggal) return '';
-  const dateWITA = tambah8Jam(tanggal);
-  return dateWITA.toLocaleDateString('id-ID', {
+
+  const date = new Date(tanggal);
+
+  return date.toLocaleDateString('id-ID', {
+    timeZone: 'Asia/Makassar',
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -63,11 +80,14 @@ export const formatTanggalPendek = (tanggal) => {
   });
 };
 
-// Format tanggal lengkap — untuk tooltip
+// Format lengkap
 export const formatTanggalLengkap = (tanggal) => {
   if (!tanggal) return '';
-  const dateWITA = tambah8Jam(tanggal);
-  return dateWITA.toLocaleDateString('id-ID', {
+
+  const date = new Date(tanggal);
+
+  return date.toLocaleDateString('id-ID', {
+    timeZone: 'Asia/Makassar',
     weekday: 'long',
     day: 'numeric',
     month: 'long',

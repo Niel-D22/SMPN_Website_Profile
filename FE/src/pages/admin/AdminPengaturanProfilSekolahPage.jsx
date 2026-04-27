@@ -5,6 +5,7 @@ import Skeleton from '../../components/ui/Skeleton';
 import { toast } from 'react-toastify';
 import ModalKonfirmasi from '../../components/admin/ModalKonfirmasi';
 import { FiLoader } from 'react-icons/fi';
+
 import 'animate.css';
 
 const AdminPengaturanProfilSekolahPage = () => {
@@ -27,6 +28,7 @@ const AdminPengaturanProfilSekolahPage = () => {
     jumlah_kelas: '',
     sambutan_kepsek: '',
     logo_url: '',
+    updated_at: null,
   });
 
   useEffect(() => {
@@ -201,7 +203,7 @@ const AdminPengaturanProfilSekolahPage = () => {
 
   // --- TAMPILAN UTAMA ---
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4">
+    <div className="min-h-screen bg-gray-50 py-10 px-15">
       {/* OVERLAY LOADING — muncul di tengah layar saat isSaving */}
       {isSaving && (
         <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center">
@@ -218,6 +220,8 @@ const AdminPengaturanProfilSekolahPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Profil SMP 3 Manado</h1>
           <p className="text-sm font-semibold text-gray-800 mt-1">Keterangan</p>
         </div>
+
+        <div> </div>
 
         {/* TOMBOL SIMPAN — spinner saat loading */}
         <button

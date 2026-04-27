@@ -68,7 +68,8 @@ const updateProfil = async (req, res) => {
     logo_url = $11,
     sambutan_kepsek = $12,
     jumlah_guru = $13,
-    jumlah_kelas = $14
+    jumlah_kelas = $14,
+    updated_at  = CURRENT_TIMESTAMP
   WHERE id_profil = 1 RETURNING *`;
 
     // 3. MASUKKAN logo_url KE DALAM ARRAY VALUES

@@ -91,7 +91,7 @@ const ModalPreviewBerita = ({ item, onClose }) => {
           </div>
           {/* Terakhir Diperbarui */}
           {item.updated_at && (
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-600 px-8 pb-2">
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-300 px-8 pb-2">
               <FaClock size={10} />
               <span>Diperbarui: {formatWaktuWITA(item.updated_at)}</span>
             </div>
