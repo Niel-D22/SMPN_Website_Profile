@@ -3,7 +3,7 @@ import { FaCheckCircle, FaClock, FaCalendarAlt, FaChevronDown } from 'react-icon
 import { timelineApi } from '../../Api/timelineApi';
 import 'animate.css';
 // Import gambar hero dari folder public/images
-import heroPPDB from '../../../public/Images/heroPPDB.jpg';
+import heroPPDB from '../../../public/Images/heroPPDB.webp';
 
 // ✅ Pakai status dari DB, bukan hitung otomatis dari tangga
 const getStatusInfo = (status) => {

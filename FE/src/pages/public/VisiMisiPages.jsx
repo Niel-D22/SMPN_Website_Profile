@@ -3,7 +3,7 @@ import { FaLightbulb, FaBullseye, FaCheckCircle, FaChevronDown } from 'react-ico
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import 'animate.css';
 // Import hero image dari folder public/images
-import visiMisiHero from '../../../public/Images/visiMisiHero.jpg';
+import visiMisiHero from '../../../public/Images/visiMisiHero.webp';
 
 const SkeletonBox = ({ className }) => (
   <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />

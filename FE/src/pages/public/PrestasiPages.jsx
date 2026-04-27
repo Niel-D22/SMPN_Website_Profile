@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 import { prestasiApi } from '../../Api/prestasiApi';
 import 'animate.css';
-import PrestasiHero from '../../../public/Images/prestasiHero.jpg';
+import PrestasiHero from '../../../public/Images/prestasiHero.webp';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 

@@ -11,7 +11,7 @@ import {
 import { galeriApi } from '../../Api/galeriApi';
 import 'animate.css';
 // Import hero image dari folder public
-import heroImage from '../../../public/Images/heroGaleri.jpg';
+import heroImage from '../../../public/Images/heroGaleri.webp';
 
 const BACKEND_URL = 'http://localhost:3000';
 

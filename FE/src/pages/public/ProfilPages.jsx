@@ -64,7 +64,7 @@ const ProfilPages = () => {
         <div className="absolute inset-0 bg-cover bg-center" />
         {/* Menggunakan tag img secara langsung */}
         <img
-          src="/Images/heroSmp3.png"
+          src="/Images/heroSmp3.webp"
           alt="Hero SMP 3"
           className="absolute inset-0 w-full h-full object-cover"
         />

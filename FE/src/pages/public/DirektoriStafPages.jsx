@@ -12,7 +12,7 @@ import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
 // Import hero image dari folder public/Images/
-import heroGuru from '../../../public/Images/heroGuru.jpeg';
+import heroGuru from '../../../public/Images/heroGuru.webp';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 // Helper untuk membaca URL gambar dari database

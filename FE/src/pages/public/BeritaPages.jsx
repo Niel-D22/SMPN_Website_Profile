@@ -14,7 +14,7 @@ import {
 import toast from 'react-hot-toast';
 import { beritaApi } from '../../Api/beritaApi';
 import 'animate.css';
-import heroBerita from '../../../public/Images/heroBerita.jpg';
+import heroBerita from '../../../public/Images/heroBerita.webp';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
