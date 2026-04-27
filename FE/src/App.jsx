@@ -42,14 +42,18 @@ import AdminFAQPage from './pages/admin/AdminFAQPage';
 function App() {
   useEffect(() => {
     AOS.init({
-      duration: 800, // Durasi animasi (dalam milidetik)
-      once: true, // true: Animasi hanya jalan sekali. false: Animasi jalan tiap kali di-scroll
-      offset: 100, // Jarak scroll (dalam px) sebelum animasi mulai
+      duration: 800,
+      once: true,
+      offset: 100,
     });
+  }, []);
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
   }, []);
 
   useEffect(() => {
-    // Catat 1 kunjungan saat website dibuka
     if (!sessionStorage.getItem('visited')) {
       pengunjungApi.recordVisit().catch(() => console.log('Gagal catat pengunjung'));
       sessionStorage.setItem('visited', 'true');
