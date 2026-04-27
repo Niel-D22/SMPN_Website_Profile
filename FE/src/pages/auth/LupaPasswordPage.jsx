@@ -1,25 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEnvelope, FaSchool, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../Api/axios'; // Pastikan path ini benar
 import toast from 'react-hot-toast';
+import 'animate.css';
+import { profilSekolahApi } from '../../Api/profilSekolahApi';
 
 const LupaPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [namaSekolah, setNamaSekolah] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const data = await profilSekolahApi.getProfilSekolah();
+        setNamaSekolah(data.nama_sekolah || 'SMP Negeri 3 Manado');
+        setLogoUrl(data.logo_url || '/Images/LogoSekolah.png');
+      } catch {
+        setNamaSekolah('SMP Negeri 3 Manado');
+        setLogoUrl('/Images/LogoSekolah.png');
+      }
+    };
+    fetchProfil();
+  }, []);
+  const bagian = namaSekolah?.split(/(\d+)/);
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await api.post('/auth/forgot-password', { email });
-      toast.success(res.data.message || 'Link reset password telah dikirim ke email kamu!');
-      navigate('/login'); // Kembali ke login setelah request berhasil
+      toast.success(res.data.message || 'Link reset password telah dikirim!');
+      navigate('/login');
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || 'Email tidak ditemukan atau terjadi kesalahan server.'
-      );
+      toast.error(err.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setLoading(false);
     }
@@ -37,17 +54,22 @@ const LupaPasswordPage = () => {
       }}>
       <div className="absolute inset-0 backdrop-blur-[1px] z-0"></div>
 
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 min-h-[500px]">
+      <div className="bg-white animate__animated animate__fadeInUp animate__faster w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden z-10 min-h-[500px]">
         {/* Sisi Kiri - Logo (Warna Merah Senada dengan Login) */}
         <div className="w-full md:w-2/5 bg-red-700 p-10 flex flex-col items-center justify-center text-white relative">
           <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/10 rounded-tl-full"></div>
-          <div className="w-28 h-28 bg-gray-300 rounded-full flex items-center justify-center mb-6 shadow-inner border-4 border-white/20">
-            <FaSchool className="text-gray-500" size={50} />
+          <div className="w-28 h-28  flex items-center justify-center mb-6 shadow-inner overflow-hidden">
+            <img src={logoUrl} alt="Logo Sekolah" className="w-full h-full object-contain" />
           </div>
           <div className="text-center leading-tight">
-            <h2 className="font-bold text-xl uppercase tracking-wider">SMP Negeri</h2>
-            <h1 className="font-extrabold text-3xl uppercase tracking-widest mt-1">3 MANADO</h1>
-          </div>
+            <h2 className="font-bold text-xl uppercase tracking-wider">
+              {bagian?.[0]?.trim() || 'SMP Negeri'}
+            </h2>
+
+            <h1 className="font-extrabold text-3xl uppercase tracking-widest mt-1">
+              {bagian?.slice(1).join('').trim() || ''}
+            </h1>
+          </div>{' '}
         </div>
 
         {/* Sisi Kanan - Form Reset (Desain Senada) */}

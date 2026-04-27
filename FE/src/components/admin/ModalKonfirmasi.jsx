@@ -34,10 +34,7 @@ const ModalKonfirmasi = ({
             {teksBatal}
           </button>
           <button
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
+            onClick={onConfirm}
             className="w-full sm:w-auto px-4 py-2 rounded-lg text-white bg-red-700 hover:bg-red-800 font-semibold transition shadow-md text-sm">
             {teksKonfirmasi}
           </button>

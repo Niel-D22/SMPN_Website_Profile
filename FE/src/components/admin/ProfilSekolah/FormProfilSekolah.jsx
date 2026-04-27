@@ -1,14 +1,16 @@
 import React, { useRef } from 'react';
 import {
   FaImage,
-  FaUserGraduate,
   FaMapMarkerAlt,
   FaPhoneAlt,
   FaEnvelope,
   FaUniversity,
   FaBook,
   FaHistory,
-  FaUsers, // Icon baru untuk siswa
+  FaUsers,
+  FaChalkboardTeacher,
+  FaDoorOpen,
+  FaMicrophone,
 } from 'react-icons/fa';
 
 const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
@@ -19,6 +21,10 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
     'w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700 outline-none transition text-gray-800 placeholder-gray-400';
   const labelClass = 'text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2';
   const iconColor = 'text-red-700';
+
+  // Style khusus untuk input statistik (angka penting)
+  const statInputClass =
+    'w-full px-2 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-red-700 outline-none transition text-gray-800 placeholder-gray-400 text-center font-bold';
 
   return (
     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -34,7 +40,9 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
 
       {/* Grid Utama: 3 Kolom untuk Desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-6">
-        {/* --- BARIS 1 --- */}
+        {/* ============================== */}
+        {/* BARIS 1: Identitas Sekolah     */}
+        {/* ============================== */}
 
         {/* Kolom 1: Upload Logo */}
         <div className="h-44 flex flex-col items-center">
@@ -66,7 +74,7 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
           </div>
         </div>
 
-        {/* Kolom 2: Nama, NPSN, Akreditasi, Jumlah Siswa */}
+        {/* Kolom 2: Nama, NPSN, Akreditasi */}
         <div className="flex flex-col gap-4">
           <div>
             <label className={labelClass}>Nama Resmi Sekolah</label>
@@ -80,9 +88,9 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
             />
           </div>
 
-          {/* Dipecah jadi 3 grid kecil agar muat NPSN, Akreditasi & Jumlah Siswa */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-1">
+          {/* NPSN & Akreditasi */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
               <label className={labelClass}>NPSN</label>
               <input
                 type="text"
@@ -93,8 +101,7 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
                 placeholder="NPSN"
               />
             </div>
-
-            <div className="col-span-1">
+            <div>
               <label className={labelClass}>Akreditasi</label>
               <input
                 type="text"
@@ -103,21 +110,6 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="A / B / C"
-              />
-            </div>
-
-            <div className="col-span-1">
-              <label className={`${labelClass} truncate`} title="Total Siswa Aktif">
-                Siswa
-              </label>
-              <input
-                type="number"
-                name="jumlah_siswa"
-                value={formData?.jumlah_siswa || ''}
-                onChange={handleChange}
-                className={`${inputClass} px-2 text-center font-bold`}
-                placeholder="0"
-                min="0"
               />
             </div>
           </div>
@@ -134,7 +126,9 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
             placeholder="Tulis visi sekolah di sini..."></textarea>
         </div>
 
-        {/* --- BARIS 2 --- */}
+        {/* ============================== */}
+        {/* BARIS 2: Kontak & Misi        */}
+        {/* ============================== */}
 
         {/* Kolom 1: Alamat Lengkap */}
         <div className="flex flex-col h-full">
@@ -192,9 +186,81 @@ const FormProfilSekolah = ({ formData, handleChange, handleImageChange }) => {
             placeholder="Tulis misi sekolah di sini..."></textarea>
         </div>
 
-        {/* --- BARIS 3 --- */}
-        {/* Sejarah Sekolah */}
-        <div className="col-span-1 lg:col-span-3 mt-2 border-t border-gray-100 pt-6">
+        {/* ====================================== */}
+        {/* BARIS 3: Statistik — Grup Data Penting */}
+        {/* ====================================== */}
+        <div className="col-span-1 lg:col-span-3 border-t border-gray-100 pt-5">
+          {/* Tiga kolom statistik yang seimbang */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Jumlah Siswa */}
+            <div>
+              <label className={labelClass}>
+                <FaUsers className={iconColor} /> Total Siswa Aktif
+              </label>
+              <input
+                type="number"
+                name="jumlah_siswa"
+                value={formData?.jumlah_siswa || ''}
+                onChange={handleChange}
+                className={statInputClass}
+                placeholder="0"
+                min="0"
+              />
+            </div>
+
+            {/* Jumlah Guru — BARU */}
+            <div>
+              <label className={labelClass}>
+                <FaChalkboardTeacher className={iconColor} /> Total Tenaga Pengajar
+              </label>
+              <input
+                type="number"
+                name="jumlah_guru"
+                value={formData?.jumlah_guru || ''}
+                onChange={handleChange}
+                className={statInputClass}
+                placeholder="0"
+                min="0"
+              />
+            </div>
+
+            {/* Jumlah Kelas — BARU */}
+            <div>
+              <label className={labelClass}>
+                <FaDoorOpen className={iconColor} /> Total Ruang Kelas
+              </label>
+              <input
+                type="number"
+                name="jumlah_kelas"
+                value={formData?.jumlah_kelas || ''}
+                onChange={handleChange}
+                className={statInputClass}
+                placeholder="0"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================= */}
+        {/* BARIS 4: Sambutan Kepala Sekolah — BARU      */}
+        {/* ============================================= */}
+        <div className="col-span-1 lg:col-span-3 border-t border-gray-100 pt-5">
+          <label className={labelClass}>
+            <FaMicrophone className={iconColor} /> Sambutan Kepala Sekolah
+          </label>
+          <textarea
+            name="sambutan_kepsek"
+            value={formData?.sambutan_kepsek || ''}
+            onChange={handleChange}
+            className={`${inputClass} min-h-[10rem] resize-y`}
+            placeholder="Tulis sambutan atau pesan dari Kepala Sekolah di sini..."></textarea>
+        </div>
+
+        {/* ============================== */}
+        {/* BARIS 5: Sejarah Sekolah       */}
+        {/* ============================== */}
+        <div className="col-span-1 lg:col-span-3 border-t border-gray-100 pt-5">
           <label className={labelClass}>
             <FaHistory className={iconColor} /> Sejarah Sekolah
           </label>

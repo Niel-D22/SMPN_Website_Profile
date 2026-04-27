@@ -104,8 +104,9 @@ const AdminDirektoriPage = () => {
       {/* Toolbar: Filter & Search */}
       <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
         {/* Filter tabs — scroll horizontal di mobile */}
+
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-          {['Semua', 'Guru Mata Pelajaran', 'Staf Tata Usaha'].map((tab) => (
+          {['Semua', ...new Set(gurus.map((g) => g.jabatan).filter(Boolean))].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilterJabatan(tab)}
@@ -118,7 +119,6 @@ const AdminDirektoriPage = () => {
             </button>
           ))}
         </div>
-
         {/* Search */}
         <div className="relative w-full md:w-72 shrink-0">
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={13} />

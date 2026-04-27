@@ -17,6 +17,7 @@ const LoginPage = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [namaSekolah, setNamaSekolah] = useState('');
 
+  const [bagianAtas, bagianBawah] = namaSekolah.split(/(\d+\s+\w+)/);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,12 +85,11 @@ const LoginPage = () => {
           <div className="text-center leading-tight">
             {/* Split namaSekolah jika perlu, atau tampilkan dinamis jika tidak ada pattern fix */}
             <h2 className="font-bold text-base sm:text-xl uppercase tracking-wider">
-              {namaSekolah?.split('3 MANADO')[0]?.trim() || 'SMP Negeri'}
+              {bagianAtas?.trim()}
             </h2>
+
             <h1 className="font-extrabold text-2xl sm:text-3xl uppercase tracking-widest mt-1">
-              {namaSekolah?.includes('3 MANADO')
-                ? '3 MANADO'
-                : namaSekolah?.replace('SMP Negeri', '').trim()}
+              {bagianBawah?.trim()}
             </h1>
           </div>
         </div>
@@ -124,7 +124,7 @@ const LoginPage = () => {
               <label
                 htmlFor="username"
                 className="font-semibold text-gray-700 block text-sm sm:text-base">
-                Nama / Username
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none text-gray-400">

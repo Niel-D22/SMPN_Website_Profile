@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaLock, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../Api/axios';
 import toast from 'react-hot-toast';
-// import BG from '../../../public/Images/BG.png'; // JANGAN AMBIL BG DARI IMPORT
+import { profilSekolahApi } from '../../Api/profilSekolahApi';
 
 function ResetPasswordPage() {
   const { token } = useParams(); // Mengambil token dari URL
@@ -12,7 +12,19 @@ function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [logoUrl, setLogoUrl] = useState('');
 
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const data = await profilSekolahApi.getProfilSekolah();
+        setLogoUrl(data.logo_url || '/Images/LogoSekolah.png');
+      } catch {
+        setLogoUrl('/Images/LogoSekolah.png');
+      }
+    };
+    fetchProfil();
+  }, []);
   const handleReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -40,8 +52,8 @@ function ResetPasswordPage() {
       }}>
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 z-10">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-20 h-20 bg-red-700 rounded-full flex items-center justify-center mb-4 text-white shadow-lg">
-            <FaSchool size={40} />
+          <div className="w-20 h-20  flex items-center justify-center mb-4 overflow-hidden ">
+            <img src={logoUrl} alt="Logo Sekolah" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">RESET PASSWORD</h1>
           <p className="text-gray-500 text-center text-sm mt-2">

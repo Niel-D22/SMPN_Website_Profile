@@ -12,6 +12,46 @@ const JABATAN_OPTIONS = [
   'Pustakawan',
   'Lainnya',
 ];
+// Taruh di luar komponen — config field per jabatan
+const FIELD_CONFIG = {
+  'Guru Mata Pelajaran': {
+    label: 'Mata Pelajaran yang Diampu',
+    placeholder: 'Contoh: Matematika, IPA, Bahasa Indonesia',
+    suggestions: [
+      'Matematika',
+      'IPA',
+      'IPS',
+      'Bahasa Indonesia',
+      'Bahasa Inggris',
+      'PKN',
+      'Agama',
+      'Seni Budaya',
+      'PJOK',
+      'Prakarya',
+      'TIK',
+    ],
+  },
+  'Guru Bimbingan Konseling': {
+    label: 'Spesialisasi',
+    placeholder: 'Contoh: Konseling Individu, Karir',
+    suggestions: ['Konseling Individu', 'Konseling Karir', 'Konseling Kelompok'],
+  },
+  'Wakil Kepala Sekolah': {
+    label: 'Bidang',
+    placeholder: 'Contoh: Kurikulum',
+    suggestions: ['Kurikulum', 'Kesiswaan', 'Sarana & Prasarana', 'Hubungan Masyarakat'],
+  },
+  'Kepala Sekolah': {
+    label: 'Periode Jabatan',
+    placeholder: 'Contoh: 2022 - Sekarang',
+    suggestions: [],
+  },
+  'Staf Tata Usaha': {
+    label: 'Bidang Tugas',
+    placeholder: 'Contoh: Administrasi, Keuangan',
+    suggestions: ['Administrasi', 'Keuangan', 'Kepegawaian', 'Persuratan'],
+  },
+};
 
 const convertToBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -191,16 +231,54 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
           {/* Mata Pelajaran */}
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-              Mata Pelajaran yang Diampu
+              {/* Field Dinamis */}
+              {(() => {
+                const config = FIELD_CONFIG[formData.jabatan];
+                if (!config) return null; // Pustakawan & jabatan lain — sembunyikan
+
+                return (
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                      {config.label}
+                    </label>
+
+                    {/* Input bebas ketik */}
+                    <input
+                      type="text"
+                      name="mata_pelajaran"
+                      value={formData.mata_pelajaran}
+                      onChange={handleChange}
+                      placeholder={config.placeholder}
+                      className={inputClass}
+                    />
+
+                    {/* Suggestions / Pilihan Cepat */}
+                    {config.suggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {config.suggestions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => {
+                              // Kalau sudah ada isi, tambahkan dengan koma
+                              const current = formData.mata_pelajaran.trim();
+                              const newVal = current
+                                ? current.endsWith(',')
+                                  ? `${current} ${s}`
+                                  : `${current}, ${s}`
+                                : s;
+                              setFormData({ ...formData, mata_pelajaran: newVal });
+                            }}
+                            className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-100 transition">
+                            + {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </label>
-            <input
-              type="text"
-              name="mata_pelajaran"
-              value={formData.mata_pelajaran}
-              onChange={handleChange}
-              placeholder="Contoh: Matematika, IPA (Opsional)"
-              className={inputClass}
-            />
           </div>
 
           {/* Footer Tombol */}
