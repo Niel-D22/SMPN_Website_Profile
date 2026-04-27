@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FiLoader } from 'react-icons/fi';
 import { beritaApi } from '../../Api/beritaApi';
 import BeritaItem from '../../components/admin/Berita/BeritaItem';
 import ModalFormBerita from '../../components/admin/Berita/ModalFormBerita';
@@ -10,13 +11,23 @@ import 'animate.css';
 
 const SKELETON_CARD_COUNT = 6;
 
+const FILTER_TABS = [
+  { key: 'semua', label: 'Semua' },
+  { key: 'active', label: 'Publish' },
+  { key: 'inactive', label: 'Draft' },
+];
 const AdminBeritaPage = () => {
   const [beritas, setBeritas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('semua');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
@@ -38,47 +49,106 @@ const AdminBeritaPage = () => {
 
   const handleSave = async (data) => {
     setIsSubmitting(true);
+    const toastId = toast.loading(editingData ? 'Memperbarui berita...' : 'Menyimpan berita...');
     try {
-      // data sudah FormData dari modal, langsung pakai
       if (editingData) {
-        const result = await beritaApi.updateBerita(editingData.id_berita, data);
-        console.log('Response update:', result);
-        toast.success('Berita berhasil diperbarui');
+        await beritaApi.updateBerita(editingData.id_berita, data);
+        toast.update(toastId, {
+          render: '✅ Berita berhasil diperbarui!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+        });
       } else {
-        const result = await beritaApi.addBerita(data);
-        console.log('Response add:', result);
-        toast.success('Berita berhasil diposting');
+        await beritaApi.addBerita(data);
+        toast.update(toastId, {
+          render: '✅ Berita berhasil diposting!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+        });
       }
       setIsModalOpen(false);
       fetchBerita();
     } catch (error) {
       console.error('Error:', error.response?.data);
-      toast.error('Gagal menyimpan berita');
+      toast.update(toastId, {
+        render: '❌ Gagal menyimpan berita.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeOnClick: true,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const confirmDelete = async () => {
+    setIsDeleting(true);
+    const toastId = toast.loading('Menghapus berita...');
     try {
       await beritaApi.deleteBerita(itemToDelete);
-      toast.success('Berita dihapus');
-      setBeritas(beritas.filter((b) => b.id_berita !== itemToDelete));
+      setBeritas((prev) => prev.filter((b) => b.id_berita !== itemToDelete));
+      toast.update(toastId, {
+        render: '✅ Berita berhasil dihapus!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+      });
     } catch (error) {
-      toast.error('Gagal menghapus berita');
+      toast.update(toastId, {
+        render: '❌ Gagal menghapus berita.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeOnClick: true,
+      });
     } finally {
+      setIsDeleting(false);
       setIsDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
-  const filteredData = beritas.filter((b) =>
-    b.judul.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter: search + status
+  const filteredData = beritas.filter((b) => {
+    const matchSearch = b.judul.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchStatus = filterStatus === 'semua' || b.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+  // Hitung jumlah per status untuk badge
+  const countSemua = beritas.length;
+  const countPublished = beritas.filter((b) => b.status === 'active').length;
+  const countInactive = beritas.filter((b) => b.status === 'inactive').length;
 
+  const getCount = (key) => {
+    if (key === 'semua') return countSemua;
+    if (key === 'active') return countPublished;
+    if (key === 'inactive') return countInactive;
+    return 0;
+  };
   return (
-    // ✅ Hapus min-h-screen — biarkan layout admin yang atur tinggi
-    // ✅ Padding mobile kecil, makin besar di layar lebih lebar
     <div className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate__animated animate__fadeInUp animate__faster">
+      {/* OVERLAY LOADING */}
+      {(isSubmitting || isDeleting) && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-xl px-10 py-8 flex flex-col items-center gap-4 animate__animated animate__fadeIn animate__faster">
+            <FiLoader className="text-red-700 text-4xl animate-spin" />
+            <p className="text-gray-700 font-semibold text-base">
+              {isDeleting
+                ? 'Menghapus berita...'
+                : editingData
+                  ? 'Memperbarui berita...'
+                  : 'Menyimpan berita...'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
@@ -99,16 +169,41 @@ const AdminBeritaPage = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-5 sm:mb-6">
-        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Cari judul berita..."
-          className="w-full bg-white py-3 sm:py-4 pl-11 pr-4 rounded-2xl border border-gray-100 shadow-sm outline-none focus:ring-2 focus:ring-red-700 transition text-sm"
-        />
+      {/* Search + Filter */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-5 sm:mb-6">
+        {/* Search */}
+        <div className="relative flex-1">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Cari judul berita..."
+            className="w-full bg-white py-3 pl-11 pr-4 rounded-2xl border border-gray-100 shadow-sm outline-none focus:ring-2 focus:ring-red-700 transition text-sm"
+          />
+        </div>
+
+        {/* Filter Tab Publish / Inactive */}
+        <div className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-2xl shadow-sm px-2 py-1.5 self-start sm:self-auto">
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilterStatus(tab.key)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                filterStatus === tab.key
+                  ? 'bg-red-700 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}>
+              {tab.label}
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                  filterStatus === tab.key ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>
+                {getCount(tab.key)}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Grid Konten */}
@@ -139,7 +234,9 @@ const AdminBeritaPage = () => {
         </div>
       ) : filteredData.length === 0 ? (
         <div className="bg-white p-8 sm:p-10 rounded-3xl text-center border border-gray-100 text-gray-400 text-sm">
-          Belum ada berita yang tersedia.
+          {searchTerm || filterStatus !== 'semua'
+            ? 'Tidak ada berita yang sesuai filter.'
+            : 'Belum ada berita yang tersedia.'}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
