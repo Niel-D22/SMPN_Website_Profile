@@ -35,11 +35,11 @@ const VisiMisiPages = () => {
     <div className="min-h-screen bg-white overflow-hidden animate__animated animate__fadeInUp animate__faster">
       {/* HERO */}
       <section className="relative w-full min-h-screen flex items-center justify-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${visiMisiHero}')`,
-          }}
+        <img
+          src={visiMisiHero}
+          alt="Background Sekolah"
+          className="absolute inset-0 w-full h-full object-cover bg-[#003366]"
+          fetchpriority="high"
         />
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
