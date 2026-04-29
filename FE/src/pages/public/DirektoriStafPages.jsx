@@ -15,6 +15,7 @@ import 'animate.css';
 import heroGuru from '../../../public/Images/heroGuru.webp';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
+
 // Helper untuk membaca URL gambar dari database
 const getImageUrl = (fotoString) => {
   const defaultImg =
@@ -49,16 +50,24 @@ const DirektoriStafPages = () => {
 
   // Untuk lightbox/preview foto
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImg, setPreviewImg] = useState('');
   const [zoom, setZoom] = useState(1);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  // PERBAIKAN: State ini sekarang menyimpan seluruh object guru, bukan cuma URL fotonya
+  const [previewedGuru, setPreviewedGuru] = useState(null);
 
   useEffect(() => {
     const fetchGuru = async () => {
       setIsLoading(true);
       try {
         const response = await direktoriApi.getGuru();
-        setDataGuru(Array.isArray(response) ? response : []);
+        const withFotoUrl = Array.isArray(response)
+          ? response.map((guru) => ({
+              ...guru,
+              foto_url: guru.foto_url ? guru.foto_url : getImageUrl(guru.foto),
+            }))
+          : [];
+        setDataGuru(withFotoUrl);
       } catch (error) {
         console.error('Gagal mengambil data direktori staf:', error);
       } finally {
@@ -76,9 +85,9 @@ const DirektoriStafPages = () => {
     return nama.includes(cari) || jabatan.includes(cari) || mapel.includes(cari);
   });
 
-  // Untuk buka preview
-  const handlePreview = (src) => {
-    setPreviewImg(src);
+  // PERBAIKAN: Fungsi ini sekarang menerima 'guru' utuh
+  const handlePreview = (guruObj) => {
+    setPreviewedGuru(guruObj);
     setPreviewOpen(true);
     setZoom(1);
     document.body.style.overflow = 'hidden';
@@ -87,7 +96,7 @@ const DirektoriStafPages = () => {
   // Tutup preview
   const handleClosePreview = () => {
     setPreviewOpen(false);
-    setPreviewImg('');
+    setPreviewedGuru(null);
     setZoom(1);
     document.body.style.overflow = '';
   };
@@ -110,7 +119,7 @@ const DirektoriStafPages = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] relative">
       {/* Lightbox Foto */}
-      {previewOpen && (
+      {previewOpen && previewedGuru && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md z-50 animate__animated animate__fadeIn faster"
           style={{ animationDuration: '.11s' }}>
@@ -123,7 +132,7 @@ const DirektoriStafPages = () => {
           </button>
 
           <img
-            src={previewImg}
+            src={previewedGuru.foto_url}
             style={{
               maxWidth: '90vw',
               maxHeight: '80vh',
@@ -134,7 +143,7 @@ const DirektoriStafPages = () => {
               transition: 'transform 0.2s',
               cursor: zoom < 2 ? 'zoom-in' : 'zoom-out',
             }}
-            alt="guru-preview"
+            alt={previewedGuru.nama_lengkap}
             onWheel={(e) => {
               e.preventDefault();
               handleZoom(e.deltaY < 0 ? 0.2 : -0.2);
@@ -144,6 +153,12 @@ const DirektoriStafPages = () => {
             draggable={false}
             onClick={() => handleClosePreview()}
           />
+
+          {/* PERBAIKAN: Memanggil nama_lengkap langsung dari object yang sedang di-preview */}
+          <div className="absolute bottom-[85px] xs:bottom-[95px] left-1/2 -translate-x-1/2 w-auto bg-white/80 text-slate-900 font-bold text-center py-2 px-4 text-base xs:text-xl rounded-xl shadow-lg pointer-events-none z-10 select-none">
+            {previewedGuru.nama_lengkap}
+          </div>
+
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-center text-white text-xs xs:text-sm opacity-65 px-3">
             Scroll untuk zoom. Klik untuk keluar.
           </div>
@@ -159,13 +174,9 @@ const DirektoriStafPages = () => {
             src={heroGuru}
             alt="Hero Background"
             fetchpriority="high"
-            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
             onLoad={() => setIsImageLoaded(true)}
-            // Logika class Tailwind-nya ada di sini
             className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-              isImageLoaded
-                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
-                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+              isImageLoaded ? 'blur-0 scale-100 opacity-100' : 'blur-2xl scale-110 opacity-60'
             }`}
           />
         </div>
@@ -256,7 +267,8 @@ const DirektoriStafPages = () => {
                         e.target.onerror = null;
                         e.target.src = 'https://placehold.co/600x800/e2e8f0/64748b?text=Tanpa+Foto';
                       }}
-                      onClick={() => handlePreview(guru.foto_url)}
+                      // PERBAIKAN: Memasukkan seluruh object guru
+                      onClick={() => handlePreview(guru)}
                       tabIndex={0}
                       style={{ cursor: 'zoom-in' }}
                     />
@@ -264,7 +276,8 @@ const DirektoriStafPages = () => {
                       type="button"
                       title="Perbesar foto"
                       className="absolute top-[10px] right-[10px] sm:top-[20px] sm:right-[20px] z-10 bg-black/30 group-hover:bg-black/60 text-white rounded-full p-[6px] sm:p-2 opacity-0 group-hover:opacity-100 transition focus:opacity-100 focus:outline-none"
-                      onClick={() => handlePreview(guru.foto_url)}
+                      // PERBAIKAN: Memasukkan seluruh object guru
+                      onClick={() => handlePreview(guru)}
                       tabIndex={0}>
                       <FaSearchPlus className="text-sm sm:text-lg" />
                     </button>

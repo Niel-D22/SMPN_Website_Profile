@@ -31,14 +31,14 @@ const Faq = () => {
       AOS.refresh();
     }
   }, [isLoading]);
+
   // Fungsi untuk membuka/menutup accordion
   const toggleAccordion = (index) => {
-    AOS.refreshHard(); // reset posisi AOS
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className=" py-24 px-6 sm:px-8 lg:px-12  animate__animated animate__fadeInUp animate__faster min-h-screen">
+    <section className="py-24 px-6 sm:px-8 lg:px-12 animate__animated animate__fadeInUp animate__faster min-h-screen">
       <div className="max-w-4xl mx-auto">
         {/* === HEADER FAQ === */}
         <div className="text-center mb-16">
@@ -62,11 +62,22 @@ const Faq = () => {
         {/* === LIST FAQ === */}
         <div className="space-y-4">
           {isLoading ? (
-            // Skeleton Loading (Tampil saat data sedang di-fetch)
+            // Skeleton Loading (Tampil saat data sedang di-fetch) - Diperjelas
             [1, 2, 3, 4].map((item) => (
               <div
                 key={item}
-                className="bg-white h-16 w-full rounded-2xl border border-gray-200 animate-pulse"></div>
+                className="bg-white rounded-2xl border-2 border-gray-200 p-5 md:px-8 shadow-sm flex flex-col gap-3 animate-pulse">
+                {/* Skeleton nomor */}
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-gray-200" />
+                  {/* Skeleton untuk pertanyaan */}
+                  <div className="w-48 md:w-72 h-5 bg-gray-200 rounded" />
+                </div>
+                {/* Skeleton untuk jawaban (bar) */}
+                <div className="ml-8 w-4/5 h-4 bg-gray-100 rounded" />
+                {/* Skeleton untuk garis */}
+                <div className="w-full h-px bg-gray-100 mt-2" />
+              </div>
             ))
           ) : faqs.length === 0 ? (
             // Tampilan jika data FAQ kosong
@@ -81,9 +92,6 @@ const Faq = () => {
               return (
                 <div
                   key={faq.id_faq || index}
-                  data-aos={index % 2 === 0 ? 'fade-up-right' : 'fade-up-left'}
-                  data-aos-delay={index * 100}
-                  data-aos-duration="800"
                   className={`bg-white rounded-2xl transition-all duration-300 overflow-hidden ${
                     isOpen
                       ? 'border-2 border-[#003366] shadow-md'
