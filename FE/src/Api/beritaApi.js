@@ -25,6 +25,7 @@ export const beritaApi = {
     const res = await api.get(`/berita/${id}`);
     return res.data;
   },
+  
   updateBerita: async (id, formData) => {
     try {
       const res = await api.put(`/berita/${id}`, formData, {

@@ -17,7 +17,7 @@ const LoginPage = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [namaSekolah, setNamaSekolah] = useState('');
 
-  const [bagianAtas, bagianBawah] = namaSekolah.split(/(\d+\s+\w+)/);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
