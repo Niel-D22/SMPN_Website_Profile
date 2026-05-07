@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
 import { Link } from 'react-router-dom';
+import { FaFilePdf, FaDownload, FaAward } from 'react-icons/fa'; // ← tambah FaAward
 import {
   FaMapMarkerAlt,
   FaPhone,
@@ -15,7 +15,6 @@ import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import { direktoriApi } from '../../Api/direktoriApi';
 import 'animate.css';
 
-// Komponen Skeleton
 const SkeletonBox = ({ className }) => (
   <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />
 );
@@ -25,6 +24,7 @@ const ProfilPages = () => {
   const [totalGuru, setTotalGuru] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   useEffect(() => {
     const fetchSemuaData = async () => {
       try {
@@ -33,7 +33,6 @@ const ProfilPages = () => {
           direktoriApi.getGuru(),
         ]);
         setProfilData(dataProfil);
-
         let jumlahGuru = 0;
         if (Array.isArray(dataGuru?.data)) jumlahGuru = dataGuru.data.length;
         else if (Array.isArray(dataGuru)) jumlahGuru = dataGuru.length;
@@ -59,20 +58,16 @@ const ProfilPages = () => {
 
   return (
     <div className="min-h-screen bg-white pb-24 animate__animated animate__fadeInUp animate__faster">
-      {/* HERO */}
+      {/* HERO — tidak berubah */}
       <section className="relative w-full min-h-[70vh] flex items-end justify-start overflow-hidden">
         <div className="absolute inset-0 bg-[#003366] overflow-hidden">
           <img
             src="Images/heroSmp3.webp"
             alt="Hero Background"
             fetchpriority="high"
-            // Event ini akan otomatis jalan saat gambar selesai di-download 100%
             onLoad={() => setIsImageLoaded(true)}
-            // Logika class Tailwind-nya ada di sini
             className={`w-full h-full object-cover transition-all duration-1000 ease-in-out ${
-              isImageLoaded
-                ? 'blur-0 scale-100 opacity-100' // Kalau sudah selesai, blur hilang & ukuran normal
-                : 'blur-2xl scale-110 opacity-60' // Saat loading, blur tebal & agak di-zoom
+              isImageLoaded ? 'blur-0 scale-100 opacity-100' : 'blur-2xl scale-110 opacity-60'
             }`}
           />
         </div>
@@ -103,14 +98,16 @@ const ProfilPages = () => {
         </div>
       </section>
 
-      {/* STATS BAR */}
+      {/* STATS BAR — tidak berubah */}
       <section style={{ background: 'var(--color-primary, #cc0000)' }}>
         <div className="max-w-[1240px] mx-auto px-6 lg:px-10">
           <div className="w-full flex flex-col md:flex-row items-center justify-center">
             {STATS_DYNAMIC.map((stat, i) => (
               <div
                 key={i}
-                className={`flex-1 flex items-center gap-5 justify-center px-6 py-5 ${i !== 0 ? 'border-t md:border-t-0 md:border-l border-white/25' : ''}`}>
+                className={`flex-1 flex items-center gap-5 justify-center px-6 py-5 ${
+                  i !== 0 ? 'border-t md:border-t-0 md:border-l border-white/25' : ''
+                }`}>
                 <div className="flex-shrink-0 bg-white/10 rounded-full w-12 h-12 flex items-center justify-center">
                   <span className="text-white text-2xl">{stat.icon}</span>
                 </div>
@@ -165,7 +162,7 @@ const ProfilPages = () => {
               </p>
             )}
 
-            <div className="mt-8 flex flex-col gap-3">
+            {/* <div className="mt-8 flex flex-col gap-3">
               {[
                 'Kurikulum Merdeka Belajar',
                 'Tenaga pendidik bersertifikat nasional',
@@ -180,8 +177,66 @@ const ProfilPages = () => {
                   <span className="text-gray-700 text-sm font-medium">{item}</span>
                 </div>
               ))}
-            </div>
+            </div> */}
 
+            {/* KARTU KURIKULUM — tidak berubah */}
+            {!isLoading && profilData?.kurikulum_url && (
+              <div className="mt-10 relative overflow-hidden rounded-2xl shadow-md border border-red-100">
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(45deg, #cc0000 0, #cc0000 1px, transparent 0, transparent 50%)',
+                    backgroundSize: '12px 12px',
+                  }}
+                />
+                <div
+                  className="relative flex items-center gap-3 px-6 py-4"
+                  style={{ background: 'var(--color-primary, #cc0000)' }}>
+                  <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                    <FaFilePdf className="text-white text-base" />
+                  </div>
+                  <div>
+                    <p className="text-white font-extrabold text-sm leading-tight">
+                      Dokumen Kurikulum
+                    </p>
+                    <p className="text-white/70 text-xs mt-0.5">Tahun Pelajaran Aktif</p>
+                  </div>
+                  <span className="ml-auto bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                    PDF
+                  </span>
+                </div>
+                <div className="relative bg-white px-6 py-5">
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap mb-5">
+                    {profilData?.deskripsi_kurikulum ||
+                      'Dokumen kurikulum sekolah tersedia untuk dilihat dan diunduh.'}
+                  </p>
+                  <div className="border-t border-gray-100 mb-5" />
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={profilData.kurikulum_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white transition hover:opacity-90 shadow-sm"
+                      style={{ background: 'var(--color-primary, #cc0000)' }}>
+                      <FaFilePdf size={13} />
+                      Lihat Kurikulum
+                    </a>
+                    <a
+                      href={profilData.kurikulum_url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border border-red-200 text-red-700 hover:bg-red-50 transition">
+                      <FaDownload size={12} />
+                      Download File
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tombol navigasi — tidak berubah */}
             <div className="mt-8 flex gap-3 flex-wrap">
               <Link
                 to="/visi-misi"
@@ -197,61 +252,121 @@ const ProfilPages = () => {
             </div>
           </div>
 
-          {/* Kanan — kartu identitas */}
-          <div className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-            <div
-              className="px-6 py-4 border-b border-gray-100"
-              style={{ background: 'var(--color-primary, #cc0000)' }}>
-              <h3 className="text-white font-extrabold text-base">Identitas Sekolah</h3>
-            </div>
-            <div className="divide-y divide-gray-100 bg-white">
-              {[
-                { label: 'NPSN', value: profilData?.npsn },
-                { label: 'Status', value: 'Negeri' },
-                { label: 'Akreditasi', value: profilData?.akreditas || 'A', highlight: true },
-              ].map((row, i) => (
-                <div key={i} className="flex items-start justify-between px-6 py-3.5 gap-4">
-                  <span className="text-gray-400 text-xs font-semibold uppercase tracking-wide shrink-0 pt-0.5">
-                    {row.label}
-                  </span>
-                  {isLoading ? (
-                    <SkeletonBox className="w-24 h-4" />
-                  ) : (
-                    <span
-                      className={`text-sm font-bold text-right ${row.highlight ? 'text-green-600' : 'text-gray-800'}`}>
-                      {row.highlight ? `✓ ${row.value}` : row.value}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+          {/* Kanan — kartu identitas — tidak berubah */}
 
-            <div className="px-6 py-5 bg-gray-50 border-t border-gray-100 flex flex-col gap-3">
-              {isLoading ? (
-                <>
-                  <SkeletonBox className="w-full h-4" />
-                  <SkeletonBox className="w-3/4 h-4" />
-                  <SkeletonBox className="w-1/2 h-4" />
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <FaMapMarkerAlt
-                      style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }}
-                    />
-                    <span className="leading-snug">{profilData?.alamat}</span>
+          <div>
+            <div className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div
+                className="px-6 py-4 border-b border-gray-100"
+                style={{ background: 'var(--color-primary, #cc0000)' }}>
+                <h3 className="text-white font-extrabold text-base">Identitas Sekolah</h3>
+              </div>
+              <div className="divide-y divide-gray-100 bg-white">
+                {[
+                  { label: 'NPSN', value: profilData?.npsn },
+                  { label: 'Status', value: 'Negeri' },
+                  { label: 'Akreditasi', value: profilData?.akreditas || 'A', highlight: true },
+                ].map((row, i) => (
+                  <div key={i} className="flex items-start justify-between px-6 py-3.5 gap-4">
+                    <span className="text-gray-400 text-xs font-semibold uppercase tracking-wide shrink-0 pt-0.5">
+                      {row.label}
+                    </span>
+                    {isLoading ? (
+                      <SkeletonBox className="w-24 h-4" />
+                    ) : (
+                      <span
+                        className={`text-sm font-bold text-right ${row.highlight ? 'text-green-600' : 'text-gray-800'}`}>
+                        {row.highlight ? `✓ ${row.value}` : row.value}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <FaPhone style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                    <span>{profilData?.no_telepon}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <FaEnvelope style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
-                    <span>{profilData?.email_sekolah}</span>
-                  </div>
-                </>
-              )}
+                ))}
+              </div>
+              <div className="px-6 py-5 bg-gray-50 border-t border-gray-100 flex flex-col gap-3">
+                {isLoading ? (
+                  <>
+                    <SkeletonBox className="w-full h-4" />
+                    <SkeletonBox className="w-3/4 h-4" />
+                    <SkeletonBox className="w-1/2 h-4" />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <FaMapMarkerAlt
+                        style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }}
+                      />
+                      <span className="leading-snug">{profilData?.alamat}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <FaPhone style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }} />
+                      <span>{profilData?.no_telepon}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <FaEnvelope
+                        style={{ color: 'var(--color-primary, #cc0000)', flexShrink: 0 }}
+                      />
+                      <span>{profilData?.email_sekolah}</span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
+            {/* ── KARTU AKREDITASI — baru ── */}
+            {!isLoading && profilData?.sertifikat_akreditasi_url && (
+              <div className="mt-13 relative overflow-hidden rounded-2xl shadow-md border  border-red-100">
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(45deg, #cc0000 0, #cc0000 1px, transparent 0, transparent 50%)',
+                    backgroundSize: '12px 12px',
+                  }}
+                />
+                <div
+                  className="relative flex items-center gap-3 px-6 py-4"
+                  style={{ background: 'var(--color-primary, #cc0000)' }}>
+                  <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                    <FaAward className="text-white text-base" />
+                  </div>
+                  <div>
+                    <p className="text-white font-extrabold text-sm leading-tight">
+                      Sertifikat Akreditasi
+                    </p>
+                    <p className="text-white/70 text-xs mt-0.5">Badan Akreditasi Nasional</p>
+                  </div>
+                  <span className="ml-auto bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                    {profilData?.akreditas || 'A'}
+                  </span>
+                </div>
+                <div className="relative bg-white px-6 py-5">
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap mb-5">
+                    {profilData?.deskripsi_akreditasi ||
+                      'Sertifikat akreditasi sekolah tersedia untuk dilihat dan diunduh.'}
+                  </p>
+                  <div className="border-t border-gray-100 mb-5" />
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={profilData.sertifikat_akreditasi_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white transition hover:opacity-90 shadow-sm"
+                      style={{ background: 'var(--color-primary, #cc0000)' }}>
+                      <FaAward size={13} />
+                      Lihat Sertifikat
+                    </a>
+                    <a
+                      href={profilData.sertifikat_akreditasi_url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border border-red-200 text-red-700 hover:bg-red-50 transition">
+                      <FaDownload size={12} />
+                      Download File
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

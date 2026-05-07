@@ -68,6 +68,7 @@ const emptyForm = {
   jabatan: '',
   mata_pelajaran: '',
   foto_url: '',
+  status: 'aktif',
 };
 
 const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting }) => {
@@ -230,6 +231,22 @@ const ModalFormDirektori = ({ isOpen, onClose, onSave, initialData, isSubmitting
 
           {/* Mata Pelajaran */}
           <div>
+            {/* Status Pegawai */}
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                Status Pegawai
+              </label>
+
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className={`${inputClass} cursor-pointer`}>
+                <option value="aktif">Aktif</option>
+                <option value="nonaktif">Nonaktif</option>
+              </select>
+            </div>
+
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
               {/* Field Dinamis */}
               {(() => {

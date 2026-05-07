@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import {
+  FaEye,
   FaEdit,
   FaTrash,
   FaUserTie,
   FaIdCard,
   FaBookOpen,
-  FaEye,
-  FaTimes,
-  FaExpand,
   FaClock,
+  FaExpand,
+  FaTimes,
 } from 'react-icons/fa';
+
 import { createPortal } from 'react-dom';
 import { formatWaktuWITA } from '../../../../utils/formatWaktu';
 
@@ -72,9 +73,20 @@ const ModalPreviewDirektori = ({ item, onClose }) => {
               <h3 className="text-lg font-extrabold text-gray-900 leading-snug">
                 {item.nama_lengkap}
               </h3>
-              <span className="inline-block mt-1.5 text-[11px] font-bold px-3 py-1 rounded-lg bg-red-50 text-red-700 border border-red-100">
-                {item.jabatan || 'Staf'}
-              </span>
+              <div className="flex justify-center gap-2 mt-1.5">
+                <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-lg bg-red-50 text-red-700 border border-red-100">
+                  {item.jabatan || 'Staf'}
+                </span>
+                {/* Status Badge di Modal */}
+                <span
+                  className={`inline-block text-[11px] font-bold px-3 py-1 rounded-lg border ${
+                    item.status === 'aktif'
+                      ? 'bg-green-50 text-green-700 border-green-100'
+                      : 'bg-gray-100 text-gray-600 border-gray-200'
+                  }`}>
+                  {item.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </div>
             </div>
 
             {/* Detail */}
@@ -142,6 +154,7 @@ const ModalPreviewDirektori = ({ item, onClose }) => {
   );
 };
 
+// Props onAktifkan dan onNonaktifkan sudah dihapus
 const DirektoriItem = ({ item, onEdit, onDelete }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -163,12 +176,16 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
               title="Edit">
               <FaEdit size={14} />
             </button>
-            <button
-              onClick={() => onDelete(item.id_guru)}
-              className="p-2 rounded-xl bg-white/90 text-gray-500 hover:text-red-600 shadow-sm transition"
-              title="Hapus">
-              <FaTrash size={14} />
-            </button>
+
+            {/* Tombol Hapus HANYA muncul jika status nonaktif */}
+            {item.status === 'nonaktif' && (
+              <button
+                onClick={() => onDelete(item.id_guru)}
+                className="p-2 rounded-xl bg-white/90 text-gray-500 hover:text-red-600 shadow-sm transition"
+                title="Hapus">
+                <FaTrash size={14} />
+              </button>
+            )}
           </div>
 
           <div className="absolute -bottom-10 w-24 h-24 rounded-full border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
@@ -191,11 +208,22 @@ const DirektoriItem = ({ item, onEdit, onDelete }) => {
             title={item.nama_lengkap}>
             {item.nama_lengkap}
           </h3>
-          <div className="flex justify-center mb-4">
+
+          {/* Badge Jabatan & Status */}
+          <div className="flex justify-center gap-2 mb-4">
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-50 text-red-700 border border-red-100 inline-block">
               {item.jabatan || 'Staf'}
             </span>
+            <span
+              className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border inline-block ${
+                item.status === 'aktif'
+                  ? 'bg-green-50 text-green-700 border-green-100'
+                  : 'bg-gray-100 text-gray-600 border-gray-200'
+              }`}>
+              {item.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
+            </span>
           </div>
+
           <div className="space-y-2 mt-auto text-left bg-gray-50 p-3 rounded-xl border border-gray-100">
             <div className="flex items-center gap-2 text-xs text-gray-600">
               <FaIdCard className="text-gray-400 shrink-0" size={12} />

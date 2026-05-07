@@ -17,7 +17,6 @@ const LoginPage = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [namaSekolah, setNamaSekolah] = useState('');
 
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +58,10 @@ const LoginPage = () => {
     navigate('/');
   };
 
+  const namaSplit = namaSekolah.split(' ');
+
+  const bagianAtas = namaSplit.slice(0, -1).join(' ');
+  const bagianBawah = namaSplit.slice(-1).join(' ');
   return (
     <div
       className="min-h-screen flex items-center justify-center sm:p-4 p-2 relative overflow-hidden "

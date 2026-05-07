@@ -16,31 +16,38 @@ import heroGuru from '../../../public/Images/heroGuru.webp';
 
 const BACKEND_URL = import.meta.env.VITE_MEDIA_URL;
 
-// Helper untuk membaca URL gambar dari database
+// PERBAIKAN: Helper untuk membaca URL gambar dari database
 const getImageUrl = (fotoString) => {
-  const defaultImg =
-    'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
-  if (!fotoString) return defaultImg;
+  if (!fotoString) return null;
 
   try {
-    if (typeof fotoString === 'string' && fotoString.startsWith('[')) {
+    // 1. Jika fotoString adalah base64 (format data:image)
+    if (fotoString.startsWith('data:image')) {
+      return fotoString;
+    }
+
+    // 2. Jika fotoString adalah JSON array string (misal: '["foto.jpg"]')
+    if (fotoString.startsWith('[')) {
       const arr = JSON.parse(fotoString);
       if (Array.isArray(arr) && arr.length > 0) {
         const url = arr[0];
-        return /^https?:\/\//.test(url)
-          ? url
-          : `${BACKEND_URL}${url.startsWith('/') ? url : '/uploads/' + url}`;
+        // Jika sudah berupa http/https
+        if (/^https?:\/\//.test(url)) return url;
+        // Jika hanya nama file atau path lokal
+        return `${BACKEND_URL}${url.startsWith('/') ? url : '/uploads/' + url}`;
       }
     }
+
+    // 3. Jika fotoString adalah string biasa (URL penuh atau nama file)
     if (typeof fotoString === 'string') {
       if (/^https?:\/\//.test(fotoString)) return fotoString;
-      if (fotoString.startsWith('/')) return `${BACKEND_URL}${fotoString}`;
-      return `${BACKEND_URL}/uploads/${fotoString}`;
+      // Gabungkan dengan BACKEND_URL
+      return `${BACKEND_URL}${fotoString.startsWith('/') ? fotoString : '/uploads/' + fotoString}`;
     }
   } catch (error) {
     console.error('Error parsing image:', error);
   }
-  return defaultImg;
+  return null;
 };
 
 const DirektoriStafPages = () => {
@@ -52,8 +59,6 @@ const DirektoriStafPages = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-  // PERBAIKAN: State ini sekarang menyimpan seluruh object guru, bukan cuma URL fotonya
   const [previewedGuru, setPreviewedGuru] = useState(null);
 
   useEffect(() => {
@@ -64,7 +69,8 @@ const DirektoriStafPages = () => {
         const withFotoUrl = Array.isArray(response)
           ? response.map((guru) => ({
               ...guru,
-              foto_url: guru.foto_url ? guru.foto_url : getImageUrl(guru.foto),
+              // PERBAIKAN: Pastikan kita mem-parsing foto_url atau foto dengan helper
+              foto_url: getImageUrl(guru.foto_url || guru.foto),
             }))
           : [];
         setDataGuru(withFotoUrl);
@@ -78,6 +84,11 @@ const DirektoriStafPages = () => {
   }, []);
 
   const filteredGuru = dataGuru.filter((guru) => {
+    // Hanya tampilkan guru yang statusnya 'aktif'
+    if (guru.status && guru.status !== 'aktif') {
+      return false;
+    }
+
     const nama = guru.nama_lengkap ? guru.nama_lengkap.toLowerCase() : '';
     const jabatan = guru.jabatan ? guru.jabatan.toLowerCase() : '';
     const mapel = guru.mata_pelajaran ? guru.mata_pelajaran.toLowerCase() : '';
@@ -85,7 +96,6 @@ const DirektoriStafPages = () => {
     return nama.includes(cari) || jabatan.includes(cari) || mapel.includes(cari);
   });
 
-  // PERBAIKAN: Fungsi ini sekarang menerima 'guru' utuh
   const handlePreview = (guruObj) => {
     setPreviewedGuru(guruObj);
     setPreviewOpen(true);
@@ -93,7 +103,6 @@ const DirektoriStafPages = () => {
     document.body.style.overflow = 'hidden';
   };
 
-  // Tutup preview
   const handleClosePreview = () => {
     setPreviewOpen(false);
     setPreviewedGuru(null);
@@ -101,7 +110,6 @@ const DirektoriStafPages = () => {
     document.body.style.overflow = '';
   };
 
-  // Zoom in/out
   const handleZoom = (delta) => {
     setZoom((z) => {
       const next = z + delta;
@@ -111,7 +119,6 @@ const DirektoriStafPages = () => {
     });
   };
 
-  // Reset zoom on double click
   const handleDoubleClick = () => {
     setZoom(zoom === 1 ? 2 : 1);
   };
@@ -131,30 +138,55 @@ const DirektoriStafPages = () => {
             <FaTimes />
           </button>
 
-          <img
-            src={previewedGuru.foto_url}
-            style={{
-              maxWidth: '90vw',
-              maxHeight: '80vh',
-              objectFit: 'contain',
-              borderRadius: '1.4rem',
-              boxShadow: '0 20px 40px 0 rgba(30,41,59,.8)',
-              transform: `scale(${zoom})`,
-              transition: 'transform 0.2s',
-              cursor: zoom < 2 ? 'zoom-in' : 'zoom-out',
-            }}
-            alt={previewedGuru.nama_lengkap}
-            onWheel={(e) => {
-              e.preventDefault();
-              handleZoom(e.deltaY < 0 ? 0.2 : -0.2);
-            }}
-            onDoubleClick={handleDoubleClick}
-            tabIndex={0}
-            draggable={false}
-            onClick={() => handleClosePreview()}
-          />
+          {previewedGuru.foto_url ? (
+            <img
+              src={previewedGuru.foto_url}
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+                borderRadius: '1.4rem',
+                boxShadow: '0 20px 40px 0 rgba(30,41,59,.8)',
+                transform: `scale(${zoom})`,
+                transition: 'transform 0.2s',
+                cursor: zoom < 2 ? 'zoom-in' : 'zoom-out',
+              }}
+              alt={previewedGuru.nama_lengkap}
+              onWheel={(e) => {
+                e.preventDefault();
+                handleZoom(e.deltaY < 0 ? 0.2 : -0.2);
+              }}
+              onDoubleClick={handleDoubleClick}
+              tabIndex={0}
+              draggable={false}
+              onClick={() => handleClosePreview()}
+            />
+          ) : (
+            <div
+              style={{
+                width: '80vw',
+                maxWidth: '400px',
+                aspectRatio: '1/1',
+                backgroundColor: '#f1f5f9',
+                borderRadius: '1.4rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 20px 40px 0 rgba(30,41,59,.8)',
+                transform: `scale(${zoom})`,
+                transition: 'transform 0.2s',
+                cursor: zoom < 2 ? 'zoom-in' : 'zoom-out',
+              }}
+              onWheel={(e) => {
+                e.preventDefault();
+                handleZoom(e.deltaY < 0 ? 0.2 : -0.2);
+              }}
+              onDoubleClick={handleDoubleClick}
+              onClick={() => handleClosePreview()}>
+              <FaUserTie size={120} className="text-gray-300" />
+            </div>
+          )}
 
-          {/* PERBAIKAN: Memanggil nama_lengkap langsung dari object yang sedang di-preview */}
           <div className="absolute bottom-[85px] xs:bottom-[95px] left-1/2 -translate-x-1/2 w-auto bg-white/80 text-slate-900 font-bold text-center py-2 px-4 text-base xs:text-xl rounded-xl shadow-lg pointer-events-none z-10 select-none">
             {previewedGuru.nama_lengkap}
           </div>
@@ -165,9 +197,7 @@ const DirektoriStafPages = () => {
         </div>
       )}
 
-      {/* =========================================
-          HERO SECTION (Responsif)
-      ========================================== */}
+      {/* HERO SECTION */}
       <section className="relative w-full min-h-screen animate__animated animate__fadeInUp animate__faster sm:min-h-[70vh] md:min-h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-[#003366] overflow-hidden">
           <img
@@ -198,9 +228,7 @@ const DirektoriStafPages = () => {
         </div>
       </section>
 
-      {/* =========================================
-          SEARCH & FILTER SECTION (Responsif)
-      ========================================== */}
+      {/* SEARCH & FILTER SECTION */}
       <section className="max-w-[98vw] xs:max-w-[97vw] sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 lg:px-8 pt-7 xs:pt-12 md:pt-20 pb-8 xs:pb-12">
         <div className="flex flex-col gap-6 xs:gap-8 md:gap-8 lg:gap-10 mb-7 xs:mb-12 md:mb-12 md:flex-row md:justify-between md:items-center">
           <div className="text-center md:text-left">
@@ -224,9 +252,7 @@ const DirektoriStafPages = () => {
           </div>
         </div>
 
-        {/* =========================================
-            STAFF GRID LAYOUT (Responsif)
-        ========================================== */}
+        {/* STAFF GRID LAYOUT */}
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-10 w-10 xs:h-12 xs:w-12 border-b-2 border-[#003366]" />
@@ -254,29 +280,36 @@ const DirektoriStafPages = () => {
                     h-[240px] xs:h-[280px] sm:h-[420px]
                   ">
                   {/* IMAGE PREVIEW + ZOOM */}
-                  <div className="relative w-full h-full cursor-zoom-in group">
-                    <img
-                      src={guru.foto_url}
-                      alt={guru.nama_lengkap}
-                      className="
-                        w-full h-full object-cover
-                        transition-transform duration-700 group-hover:scale-105
-                        min-h-[120px] xs:min-h-[160px] sm:min-h-[260px]
-                      "
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://placehold.co/600x800/e2e8f0/64748b?text=Tanpa+Foto';
-                      }}
-                      // PERBAIKAN: Memasukkan seluruh object guru
-                      onClick={() => handlePreview(guru)}
-                      tabIndex={0}
-                      style={{ cursor: 'zoom-in' }}
-                    />
+                  <div className="relative w-full h-full cursor-zoom-in group bg-gray-100 flex items-center justify-center">
+                    {guru.foto_url ? (
+                      <img
+                        src={guru.foto_url}
+                        alt={guru.nama_lengkap}
+                        className="
+                          w-full h-full object-cover
+                          transition-transform duration-700 group-hover:scale-105
+                          min-h-[120px] xs:min-h-[160px] sm:min-h-[260px]
+                        "
+                        onError={(e) => {
+                          // PERBAIKAN: Sembunyikan gambar jika gagal dimuat
+                          e.target.style.display = 'none';
+                        }}
+                        onClick={() => handlePreview(guru)}
+                        tabIndex={0}
+                        style={{ cursor: 'zoom-in' }}
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center transition-transform duration-700 group-hover:scale-105"
+                        onClick={() => handlePreview(guru)}>
+                        <FaUserTie className="text-gray-300 text-6xl sm:text-8xl" />
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       title="Perbesar foto"
                       className="absolute top-[10px] right-[10px] sm:top-[20px] sm:right-[20px] z-10 bg-black/30 group-hover:bg-black/60 text-white rounded-full p-[6px] sm:p-2 opacity-0 group-hover:opacity-100 transition focus:opacity-100 focus:outline-none"
-                      // PERBAIKAN: Memasukkan seluruh object guru
                       onClick={() => handlePreview(guru)}
                       tabIndex={0}>
                       <FaSearchPlus className="text-sm sm:text-lg" />

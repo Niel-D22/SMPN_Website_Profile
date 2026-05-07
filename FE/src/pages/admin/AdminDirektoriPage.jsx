@@ -69,11 +69,37 @@ const AdminDirektoriPage = () => {
     }
   };
 
+  const handleNonaktifkan = async (id) => {
+    try {
+      await direktoriApi.nonaktifkanGuru(id);
+
+      toast.success('Guru berhasil dinonaktifkan');
+
+      fetchGurus();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Gagal menonaktifkan guru');
+    }
+  };
+
+  const handleAktifkan = async (id) => {
+    try {
+      await direktoriApi.aktifkanGuru(id);
+
+      toast.success('Guru berhasil diaktifkan kembali');
+
+      fetchGurus();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Gagal mengaktifkan guru');
+    }
+  };
+
   const filteredGurus = gurus.filter((g) => {
     const matchSearch =
       g.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (g.mata_pelajaran && g.mata_pelajaran.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const matchJabatan = filterJabatan === 'Semua' || g.jabatan === filterJabatan;
+
     return matchSearch && matchJabatan;
   });
 
@@ -168,6 +194,8 @@ const AdminDirektoriPage = () => {
                 setItemToDelete(id);
                 setIsDeleteModalOpen(true);
               }}
+              onNonaktifkan={handleNonaktifkan}
+              onAktifkan={handleAktifkan}
             />
           ))}
         </div>
