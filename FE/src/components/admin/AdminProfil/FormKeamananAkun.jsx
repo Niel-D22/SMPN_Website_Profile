@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { profilApi } from '../../../Api/adminProfilApi';
+import { profilApi } from '../../../Api/AdminProfilApi';
 import { toast } from 'react-toastify'; // Sesuaikan jika pakai react-hot-toast
 import ModalKonfirmasi from '../ModalKonfirmasi';
 

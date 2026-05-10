@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser, FaEnvelope, FaSave } from 'react-icons/fa';
-import { profilApi } from '../../../Api/adminProfilApi';
+import { profilApi } from '../../../Api/AdminProfilApi';
 import toast from 'react-hot-toast'; // Sesuaikan jika kamu pakai react-hot-toast
 import ModalKonfirmasi from '../ModalKonfirmasi'; // Sesuaikan path-nya
 
