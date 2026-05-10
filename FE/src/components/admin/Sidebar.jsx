@@ -16,7 +16,7 @@ import {
   FaAngleLeft,
   FaAngleRight,
 } from 'react-icons/fa';
-import { profilApi } from '../../Api/adminProfilApi';
+import { profilApi } from '../../Api/profilApi';
 
 const TutWuriHandayaniImg = ({ size = 56, className = '' }) => (
   <img
