@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { profilApi } from '../../Api/adminProfilApi'; // Pastikan path axios sudah benar
+import { profilApi } from '../../Api/adminProfilApi';
 import toast from 'react-hot-toast';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import 'animate.css';
@@ -20,11 +20,10 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Ambil data profil sekolah untuk logo_url dan nama_sekolah
     const fetchProfilSekolah = async () => {
       try {
         const data = await profilSekolahApi.getProfilSekolah();
-        setLogoUrl(data.logo_url || '/Images/LogoSekolah.png'); // fallback ke default jika tidak ada
+        setLogoUrl(data.logo_url || '/Images/LogoSekolah.png');
         setNamaSekolah(data.nama_sekolah || 'SMP Negeri 3 Manado');
       } catch (err) {
         setLogoUrl('/Images/LogoSekolah.png');
