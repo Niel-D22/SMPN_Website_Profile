@@ -6,7 +6,7 @@ import { profilApi } from '../../Api/adminProfilApi';
 
 const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null); // Tambahan untuk menutup dropdown saat klik di luar
+  const dropdownRef = useRef(null);
   const [adminProfile, setAdminProfile] = useState({
     id_admin: 1,
     username: 'adminSmp3',
@@ -15,7 +15,6 @@ const Header = ({ onMobileMenuClick }) => {
   });
   const navigate = useNavigate();
 
-  // Fetch profil admin saat mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
