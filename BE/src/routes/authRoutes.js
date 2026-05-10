@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const verifyToken = require('../middlewares/auth');
 
-// Jalur untuk Login: http://localhost:3000/api/auth/login
+// Jalur untuk Login: http://localhost:3000/api/auth
 router.post('/', authController.login);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password/:token', authController.resetPassword);

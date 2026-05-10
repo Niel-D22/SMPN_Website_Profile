@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import api from '../../Api/axios'; // Pastikan path axios sudah benar
+import { profilApi } from '../../Api/adminProfilApi'; // Pastikan path axios sudah benar
 import toast from 'react-hot-toast';
 import { profilSekolahApi } from '../../Api/profilSekolahApi';
 import 'animate.css';
@@ -37,22 +37,28 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const res = await api.post('/auth', { username, password });
 
-      // Simpan data ke localStorage
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('admin_nama', res.data.nama);
+    try {
+      const res = await profilApi.login({
+        username,
+        password,
+      });
+
+      console.log(res);
+
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('admin_nama', res.nama);
 
       toast.success('Login Berhasil!');
       navigate('/admin/dashboard');
     } catch (err) {
+      console.log(err.response?.data);
+
       toast.error(err.response?.data?.message || 'Login Gagal, periksa koneksi anda');
     } finally {
       setLoading(false);
     }
   };
-
   // Handler untuk button back
   const handleBack = () => {
     navigate('/');

@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaBars, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-// Import profilApi dari adminProfilApi untuk fetch profil admin
-import { profilApi } from '../../Api/AdminProfilApi';
+import { profilApi } from '../../Api/adminProfilApi';
 
 const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

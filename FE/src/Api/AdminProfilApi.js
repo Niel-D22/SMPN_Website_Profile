@@ -3,7 +3,7 @@ import api from './axios'; // Pastikan path import-nya sesuai
 export const profilApi = {
   // Login
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
+    const response = await api.post('/auth', credentials);
     return response.data;
   },
 
