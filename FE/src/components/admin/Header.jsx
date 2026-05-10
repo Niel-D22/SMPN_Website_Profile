@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 // Import profilApi dari adminProfilApi untuk fetch profil admin
-import { profilApi } from '../../Api/profilApi';
+import { profilApi } from '../../Api/AdminProfilApi';
 
 const Header = ({ onMobileMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FormInformasiDasar from '../../components/admin/AdminProfil/FormInformasiDasar';
 import FormKeamananAkun from '../../components/admin/AdminProfil/FormKeamananAkun';
-import { profilApi } from '../../Api/profilApi';
+import { profilApi } from '../../Api/AdminProfilApi';
 import Skeleton from '../../components/ui/Skeleton'; // Sesuaikan path import-nya!
 import toast from 'react-hot-toast';
 import 'animate.css';
