@@ -45,7 +45,6 @@ const login = async (req, res) => {
       toaster: { type: 'success', text: 'Login Berhasil' },
     });
   } catch (err) {
-    // console.error('Error detail:', err);
     return toasterError(res, 'Terjadi kesalahan server', 500);
   }
 };
